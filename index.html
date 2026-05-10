@@ -366,6 +366,7 @@
     <span class="logo-text">AI Agent 学习指南</span>
   </div>
   <div class="top-bar-right">
+    <button class="btn btn-sm" id="authBtn" style="margin-right:8px;">👤 登录</button>
     <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
     <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
     <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
@@ -786,7 +787,7 @@
 </div>
 
 <!-- Notes Panel -->
-<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:108px;width:46px;height:46px;border-radius:50%;z-index:85;background:var(--bg-tertiary);">📝</button>
+<button class="btn btn-icon notes-toggle" id="notesToggle" title="笔记">📝</button>
 <div class="sim-panel" id="notesPanel" style="right:108px;">
   <div class="sim-header">
     <strong>📒 我的笔记</strong>
@@ -826,6 +827,7 @@
 <!-- Scripts -->
 <script src="js/core.js"></script>
 <script src="js/theme.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/progress-tracker.js"></script>
 <script src="js/quiz-engine.js"></script>
 <script src="js/search.js"></script>
@@ -835,6 +837,7 @@
 <script src="js/achievements.js"></script>
 <script src="js/learning-path.js"></script>
 <script src="js/bookmarks.js"></script>
+<script src="js/draggable.js"></script>
 <script>
 // Mobile menu button visibility
 (function() {

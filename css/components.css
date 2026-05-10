@@ -657,8 +657,8 @@ tbody tr:hover td {
 /* ---- Agent Sim Panel ---- */
 .sim-toggle {
   position: fixed;
-  bottom: 32px;
-  right: 32px;
+  bottom: 120px;
+  right: 20px;
   width: 58px;
   height: 58px;
   border-radius: 50%;
@@ -673,6 +673,7 @@ tbody tr:hover td {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: none;
 }
 
 .sim-toggle:hover { transform: scale(1.08); box-shadow: 0 8px 40px rgba(0, 229, 255, 0.6); }
@@ -844,8 +845,8 @@ tbody tr:hover td {
 /* ---- Notes Panel & Toggle ---- */
 .notes-toggle {
   position: fixed;
-  bottom: 32px;
-  right: 108px;
+  bottom: 60px;
+  right: 20px;
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -855,14 +856,23 @@ tbody tr:hover td {
   font-size: 20px;
   cursor: pointer;
   z-index: 85;
-  transition: all var(--ease-fast);
+  transition: all var(--ease-base);
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: none;
 }
 .notes-toggle:hover {
   border-color: var(--accent-cyan);
   box-shadow: 0 0 20px var(--border-glow-cyan);
+}
+
+.sim-toggle.dragging,
+.notes-toggle.dragging {
+  opacity: 0.8;
+  cursor: grabbing;
+  transition: none;
+  z-index: 999;
 }
 
 .notes-panel {
@@ -1049,14 +1059,14 @@ tbody tr:hover td {
   }
   .sim-toggle {
     right: 12px;
-    bottom: 72px;
+    bottom: 140px;
     width: 50px;
     height: 50px;
     font-size: 22px;
   }
   .notes-toggle {
-    right: 76px;
-    bottom: 72px;
+    right: 12px;
+    bottom: 78px;
     width: 42px;
     height: 42px;
     font-size: 18px;

@@ -1,6 +1,11 @@
 /**
  * Notes System — Agent 学习平台
  * 笔记管理功能
+ *
+ * 存储策略：
+ * - 未登录时，数据存储在 al_notes（前缀 al_）
+ * - 登录后，数据存储在 al_data_{username}_notes（前缀由 Auth 模块动态设置）
+ * - AL.Store._prefix 由 auth.js 在初始化时根据登录状态自动调整
  */
 (function(AL) {
   'use strict';
