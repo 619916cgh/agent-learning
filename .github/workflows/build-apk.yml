@@ -22,24 +22,37 @@ jobs:
           echo "$PWD/gradle-8.5/bin" >> $GITHUB_PATH
 
       - name: Setup Android SDK
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
         run: |
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -qo commandlinetools-linux-11076708_latest.zip
-          mkdir -p $HOME/android-sdk
-          yes | cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses 2>/dev/null || true
-          cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platforms;android-34" "build-tools;34.0.0"
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          if [ -d "/usr/local/lib/android/sdk" ]; then
+            echo "Using pre-installed Android SDK"
+            yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+            /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" 2>/dev/null || true
+          else
+            echo "Downloading Android SDK..."
+            wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            unzip -qo commandlinetools-linux-11076708_latest.zip
+            mkdir -p $HOME/android-sdk/cmdline-tools
+            mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+            echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          fi
+          echo "ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}" >> $GITHUB_ENV
 
       - name: Generate Wrapper
         working-directory: android
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
         run: gradle wrapper --gradle-version 8.5
 
       - name: Build APK
         working-directory: android
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
         run: ./gradlew assembleRelease
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Agent学习-APK
+          name: APK
           path: android/app/build/outputs/apk/release/
