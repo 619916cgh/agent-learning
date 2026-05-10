@@ -819,57 +819,15 @@
 <nav class="bottom-mobile-nav" id="bottomNav">
   <a href="index.html" class="active"><span class="nav-icon-mobile">🏠</span>首页</a>
   <a href="chapters/01-what-is-agent.html"><span class="nav-icon-mobile">📚</span>章节</a>
-  <button id="mobileSearchBtn"><span class="nav-icon-mobile">🔍</span>搜索</button>
   <button id="mobileSimBtn"><span class="nav-icon-mobile">🤖</span>模拟器</button>
-  <button id="mobileThemeBtn"><span class="nav-icon-mobile">🌓</span>主题</button>
+  <a href="profile.html"><span class="nav-icon-mobile">👤</span>我的</a>
 </nav>
 
-<!-- Scripts -->
-<script src="js/core.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/progress-tracker.js"></script>
-<script src="js/quiz-engine.js"></script>
-<script src="js/search.js"></script>
-<script src="js/agent-simulator.js"></script>
-<script src="js/notes-system.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/achievements.js"></script>
-<script src="js/learning-path.js"></script>
-<script src="js/bookmarks.js"></script>
-<script src="js/draggable.js"></script>
 <script>
-// Mobile menu button visibility
-(function() {
-  const mq = window.matchMedia('(max-width: 1024px)');
-  function update() {
-    const btn = document.getElementById('mobileMenuBtn');
-    if (btn) btn.style.display = mq.matches ? 'flex' : 'none';
-  }
-  mq.addEventListener('change', update);
-  update();
-})();
-
-// Bottom mobile nav handlers
-(function() {
-  var searchBtn = document.getElementById('mobileSearchBtn');
-  var simBtn = document.getElementById('mobileSimBtn');
-  var themeBtn = document.getElementById('mobileThemeBtn');
-  if (searchBtn) searchBtn.addEventListener('click', function() {
-    var sp = document.getElementById('searchPanel');
-    if (sp) sp.classList.toggle('active');
-  });
-  if (simBtn) simBtn.addEventListener('click', function() {
-    var sp = document.getElementById('simPanel');
-    if (sp) sp.classList.toggle('active');
-  });
-  if (themeBtn) themeBtn.addEventListener('click', function() {
-    var current = document.documentElement.getAttribute('data-theme') || 'dark';
-    var next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    themeBtn.querySelector('.nav-icon-mobile').textContent = next === 'dark' ? '🌓' : '☀️';
-  });
-})();
+document.getElementById('mobileSimBtn').addEventListener('click', function() {
+  var sp = document.getElementById('simPanel');
+  if (sp) sp.classList.toggle('active');
+});
 </script>
 <!-- Service Worker -->
 <script>

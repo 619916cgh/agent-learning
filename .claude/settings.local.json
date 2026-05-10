@@ -6,7 +6,8 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" \"https://619916cgh.github.io/agent-learning/manifest.json\")",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" \"https://619916cgh.github.io/agent-learning/sw.js\")",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" \"https://619916cgh.github.io/agent-learning/icon-192.png\")",
-      "WebFetch(domain:619916cgh.github.io)"
+      "WebFetch(domain:619916cgh.github.io)",
+      "Bash(python -c \"print\\('hello'\\)\")"
     ]
   }
 }

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的 — AI Agent 学习指南</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agent学习">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+/* Profile Page Specific Styles */
+.profile-hero {
+  text-align: center;
+  padding: 40px 0 32px;
+}
+.profile-hero h1 {
+  font-size: 2.4rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.profile-hero p {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* Welcome Section */
+.welcome-section {
+  text-align: center;
+  padding: 32px 24px;
+  margin-bottom: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+.welcome-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 16px;
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.3);
+}
+.welcome-msg {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.welcome-role {
+  display: inline-block;
+  font-size: 12px;
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+/* Stats Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  transition: all var(--ease-base);
+}
+.stat-card:hover {
+  border-color: var(--border-glow-cyan);
+  box-shadow: var(--shadow-glow-cyan);
+  transform: translateY(-2px);
+}
+.stat-card-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+.stat-card-value {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-card-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Section Cards */
+.profile-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+.profile-section h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile-section h2 .sec-icon {
+  font-size: 1.3rem;
+}
+
+/* Login/Register Form */
+.auth-form-wrapper {
+  max-width: 440px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: 0 0 48px rgba(0, 229, 255, 0.08);
+}
+.auth-form-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+.auth-form-tab {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
+}
+.auth-form-tab:hover {
+  color: var(--text-primary);
+}
+.auth-form-tab.active {
+  background: var(--bg-card);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+}
+.auth-form-tab-content {
+  display: block;
+}
+.auth-form-tab-hidden {
+  display: none;
+}
+.auth-field {
+  margin-bottom: 16px;
+}
+.auth-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.auth-field input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.auth-field input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.12);
+}
+.auth-field input::placeholder {
+  color: var(--text-muted);
+}
+.auth-submit-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font-body);
+  box-shadow: 0 4px 16px rgba(0, 229, 255, 0.25);
+  margin-top: 8px;
+}
+.auth-submit-btn:hover {
+  box-shadow: 0 6px 28px rgba(0, 229, 255, 0.45);
+  transform: translateY(-2px);
+}
+.auth-hint-text {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+/* Logout Button */
+.logout-btn {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 24px auto 0;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-red);
+  border-radius: var(--radius-md);
+  color: var(--accent-red);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
+}
+.logout-btn:hover {
+  background: rgba(255, 61, 90, 0.1);
+  box-shadow: 0 0 16px rgba(255, 61, 90, 0.2);
+}
+
+/* Admin Section */
+.admin-link-card {
+  display: block;
+  text-align: center;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(180, 74, 238, 0.08), rgba(0, 229, 255, 0.05));
+  border: 1px solid rgba(180, 74, 238, 0.3);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--ease-base);
+  cursor: pointer;
+}
+.admin-link-card:hover {
+  border-color: var(--accent-purple);
+  box-shadow: var(--shadow-glow-purple);
+  transform: translateY(-2px);
+}
+.admin-link-card .admin-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.admin-link-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--accent-purple);
+}
+.admin-link-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Achievement container for profile */
+#profileAchievementsGrid {
+  min-height: 80px;
+}
+
+/* Bookmark container for profile */
+#profileBookmarksList {
+  min-height: 60px;
+}
+
+@media (max-width: 640px) {
+  .profile-hero h1 { font-size: 1.8rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .profile-section { padding: 18px 16px; }
+  .auth-form-wrapper { padding: 24px 18px; margin: 0 8px; }
+}
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单" style="display:none;">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-sm" id="authBtn" style="margin-right:8px;">👤 登录</button>
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">📚 学习章节</div>
+  <a href="chapters/01-what-is-agent.html" class="nav-link" data-chapter="1">01 · 什么是 AI Agent</a>
+  <a href="chapters/02-core-architecture.html" class="nav-link" data-chapter="2">02 · 核心架构</a>
+  <a href="chapters/03-tool-calling.html" class="nav-link" data-chapter="3">03 · 工具调用机制</a>
+  <a href="chapters/04-memory-management.html" class="nav-link" data-chapter="4">04 · 记忆与状态管理</a>
+  <a href="chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5">05 · 推理与规划</a>
+  <a href="chapters/06-multi-agent.html" class="nav-link" data-chapter="6">06 · 多Agent系统</a>
+  <a href="chapters/07-safety-reliability.html" class="nav-link" data-chapter="7">07 · 安全与可靠性</a>
+  <a href="chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8">08 · 提示词工程</a>
+  <a href="chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9">09 · Agent框架生态</a>
+  <a href="chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10">10 · 评估与测试</a>
+  <a href="chapters/11-deployment-ops.html" class="nav-link" data-chapter="11">11 · 部署与运维</a>
+  <a href="chapters/12-future-trends.html" class="nav-link" data-chapter="12">12 · 未来趋势</a>
+  <a href="chapters/13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个Agent</a>
+  <a href="chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="chapters/15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="chapters/16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="reference/case-studies.html" class="nav-link">💼 案例研究</a>
+  <a href="reference/api-integration-deep-dive.html" class="nav-link">🔌 API与集成深度指南</a>
+
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>学习进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+  <div class="container">
+
+    <!-- Profile Hero -->
+    <div class="profile-hero">
+      <h1>👤 我的</h1>
+      <p>个人中心 · 学习数据 · 书签与成就</p>
+    </div>
+
+    <!-- Dynamic content area: shows login form or user dashboard -->
+    <div id="profileContent">
+      <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">加载中...</div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Bottom Mobile Navigation -->
+<nav class="bottom-mobile-nav" id="bottomNav">
+  <a href="index.html"><span class="nav-icon-mobile">🏠</span>首页</a>
+  <a href="chapters/01-what-is-agent.html" class="active"><span class="nav-icon-mobile">📚</span>章节</a>
+  <button id="mobileSimBtn"><span class="nav-icon-mobile">🤖</span>模拟器</button>
+  <a href="profile.html"><span class="nav-icon-mobile">👤</span>我的</a>
+</nav>
+
+<!-- Scripts -->
+<script src="js/core.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/progress-tracker.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/bookmarks.js"></script>
+<script src="js/notes-system.js"></script>
+<script src="js/search.js"></script>
+<script src="js/navigation.js"></script>
+
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(function(reg) { console.log('SW registered:', reg.scope); })
+    .catch(function(err) { console.log('SW failed:', err); });
+}
+</script>
+
+<!-- Bottom Nav Handlers -->
+<script>
+(function() {
+  var simBtn = document.getElementById('mobileSimBtn');
+  if (simBtn) simBtn.addEventListener('click', function() {
+    var sp = document.getElementById('simPanel');
+    if (sp) sp.classList.toggle('active');
+  });
+})();
+</script>
+
+<!-- Profile Page Logic -->
+<script>
+(function() {
+  'use strict';
+
+  var TOTAL_CHAPTERS = 16;
+  var container = document.getElementById('profileContent');
+  if (!container) return;
+
+  function render() {
+    var AL = window.AgentLearn;
+    if (!AL || !AL.Auth) {
+      // Auth module not ready yet, wait
+      setTimeout(render, 150);
+      return;
+    }
+
+    var currentUser = AL.Auth.getCurrentUser();
+    if (!currentUser) {
+      renderLoginForm();
+    } else {
+      renderUserDashboard(currentUser);
+    }
+  }
+
+  // ============ Login/Register Form ============
+  function renderLoginForm() {
+    container.innerHTML = '\
+      <div class="auth-form-wrapper">\
+        <div class="auth-form-tabs">\
+          <button class="auth-form-tab active" data-tab="login" id="tabLogin">登录</button>\
+          <button class="auth-form-tab" data-tab="register" id="tabRegister">注册</button>\
+        </div>\
+        <div class="auth-form-tab-content" id="formLogin">\
+          <div class="auth-field">\
+            <label>用户名</label>\
+            <input type="text" id="loginUser" placeholder="请输入用户名" autocomplete="off">\
+          </div>\
+          <div class="auth-field">\
+            <label>密码</label>\
+            <input type="password" id="loginPass" placeholder="请输入密码" autocomplete="off">\
+          </div>\
+          <button class="auth-submit-btn" id="btnLogin">登录</button>\
+          <p class="auth-hint-text">演示账户: admin / admin123</p>\
+        </div>\
+        <div class="auth-form-tab-content auth-form-tab-hidden" id="formRegister">\
+          <div class="auth-field">\
+            <label>用户名</label>\
+            <input type="text" id="regUser" placeholder="至少2个字符" autocomplete="off">\
+          </div>\
+          <div class="auth-field">\
+            <label>密码</label>\
+            <input type="password" id="regPass" placeholder="至少4个字符" autocomplete="off">\
+          </div>\
+          <div class="auth-field">\
+            <label>确认密码</label>\
+            <input type="password" id="regPass2" placeholder="请再次输入密码" autocomplete="off">\
+          </div>\
+          <button class="auth-submit-btn" id="btnRegister">注册</button>\
+        </div>\
+      </div>\
+    ';
+
+    // Tab switching
+    document.getElementById('tabLogin').addEventListener('click', function() {
+      document.getElementById('tabLogin').classList.add('active');
+      document.getElementById('tabRegister').classList.remove('active');
+      document.getElementById('formLogin').classList.remove('auth-form-tab-hidden');
+      document.getElementById('formRegister').classList.add('auth-form-tab-hidden');
+    });
+    document.getElementById('tabRegister').addEventListener('click', function() {
+      document.getElementById('tabRegister').classList.add('active');
+      document.getElementById('tabLogin').classList.remove('active');
+      document.getElementById('formRegister').classList.remove('auth-form-tab-hidden');
+      document.getElementById('formLogin').classList.add('auth-form-tab-hidden');
+    });
+
+    // Login button
+    document.getElementById('btnLogin').addEventListener('click', function() {
+      var u = document.getElementById('loginUser').value;
+      var p = document.getElementById('loginPass').value;
+      AgentLearn.Auth.login(u, p);
+    });
+
+    // Register button
+    document.getElementById('btnRegister').addEventListener('click', function() {
+      var u = document.getElementById('regUser').value;
+      var p = document.getElementById('regPass').value;
+      var p2 = document.getElementById('regPass2').value;
+      if (p !== p2) {
+        AgentLearn.toast('两次输入的密码不一致', 'error');
+        return;
+      }
+      AgentLearn.Auth.register(u, p);
+    });
+
+    // Enter key to submit
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var activeForm = document.getElementById('formLogin');
+        if (activeForm && !activeForm.classList.contains('auth-form-tab-hidden')) {
+          document.getElementById('btnLogin').click();
+        } else {
+          var btnReg = document.getElementById('btnRegister');
+          if (btnReg) btnReg.click();
+        }
+      }
+    });
+  }
+
+  // ============ User Dashboard ============
+  function renderUserDashboard(username) {
+    var AL = window.AgentLearn;
+    var isUserAdmin = AL.Auth.isAdmin();
+    var progress = AL.Auth.getUserProgress(username);
+
+    var chaptersRead = progress.chaptersRead || 0;
+    var quizzesDone = progress.quizzesDone || 0;
+    var notesCount = progress.notesCount || 0;
+
+    // Calculate quiz pass rate
+    var passRate = TOTAL_CHAPTERS > 0 ? Math.round((quizzesDone / TOTAL_CHAPTERS) * 100) : 0;
+
+    // Calculate streak days from achievements data
+    var streakDays = 0;
+    try {
+      var storeData = AL.Store.get('achievements', {});
+      var studyDates = storeData.studyDates || [];
+      if (studyDates.length > 0) {
+        var sorted = studyDates.slice().sort().reverse();
+        var today = new Date().toLocaleDateString('zh-CN');
+        var checkDate = new Date();
+        // Check consecutive days going backwards
+        var consecutiveSet = new Set(studyDates);
+        while (true) {
+          var dateStr = checkDate.toLocaleDateString('zh-CN');
+          if (consecutiveSet.has(dateStr)) {
+            streakDays++;
+            checkDate.setDate(checkDate.getDate() - 1);
+          } else {
+            // Also check if today is in the set, if not check yesterday
+            if (streakDays === 0 && consecutiveSet.has(
+              new Date(checkDate.getTime() - 86400000).toLocaleDateString('zh-CN')
+            )) {
+              checkDate.setDate(checkDate.getDate() - 1);
+              continue;
+            }
+            break;
+          }
+        }
+      }
+    } catch(e) { streakDays = 0; }
+
+    var earnedCount = 0;
+    if (AL.Achievements && AL.Achievements.getAll) {
+      var allAch = AL.Achievements.getAll();
+      earnedCount = allAch.filter(function(a) { return a.earned; }).length;
+    }
+
+    var html = '';
+
+    // Welcome section
+    html += '\
+      <div class="welcome-section">\
+        <div class="welcome-avatar">&#x1F464;</div>\
+        <div class="welcome-msg">&#x1F44B; 欢迎回来，' + AL.escapeHtml(username) + '！</div>\
+        <span class="welcome-role">' + (isUserAdmin ? '管理员' : '普通用户') + '</span>\
+      </div>\
+    ';
+
+    // Stats Cards
+    html += '\
+      <div class="stats-grid">\
+        <div class="stat-card">\
+          <div class="stat-card-icon">&#x1F4DA;</div>\
+          <div class="stat-card-value">' + chaptersRead + ' <span style="font-size:0.9rem;">/ ' + TOTAL_CHAPTERS + '</span></div>\
+          <div class="stat-card-label">已完成章节</div>\
+        </div>\
+        <div class="stat-card">\
+          <div class="stat-card-icon">&#x1F3AF;</div>\
+          <div class="stat-card-value">' + passRate + '%</div>\
+          <div class="stat-card-label">测验通过率</div>\
+        </div>\
+        <div class="stat-card">\
+          <div class="stat-card-icon">&#x1F4DD;</div>\
+          <div class="stat-card-value">' + notesCount + '</div>\
+          <div class="stat-card-label">笔记数</div>\
+        </div>\
+        <div class="stat-card">\
+          <div class="stat-card-icon">&#x1F525;</div>\
+          <div class="stat-card-value">' + streakDays + '</div>\
+          <div class="stat-card-label">连续学习 (天)</div>\
+        </div>\
+      </div>\
+    ';
+
+    // Bookmarks Section
+    html += '\
+      <div class="profile-section">\
+        <h2><span class="sec-icon">&#x1F516;</span> 我的书签</h2>\
+        <div id="profileBookmarksList"></div>\
+      </div>\
+    ';
+
+    // Achievements Section
+    html += '\
+      <div class="profile-section">\
+        <h2><span class="sec-icon">&#x1F3C6;</span> 成就徽章 <span style="font-size:0.85rem;font-weight:400;color:var(--accent-cyan);margin-left:8px;">' + earnedCount + ' / ' + (AL.Achievements && AL.Achievements.ACHIEVEMENTS ? AL.Achievements.ACHIEVEMENTS.length : 12) + ' 已解锁</span></h2>\
+        <div id="profileAchievementsGrid"></div>\
+      </div>\
+    ';
+
+    // Admin Section
+    if (isUserAdmin) {
+      html += '\
+        <div class="profile-section">\
+          <h2><span class="sec-icon">&#x1F6E0;</span> 管理功能</h2>\
+          <a href="admin.html" class="admin-link-card">\
+            <div class="admin-icon">&#x1F512;</div>\
+            <h3>进入管理面板</h3>\
+            <p>查看所有用户的学习数据与进度统计</p>\
+          </a>\
+        </div>\
+      ';
+    }
+
+    // Logout button
+    html += '\
+      <button class="logout-btn" id="btnLogout">退出登录</button>\
+    ';
+
+    container.innerHTML = html;
+
+    // Bind logout
+    var logoutBtn = document.getElementById('btnLogout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function() {
+        AL.Auth.logout();
+      });
+    }
+
+    // Render bookmarks
+    if (AL.Bookmarks && AL.Bookmarks.renderBookmarkList) {
+      AL.Bookmarks.renderBookmarkList('profileBookmarksList');
+    }
+
+    // Render achievements
+    if (AL.Achievements && AL.Achievements.render) {
+      // Achievements.render() targets #achievementsGrid by default
+      // We need to render into #profileAchievementsGrid
+      // Use the internal render logic adapted for our container
+      renderAchievementsInline();
+    }
+  }
+
+  function renderAchievementsInline() {
+    var AL = window.AgentLearn;
+    var container = document.getElementById('profileAchievementsGrid');
+    if (!container || !AL.Achievements || !AL.Achievements.getAll) return;
+
+    var achievements = AL.Achievements.getAll();
+    if (achievements.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:24px;">暂无成就数据</div>';
+      return;
+    }
+
+    var html = '<div class="achievements-grid">';
+    achievements.forEach(function(a) {
+      var earned = a.earned;
+      var stateClass = earned ? 'earned' : 'unearned';
+      var dateHtml = earned && a.earnedDate
+        ? '<div class="ab-date">' + AL.formatDate(a.earnedDate) + '</div>'
+        : '';
+      html += '\
+        <div class="achievement-badge ' + stateClass + '" data-achievement="' + a.id + '">\
+          <div class="ab-icon">' + a.icon + '</div>\
+          <div class="ab-info">\
+            <div class="ab-name">' + a.name + '</div>\
+            <div class="ab-desc">' + a.description + '</div>\
+            ' + dateHtml + '\
+          </div>\
+        </div>\
+      ';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  // Start rendering when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      // Small delay to ensure all modules are initialized
+      setTimeout(render, 200);
+    });
+  } else {
+    setTimeout(render, 200);
+  }
+})();
+</script>
+
+</body>
+</html>

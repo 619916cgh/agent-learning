@@ -2,7 +2,7 @@ const AgentLearn = window.AgentLearn || {};
 (function(AL) {
   'use strict';
 
-  var LONG_PRESS_DURATION = 300; // 长按 300ms 触发拖拽
+  var LONG_PRESS_DURATION = 1000;
   var STORAGE_KEYS = { sim: 'al_sim_pos', notes: 'al_notes_pos' };
 
   function init() {
@@ -30,8 +30,7 @@ const AgentLearn = window.AgentLearn || {};
     }
 
     function onStart(e) {
-      // 阻止默认行为以避免触摸时页面滚动等问题
-      if (e.touches && e.touches.length > 1) return; // 多指忽略
+      if (e.touches && e.touches.length > 1) return;
       var point = e.touches ? e.touches[0] : e;
       startX = point.clientX;
       startY = point.clientY;
@@ -45,7 +44,8 @@ const AgentLearn = window.AgentLearn || {};
         isDragging = true;
         el.classList.add('dragging');
         el.style.transition = 'none';
-        el.style.transform = 'scale(1.15)';
+        el.style.transform = 'scale(1.2)';
+        el.style.zIndex = '999';
       }, LONG_PRESS_DURATION);
     }
 
@@ -58,7 +58,7 @@ const AgentLearn = window.AgentLearn || {};
       var dy = startY - point.clientY;
 
       var newRight = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, startRight + dx));
-      var newBottom = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, startBottom + dy));
+      var newBottom = Math.max(0, Math.min(window.innerHeight - el.offsetHeight - 56, startBottom + dy));
 
       el.style.right = newRight + 'px';
       el.style.bottom = newBottom + 'px';
@@ -81,10 +81,10 @@ const AgentLearn = window.AgentLearn || {};
         el.classList.remove('dragging');
         el.style.transform = '';
         el.style.transition = '';
+        el.style.zIndex = '';
 
         if (hasMoved) {
           savePosition(el, storageKey);
-          // 拖拽结束后阻止本次 click 冒泡，避免误触发 toggle 面板
           var block = function(ev) {
             ev.stopPropagation();
             ev.preventDefault();
@@ -95,12 +95,10 @@ const AgentLearn = window.AgentLearn || {};
       }
     }
 
-    // 鼠标事件
     el.addEventListener('mousedown', onStart);
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onEnd);
 
-    // 触摸事件
     el.addEventListener('touchstart', onStart, { passive: false });
     document.addEventListener('touchmove', onMove, { passive: false });
     document.addEventListener('touchend', onEnd);
@@ -109,22 +107,34 @@ const AgentLearn = window.AgentLearn || {};
   function savePosition(el, key) {
     try {
       var pos = { right: parseInt(el.style.right, 10), bottom: parseInt(el.style.bottom, 10) };
-      localStorage.setItem(key, JSON.stringify(pos));
+      if (!isNaN(pos.right) && !isNaN(pos.bottom)) {
+        localStorage.setItem(key, JSON.stringify(pos));
+      }
     } catch (ignored) {}
   }
 
   function restorePosition(el, key) {
     try {
       var raw = localStorage.getItem(key);
-      if (!raw) return;
-      var pos = JSON.parse(raw);
-      if (pos && typeof pos.right === 'number' && typeof pos.bottom === 'number') {
-        el.style.right = pos.right + 'px';
-        el.style.bottom = pos.bottom + 'px';
-        el.style.left = 'auto';
-        el.style.top = 'auto';
+      if (raw) {
+        var pos = JSON.parse(raw);
+        if (pos && typeof pos.right === 'number' && typeof pos.bottom === 'number') {
+          el.style.right = pos.right + 'px';
+          el.style.bottom = pos.bottom + 'px';
+          el.style.left = 'auto';
+          el.style.top = 'auto';
+          return;
+        }
       }
     } catch (ignored) {}
+    // Fallback: read position from CSS
+    var cs = getComputedStyle(el);
+    if (cs.right !== 'auto' && cs.right !== '0px') {
+      el.style.right = cs.right;
+      el.style.bottom = cs.bottom;
+      el.style.left = 'auto';
+      el.style.top = 'auto';
+    }
   }
 
   AL.Draggable = { init: init };
