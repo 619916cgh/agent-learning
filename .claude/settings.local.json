@@ -7,7 +7,8 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" \"https://619916cgh.github.io/agent-learning/sw.js\")",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" \"https://619916cgh.github.io/agent-learning/icon-192.png\")",
       "WebFetch(domain:619916cgh.github.io)",
-      "Bash(python -c \"print\\('hello'\\)\")"
+      "Bash(python -c \"print\\('hello'\\)\")",
+      "Bash(GIT_SSL_NO_VERIFY=1 git push)"
     ]
   }
 }
