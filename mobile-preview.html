@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手机模拟预览 — Agent 学习平台</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1a1a2e;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+h2 {
+  color: #00e5ff;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+.subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+
+/* Phone Frame */
+.phone-container {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.phone-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.phone-label {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+}
+.phone {
+  background: #111;
+  border-radius: 36px;
+  padding: 12px;
+  box-shadow: 0 0 0 3px #333, 0 0 0 6px #1a1a1a, 0 0 40px rgba(0,229,255,0.1);
+  position: relative;
+}
+.phone-notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 25px;
+  background: #111;
+  border-radius: 0 0 18px 18px;
+  z-index: 10;
+}
+.phone-screen {
+  border-radius: 24px;
+  overflow: hidden;
+  background: #fff;
+  position: relative;
+}
+.phone iframe {
+  border: none;
+  display: block;
+}
+
+/* Phone size buttons */
+.phone-sizes {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.size-btn {
+  padding: 8px 16px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #222;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.size-btn:hover { border-color: #00e5ff; color: #00e5ff; }
+.size-btn.active { background: #00e5ff; color: #000; border-color: #00e5ff; }
+
+/* URL input */
+.url-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+.url-bar input {
+  padding: 8px 14px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  width: 320px;
+  font-family: monospace;
+}
+.url-bar input:focus { border-color: #00e5ff; outline: none; }
+.url-bar button {
+  padding: 8px 14px;
+  background: #00e5ff;
+  border: none;
+  border-radius: 6px;
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+}
+.url-bar button:hover { opacity: 0.8; }
+
+.tip { color: #666; font-size: 12px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>📱 手机模拟预览</h2>
+<p class="subtitle">在电脑上预览移动端效果，支持切换不同手机尺寸</p>
+
+<div class="url-bar">
+  <span style="color:#888;font-size:13px;">当前页面：</span>
+  <input type="text" id="pageUrl" value="index.html" placeholder="输入页面路径...">
+  <button onclick="loadPage()">🔄 加载</button>
+</div>
+
+<div class="phone-sizes" id="sizeBtns">
+  <button class="size-btn active" data-w="375" data-h="812">iPhone 15</button>
+  <button class="size-btn" data-w="390" data-h="844">iPhone 15 Pro</button>
+  <button class="size-btn" data-w="414" data-h="896">iPhone 15 Plus</button>
+  <button class="size-btn" data-w="360" data-h="800">Android (小)</button>
+  <button class="size-btn" data-w="412" data-h="915">Android (大)</button>
+</div>
+
+<div class="phone-container">
+  <div class="phone-wrapper">
+    <div class="phone-label">竖屏</div>
+    <div class="phone" id="phonePortrait">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="screenPortrait">
+        <iframe id="iframePortrait" src="index.html" width="375" height="812"></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone-label">横屏</div>
+    <div class="phone" id="phoneLandscape">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="screenLandscape">
+        <iframe id="iframeLandscape" src="index.html" width="812" height="375"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="tip">💡 可以点击 iframe 内的链接正常导航。按 F11 全屏体验更佳。</p>
+
+<script>
+const iframePortrait = document.getElementById('iframePortrait');
+const iframeLandscape = document.getElementById('iframeLandscape');
+const pageUrl = document.getElementById('pageUrl');
+
+let currentW = 375, currentH = 812;
+
+function loadPage() {
+  const url = pageUrl.value.trim() || 'index.html';
+  iframePortrait.src = url;
+  iframeLandscape.src = url;
+}
+pageUrl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loadPage();
+});
+
+// Size buttons
+document.querySelectorAll('.size-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentW = parseInt(btn.dataset.w);
+    currentH = parseInt(btn.dataset.h);
+    iframePortrait.width = currentW;
+    iframePortrait.height = currentH;
+    iframeLandscape.width = currentH;
+    iframeLandscape.height = currentW;
+  });
+});
+</script>
+</body>
+</html>
