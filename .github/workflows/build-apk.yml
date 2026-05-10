@@ -20,10 +20,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build APK
+      - name: Generate wrapper and build
         working-directory: android
         run: |
-          chmod +x gradlew
+          gradle wrapper --gradle-version 8.5
           ./gradlew assembleRelease
 
       - name: Upload APK
