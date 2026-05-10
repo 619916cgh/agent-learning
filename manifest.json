@@ -1,0 +1,21 @@
+{
+  "name": "AI Agent 学习指南",
+  "short_name": "Agent学习",
+  "description": "从零基础到企业级，系统掌握 AI Agent 全部知识体系",
+  "start_url": "/agent-learning/index.html",
+  "scope": "/agent-learning/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#080c14",
+  "theme_color": "#00e5ff",
+  "categories": ["education", "developer"],
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
