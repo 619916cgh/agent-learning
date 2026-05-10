@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4章：记忆与状态管理 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+.main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px 60px; max-width: calc(100% - var(--sidebar-width)); min-height: 100vh; position: relative; z-index: 1; }
+.chapter { margin-bottom: 80px; opacity: 0; transform: translateY(30px); animation: chapterEntrance 0.6s ease forwards; }
+@keyframes chapterEntrance { to { opacity: 1; transform: translateY(0); } }
+.chapter-header { margin-bottom: 32px; position: relative; }
+.chapter-number { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--accent-cyan); letter-spacing: 0.1em; margin-bottom: 8px; }
+.chapter-title { font-family: var(--font-display); font-size: 36px; font-weight: 800; line-height: 1.2; background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.chapter-subtitle { font-size: 16px; color: var(--text-secondary); margin-top: 8px; }
+.content-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 24px; transition: all var(--ease-base); position: relative; overflow: hidden; }
+.content-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), transparent); opacity: 0; transition: opacity var(--ease-base); }
+.content-card:hover::before { opacity: 1; }
+.content-card:hover { border-color: var(--border-glow-cyan); box-shadow: var(--shadow-glow-cyan); transform: translateY(-2px); }
+.content-card h3 { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
+.content-card h4 { font-weight: 700; margin: 20px 0 10px; color: var(--text-primary); font-size: 16px; }
+.content-card p { color: var(--text-secondary); margin-bottom: 12px; }
+.content-card ul, .content-card ol { padding-left: 20px; color: var(--text-secondary); margin-bottom: 12px; }
+.content-card li { margin-bottom: 6px; }
+.content-card table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+.content-card thead tr { border-bottom: 2px solid var(--accent-cyan); }
+.content-card th { padding: 10px 12px; text-align: left; color: var(--accent-cyan); font-weight: 700; }
+.content-card td { padding: 10px 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
+.highlight-box { padding: 20px; border-radius: var(--radius-md); margin: 20px 0; border-left: 4px solid var(--accent-cyan); background: rgba(0, 229, 255, 0.05); font-size: 15px; }
+.highlight-box.tip { border-left-color: var(--accent-green); background: rgba(0, 230, 118, 0.05); }
+.highlight-box.warning { border-left-color: var(--accent-red); background: rgba(255, 61, 90, 0.05); }
+.highlight-box.purple { border-left-color: var(--accent-purple); background: rgba(180, 74, 238, 0.05); }
+.highlight-box.orange { border-left-color: var(--accent-orange); background: rgba(255, 145, 0, 0.05); }
+.highlight-label { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; color: var(--accent-cyan); }
+.highlight-box.tip .highlight-label { color: var(--accent-green); }
+.highlight-box.warning .highlight-label { color: var(--accent-red); }
+.highlight-box.purple .highlight-label { color: var(--accent-purple); }
+.highlight-box.orange .highlight-label { color: var(--accent-orange); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+.page-nav-btn { display: flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); cursor: pointer; font-size: 14px; font-family: var(--font-body); text-decoration: none; transition: all var(--ease-fast); }
+.page-nav-btn:hover { border-color: var(--accent-cyan); background: rgba(0, 229, 255, 0.05); }
+.page-nav-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.mobile-menu-btn { display: none; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); width: 38px; height: 38px; border-radius: var(--radius-sm); cursor: pointer; font-size: 20px; align-items: center; justify-content: center; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 49; }
+.top-bar-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); width: 38px; height: 38px; border-radius: var(--radius-sm); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all var(--ease-fast); position: relative; }
+.top-bar-btn:hover { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); transform: translateY(-1px); }
+.glossary-term { color: var(--accent-cyan); cursor: help; border-bottom: 1px dashed var(--accent-cyan); position: relative; }
+.glossary-tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--bg-tertiary); border: 1px solid var(--accent-cyan); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); width: 260px; pointer-events: none; opacity: 0; transition: opacity var(--ease-fast); z-index: 10; box-shadow: var(--shadow-lg); line-height: 1.5; }
+.glossary-term:hover .glossary-tooltip { opacity: 1; }
+.arch-layer { padding: 16px 18px; border-radius: 8px; border-left: 4px solid; margin: 8px 0; }
+.arch-layer.l1 { border-left-color: var(--accent-green); background: rgba(0,230,118,0.05); }
+.arch-layer.l2 { border-left-color: var(--accent-cyan); background: rgba(0,229,255,0.05); }
+.arch-layer.l3 { border-left-color: var(--accent-purple); background: rgba(180,74,238,0.05); }
+.arch-layer-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.arch-layer-desc { font-size: 13px; color: var(--text-secondary); }
+.pipeline-row { display: flex; align-items: flex-start; gap: 12px; margin: 10px 0; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; }
+.pipeline-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; flex-shrink: 0; background: var(--accent-cyan); color: #080c14; }
+.pipeline-text { flex: 1; }
+.pipeline-title { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+.pipeline-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+@media (max-width: 1024px) { .main-content { margin-left: 0; max-width: 100%; padding: 24px 20px; } .mobile-menu-btn { display: flex; } .sidebar-overlay.open { display: block; } .chapter-title { font-size: 26px; } }
+@media (max-width: 640px) { .main-content { padding: 16px 12px; } .chapter-title { font-size: 22px; } .content-card { padding: 20px; } .pipeline-row { flex-direction: column; align-items: flex-start; } }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ============================================
+     Top Navigation Bar
+     ============================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">&#9776;</button>
+    <a href="../index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <div class="logo-icon">A</div>
+      <span class="logo-text">AI Agent 学习指南</span>
+    </a>
+  </div>
+  <div class="top-bar-right">
+    <button class="top-bar-btn" id="searchBtn" title="搜索 (Ctrl+K)" aria-label="搜索">&#128269;</button>
+    <button class="top-bar-btn" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="top-bar-btn" id="resetBtn" title="重置进度" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<!-- ============================================
+     Search Panel
+     ============================================ -->
+<div class="search-panel" id="searchPanel">
+  <div style="max-width:600px;margin:0 auto;position:relative;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (按 Esc 关闭)">
+    <button id="searchClose" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:8px;">&#10005;</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- ============================================
+     Sidebar Overlay (Mobile)
+     ============================================ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================
+     Sidebar Navigation
+     ============================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="04-memory-management.html" class="nav-link active" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示工程</a>
+
+
+  <a href="09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent框架生态</a>
+  <a href="10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">&#128172; 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">&#128295; 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">&#129302; Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">&#128176; 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">&#129504; 记忆可视化</a>
+
+  <div class="sidebar-section-title">参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">&#128214; 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">&#128202; 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">&#128188; 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<!-- ============================================
+     Main Content — Chapter 4
+     ============================================ -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="4">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 4 章</div>
+      <h2 class="chapter-title">记忆与状态管理</h2>
+      <p class="chapter-subtitle">深入掌握三层记忆架构、RAG 检索增强生成管线、向量数据库选型与上下文窗口精细化管理</p>
+    </header>
+
+    <!-- Card 1: Three-Tier Memory Architecture -->
+    <div class="content-card">
+      <h3>1. 三层记忆架构：Agent 认知的基石</h3>
+      <p><span class="glossary-term">三层记忆架构<span class="glossary-tooltip">受认知科学启发，Agent 记忆系统分为三层：短期记忆(STM)承载当前对话上下文，受 LLM 上下文窗口限制；工作记忆(WM)维护任务执行状态和中间结果，由编排器管理；长期记忆(LTM)基于向量数据库持久化存储跨会话知识。三层各司其职，通过信息流动保持协同。</span></span>是 Agent 信息管理系统的核心框架。人类的记忆并非单一的"硬盘"——我们有瞬时感知的感官记忆、正在处理的"思维便签"工作记忆、以及跨越大脑皮层终生存留的长期记忆。Agent 的记忆系统借鉴了同样的分层设计：</p>
+
+      <div class="arch-layer l1">
+        <div class="arch-layer-title" style="color:var(--accent-green);">L1 — 短期记忆 (Short-Term Memory)</div>
+        <div class="arch-layer-desc">
+          <strong>定位</strong>：当前对话的实时上下文，是 LLM 直接"看见"的信息。<strong>数据形态</strong>：消息列表 (messages array)，每条含 role/content。<strong>容量</strong>：严格受限于 LLM 上下文窗口 (4K-1M tokens)。<strong>管理</strong>：滑动窗口淘汰 + 智能摘要压缩 + 重要性剪枝。<strong>生命周期</strong>：单次会话。
+        </div>
+      </div>
+      <div class="arch-layer l2">
+        <div class="arch-layer-title" style="color:var(--accent-cyan);">L2 — 工作记忆 (Working Memory)</div>
+        <div class="arch-layer-desc">
+          <strong>定位</strong>：任务执行过程中的结构化状态追踪。<strong>数据形态</strong>：结构化 JSON——任务状态机、规划 DAG、中间结果缓存。<strong>核心组件</strong>：任务阶段追踪、便签区 (Scratchpad)、事实缓存 (Fact Cache)、执行追踪 (Plan Trace)。<strong>生命周期</strong>：跨多轮 LLM 调用，任务完成后归档或丢弃。
+        </div>
+      </div>
+      <div class="arch-layer l3">
+        <div class="arch-layer-title" style="color:var(--accent-purple);">L3 — 长期记忆 (Long-Term Memory)</div>
+        <div class="arch-layer-desc">
+          <strong>定位</strong>：跨越会话和任务的持久化知识库。<strong>数据形态</strong>：文本块 + 向量嵌入，存储在向量数据库中。<strong>典型内容</strong>：用户偏好、历史任务经验、领域知识文档的语义索引、成功案例的执行方案。<strong>管理</strong>：语义检索 + 多因子评分(新鲜度/重要性/频率) + 记忆压缩淘汰。<strong>生命周期</strong>：永久。
+        </div>
+      </div>
+
+      <h4>三层间的数据流动</h4>
+      <p>在一次典型的 Agent 任务中，记忆系统按以下顺序运转：(1) 用户输入驱动长期记忆进行语义检索，召回相关知识；(2) 工作记忆加载当前任务状态；(3) 两者与短期记忆(对话历史)融合为完整的 LLM 上下文；(4) LLM 推理并执行工具调用；(5) 结果更新工作记忆中的任务状态和中间结果；(6) 重要发现异步写入长期记忆；(7) 短期记忆通过滑动/压缩机制管理 token 预算。</p>
+
+      <div class="highlight-box">
+        <div class="highlight-label">核心洞察</div>
+        <p>三层记忆架构的本质是<strong>成本-能力的动态平衡</strong>。短期记忆最"贵"(token 即金钱，也是延迟)，长期记忆最"便宜"(磁盘存储成本几乎可忽略)，工作记忆居中。优秀的设计懂得：<strong>在正确的时间把正确的信息放到正确的层级</strong>，而非盲目追求"所有信息都在线"。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Short-Term Memory & Context Window Management -->
+    <div class="content-card">
+      <h3>2. 短期记忆精要：上下文窗口的精细化管理</h3>
+      <p>短期记忆的管理直接决定 Agent 在多轮交互中的稳定性。现代 LLM 的上下文窗口可达 128K-1M tokens，表面上充裕，但在经过多轮复杂任务后——系统提示词(500-3000 tokens)、工具 Schema(200-2000 tokens)、多轮对话历史(累积数千至数万 tokens)、工具调用返回结果(单次可达数千 tokens)、RAG 检索注入的文档片段(500-4000 tokens)——窗口很容易被填满。此时若不主动管理，Agent 将出现"记忆力衰退"：遗忘早期对话中的关键约束和决策。</p>
+
+      <h4>Token 容量评估：你的"记忆空间"还剩多少？</h4>
+      <table>
+        <thead><tr><th>消耗来源</th><th>典型 Token 消耗</th><th>频率</th></tr></thead>
+        <tbody>
+          <tr><td>系统提示词</td><td>500 - 3,000</td><td>每会话 1 次</td></tr>
+          <tr><td>工具 Schema 定义</td><td>200 - 2,000</td><td>每会话 1 次</td></tr>
+          <tr><td>单轮用户-助手对话</td><td>100 - 1,000</td><td>每轮 1 次</td></tr>
+          <tr><td>单次工具调用结果</td><td>200 - 5,000</td><td>每次工具调用</td></tr>
+          <tr><td>长期记忆注入</td><td>500 - 4,000</td><td>每次 LLM 调用</td></tr>
+        </tbody>
+      </table>
+
+      <h4>三种管理策略的对比</h4>
+      <table>
+        <thead><tr><th>策略</th><th>原理</th><th>优势</th><th>劣势</th><th>适用场景</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>滑动窗口</strong></td>
+            <td>只保留最近 N 条消息</td>
+            <td>实现极简，无额外 LLM 调用</td>
+            <td>可能丢失关键早期信息</td>
+            <td>时效性强的任务(客服、实时问答)</td>
+          </tr>
+          <tr>
+            <td><strong>智能摘要</strong></td>
+            <td>对旧消息生成摘要替代原文(压缩比 5:1~20:1)</td>
+            <td>信息密度高，不轻易丢失关键内容</td>
+            <td>需要额外 LLM 调用生成摘要</td>
+            <td>长对话、复杂多轮任务</td>
+          </tr>
+          <tr>
+            <td><strong>重要性剪枝</strong></td>
+            <td>对每条消息评重要性分，淘汰低分内容</td>
+            <td>精细控制，保留高价值情报</td>
+            <td>评分机制本身有开销和误差</td>
+            <td>异构对话(重要约束+大量闲聊混合)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box warning">
+        <div class="highlight-label">窗口错觉：大不等于好</div>
+        <p>即使有 1M token 的窗口，大量低质量内容也会稀释 LLM 的注意力——这就是"大海捞针"(Needle in a Haystack) 问题的本质。LLM 对长文本中后部内容的关注度会自然衰减。主动管理短期记忆不仅是为了"节省空间"，更是为了<strong>提高 LLM 从上下文中提取关键信息的效率</strong>。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Working Memory - Task State & Scratchpad -->
+    <div class="content-card">
+      <h3>3. 工作记忆：任务执行的"方向盘"</h3>
+      <p>工作记忆是三层架构中<strong>最容易被忽视但最关键的环节</strong>。它不像短期记忆那样直接受限于 token 窗口，也不像长期记忆那样依赖复杂的向量检索——它的核心使命是：<strong>让 Agent 在跨越数十轮的复杂任务中始终知道"我是谁、我在哪、我要去哪"</strong>。</p>
+
+      <h4>工作记忆的四大组件</h4>
+      <table>
+        <thead><tr><th>组件</th><th>职责</th><th>数据形态</th><th>示例</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>任务状态机</strong></td>
+            <td>追踪当前执行到哪个阶段、哪一步</td>
+            <td>枚举 + 计数</td>
+            <td><code>{"phase": "execution", "current_step": 4, "total_steps": 10}</code></td>
+          </tr>
+          <tr>
+            <td><strong>便签区 (Scratchpad)</strong></td>
+            <td>存放中间计算结果和临时变量</td>
+            <td>Key-Value 字典</td>
+            <td><code>{"beijing_temp": 22, "shanghai_temp": 25, "temp_diff": 3}</code></td>
+          </tr>
+          <tr>
+            <td><strong>事实缓存</strong></td>
+            <td>已验证的事实，避免重复查询</td>
+            <td>查询→结果 映射表</td>
+            <td><code>"weather_2026-05-10_BJ" → {"temp":22,"condition":"晴"}</code></td>
+          </tr>
+          <tr>
+            <td><strong>规划追踪 (Plan Trace)</strong></td>
+            <td>记录当前执行计划的每一步状态</td>
+            <td>DAG + 状态标记</td>
+            <td>步骤1-3已完成(绿)，步骤4进行中(黄)，步骤5-10待执行(灰)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>注入策略：工作记忆不是"全部塞入"</h4>
+      <p>工作记忆的内容不应全量灌入 LLM 上下文。正确做法是通过<strong>模板化的"状态摘要"</strong>将最相关的部分注入——通常仅 50-200 tokens。例如在步骤 5 执行前，摘要包含：(1) 前 4 步各自做了什么、结果如何；(2) 当前步骤需要的前置数据；(3) 步骤在整体计划中的位置。这好比汽车仪表盘——你不需要看到引擎内部每个零件，只需要速度、油量和故障灯。</p>
+
+      <h4>跨任务上下文切换</h4>
+      <p>同一次会话中用户可能连续提出多个任务。工作记忆需支持类似操作系统的"上下文切换"：(1) 将当前任务状态序列化保存到任务栈；(2) 初始化新任务的干净状态；(3) 用户切回旧任务时从栈中恢复。这是被大多数 Agent 框架忽视的关键能力。</p>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">设计原则</div>
+        <p>工作记忆的内容应该<strong>结构化且可查询</strong>。不要把所有信息揉成一个长字符串——用明确的 JSON Schema 定义结构，让任何组件都能高效读写它所关心的部分。结构化的另一大好处是可调试：你能随时查看 Agent 的"大脑状态"，快速定位"Agent 为什么做了那个决策"。</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Long-Term Memory - Embeddings & Vector DBs -->
+    <div class="content-card">
+      <h3>4. 长期记忆：向量嵌入与向量数据库深度对比</h3>
+      <p>长期记忆使 Agent 拥有"跨会话的知识"，是区分高级 Agent 和普通聊天机器人的核心能力。<span class="glossary-term">向量嵌入 (Embeddings)<span class="glossary-tooltip">将文本等非结构化数据映射到高维向量空间(通常 768-3072 维)的技术。核心属性：语义相近的内容在向量空间中距离近，语义无关的则远。这使得"语义搜索"成为可能——通过计算向量间余弦相似度找到相关内容，无需关键词匹配。主流模型包括 OpenAI text-embedding-3、Cohere Embed v3、BGE-large-zh 等。</span></span>是这一能力的技术支柱。</p>
+
+      <h4>嵌入模型选型指南</h4>
+      <table>
+        <thead><tr><th>模型</th><th>维度</th><th>最大输入</th><th>中文优化</th><th>开源</th><th>MTEB 排名</th></tr></thead>
+        <tbody>
+          <tr><td>OpenAI text-embedding-3-large</td><td>3072</td><td>8191 tokens</td><td>中等</td><td>否</td><td>Top 3</td></tr>
+          <tr><td>OpenAI text-embedding-3-small</td><td>1536</td><td>8191 tokens</td><td>中等</td><td>否</td><td>Top 10</td></tr>
+          <tr><td>Cohere Embed v3 (multilingual)</td><td>1024</td><td>512 tokens/段</td><td>良好</td><td>否</td><td>Top 5</td></tr>
+          <tr><td>BGE-large-zh-v1.5 (BAAI)</td><td>1024</td><td>512 tokens</td><td><strong>优秀</strong></td><td>是</td><td>中文 Top 1</td></tr>
+          <tr><td>BGE-M3 (BAAI)</td><td>1024</td><td>8192 tokens</td><td><strong>优秀</strong></td><td>是</td><td>多语言 Top 3</td></tr>
+        </tbody>
+      </table>
+
+      <h4>向量数据库选型对比</h4>
+      <table>
+        <thead><tr><th>数据库</th><th>部署模式</th><th>核心优势</th><th>适用场景</th><th>索引算法</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Pinecone</strong></td><td>全托管云</td><td>零运维、自动扩容、毫秒级延迟</td><td>中大型生产、不想管基础设施</td><td>HNSW</td></tr>
+          <tr><td><strong>Weaviate</strong></td><td>云/自托管</td><td>内置向量化、GraphQL API、混合搜索(向量+BM25)</td><td>需要混合搜索和高亮功能</td><td>HNSW</td></tr>
+          <tr><td><strong>ChromaDB</strong></td><td>嵌入式/服务器</td><td>Python 原生、零配置、5 行代码上手</td><td>原型开发、小规模、嵌入式应用</td><td>HNSW</td></tr>
+          <tr><td><strong>Milvus</strong></td><td>自托管分布式</td><td>十亿级向量、GPU 加速索引、丰富索引类型</td><td>超大规模、对延迟/吞吐有严苛要求</td><td>HNSW/IVF/PQ</td></tr>
+          <tr><td><strong>Qdrant</strong></td><td>云/自托管</td><td>Rust 编写、极致性能、高级过滤</td><td>性能敏感、需要复杂过滤表达式</td><td>HNSW</td></tr>
+          <tr><td><strong>PGVector</strong></td><td>PostgreSQL 扩展</td><td>与现有 PG 基础设施无缝集成</td><td>已有 PG 的团队、希望减少组件</td><td>IVFFlat/HNSW</td></tr>
+        </tbody>
+      </table>
+
+      <h4>ANN 索引算法：HNSW vs IVF vs PQ</h4>
+      <ul>
+        <li><strong>HNSW (Hierarchical Navigable Small World)</strong>：构建多层图结构，搜索从顶层粗粒度逐层下降到底层细粒度。查询延迟 1-10ms，是多数向量数据库的默认选择，但内存消耗较高。</li>
+        <li><strong>IVF (Inverted File Index)</strong>：用 K-Means 将向量空间划分为多个聚类，查询时仅在最近聚类中搜索。内存友好，适合内存受限场景，但精度略低于 HNSW。</li>
+        <li><strong>PQ (Product Quantization)</strong>：高维向量分解为多个低维子向量并量化压缩。大幅减少内存(压缩比可达 10:1-30:1)，代价是轻微精度损失。适合十亿级别的大规模场景。</li>
+      </ul>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">选型决策</div>
+        <p><strong>原型阶段用 ChromaDB</strong>(简单快速)；<strong>中等生产用 Weaviate 或 Qdrant</strong>(混合搜索和高性能)；<strong>已有 PG 基础设施用 PGVector</strong>(减少运维)；<strong>十亿级和大规模生产用 Pinecone 或 Milvus</strong>。中文场景强烈推荐 BGE-large-zh-v1.5 作为嵌入模型。</p>
+      </div>
+    </div>
+
+    <!-- Card 5: RAG Pipeline Complete -->
+    <div class="content-card">
+      <h3>5. RAG 完整管线：从文档到答案的七步解析</h3>
+      <p><span class="glossary-term">RAG (Retrieval-Augmented Generation)<span class="glossary-tooltip">由 Lewis et al.(2020) 提出。在 LLM 生成回答前，从外部知识库检索相关信息并注入上下文。核心管线：文档加载→文本分块→向量化→索引存储→语义检索→重排序→上下文注入。RAG 大幅降低了幻觉，因为 LLM 可以"参考"知识库中的真实信息而非依赖其参数量中的不确定记忆。</span></span>是连接长期记忆和 LLM 推理的核心管线。理解每个环节才能在检索质量出问题时准确定位根因。</p>
+
+      <div class="pipeline-row"><div class="pipeline-num">1</div><div class="pipeline-text"><div class="pipeline-title">文档加载 (Document Loading)</div><div class="pipeline-desc">从 PDF、Markdown、网页、Notion、Confluence 等多源加载。关键难点：PDF 表格解析(容易乱码/断裂)。推荐工具：Unstructured.io、LlamaParse、PyMuPDF。</div></div></div>
+      <div class="pipeline-row"><div class="pipeline-num">2</div><div class="pipeline-text"><div class="pipeline-title">文本分块 (Chunking)</div><div class="pipeline-desc">将长文档切分。固定大小(512-1024 tokens, 10-15% overlap)最简单；语义分块按段落/句子边界切分质量更高；递归分块兼顾效率和质量；层级分块(父块+子块)平衡精度和上下文完整性。</div></div></div>
+      <div class="pipeline-row"><div class="pipeline-num">3</div><div class="pipeline-text"><div class="pipeline-title">向量化 (Embedding)</div><div class="pipeline-desc">批量调用嵌入模型将文本块转为向量。这是管线中成本最高的批量操作——对于百万级文档需并行处理。关键优化：嵌入缓存(相同文本 SHA256 哈希去重，避免重复 API 调用)。</div></div></div>
+      <div class="pipeline-row"><div class="pipeline-num">4</div><div class="pipeline-text"><div class="pipeline-title">索引存储 (Indexing)</div><div class="pipeline-desc">向量存入向量数据库并构建 ANN 索引(如 HNSW)。索引构建是一次性成本，品质决定后续所有检索的速度和精度。同时存入元数据(来源、时间、标签)便于过滤。</div></div></div>
+      <div class="pipeline-row"><div class="pipeline-num">5</div><div class="pipeline-text"><div class="pipeline-title">语义检索 (Retrieval)</div><div class="pipeline-desc">用户查询向量化后在向量库中搜索 top-K(通常 K=5-20)。混合检索(向量+BM25关键词)在大多数场景优于纯向量检索。元数据过滤(如"仅搜索最近30天文档")是提精利器。</div></div></div>
+      <div class="pipeline-row"><div class="pipeline-num">6</div><div class="pipeline-text"><div class="pipeline-title">重排序 (Reranking)</div><div class="pipeline-desc">向量相似度不等于语义相关性！重排序模型(Cohere Rerank / bge-reranker)对上一步的 top-K 精细再排序，保留 top-3~5 注入上下文。这是性价比最高的精度提升手段。</div></div></div>
+      <div class="pipeline-row"><div class="pipeline-num">7</div><div class="pipeline-text"><div class="pipeline-title">上下文注入 (Context Injection)</div><div class="pipeline-desc">将最终选定的文档片段格式化，标注来源后注入 LLM 上下文。Prompts 模板化："请基于[参考资料]回答。若信息不足请明确说明，不要编造。"</div></div></div>
+
+      <h4>分块策略深度对比</h4>
+      <table>
+        <thead><tr><th>策略</th><th>方法</th><th>优势</th><th>劣势</th></tr></thead>
+        <tbody>
+          <tr><td><strong>固定大小</strong></td><td>按固定 token 数切分(如 512 tokens)，相邻块 10-15% overlap</td><td>简单可靠、可预测、处理快</td><td>可能切断句子/段落导致语义断裂</td></tr>
+          <tr><td><strong>语义分块</strong></td><td>基于段落/句子边界切分，用 embedding 相似度判断断点</td><td>每个块语义完整，检索质量高</td><td>需额外 embedding 计算，较慢</td></tr>
+          <tr><td><strong>递归分块</strong></td><td>依次尝试 \\n\\n → \\n → 。 → 空格切分，逐级降级至满足大小</td><td>兼顾效率与质量(LangChain 默认)</td><td>对无格式文本退化为固定分块</td></tr>
+          <tr><td><strong>层级分块</strong></td><td>同时创建父块(1024 tokens)+子块(256 tokens)，小子块匹配→返回大父块</td><td>检索精度和上下文完整性兼顾</td><td>双倍存储开销，实现更复杂</td></tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box warning">
+        <div class="highlight-label">RAG 三大失败模式</div>
+        <ol>
+          <li><strong>"看到了但没理解"</strong>：相关文档被检索到并注入上下文，但 LLM 未正确使用信息——通常是表面相似，语义不匹配。解法：更好的重排序。</li>
+          <li><strong>"应该找到但没找到"</strong>：答案在知识库中但未检索到。根因：chunk 不合理(关键信息被拆分)、嵌入模型对领域术语理解不足、查询改写不到位。</li>
+          <li><strong>"找到了不该找的"</strong>：检索到表面相似但无关的内容。纯向量相似度检索容易遇此问题，混合检索+重排序是关键解法。</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Card 6: Memory Retrieval Strategies -->
+    <div class="content-card">
+      <h3>6. 记忆检索策略：在海量记忆中精准调取</h3>
+      <p>当长期记忆中积累了成千上万条记忆后，<strong>检索什么</strong>和<strong>检索多少</strong>就成了影响 Agent 表现的核心变量。检索太少→Agent 缺乏上下文；检索太多→噪声淹没信号+浪费 token。</p>
+
+      <h4>多因子加权评分机制</h4>
+      <table>
+        <thead><tr><th>评分维度</th><th>含义</th><th>典型实现</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>语义相关性 (Relevance)</strong></td>
+            <td>记忆内容与当前查询的语义匹配度</td>
+            <td>向量余弦相似度 + 重排序模型打分</td>
+          </tr>
+          <tr>
+            <td><strong>新鲜度 (Recency)</strong></td>
+            <td>离现在越近的记忆默认越相关</td>
+            <td>指数衰减：score = base * e<sup>(-lambda * days)</sup></td>
+          </tr>
+          <tr>
+            <td><strong>重要性 (Importance)</strong></td>
+            <td>该记忆被标记或推断的重要程度</td>
+            <td>LLM 打分 1-10，或从用户行为中推断</td>
+          </tr>
+          <tr>
+            <td><strong>使用频率 (Frequency)</strong></td>
+            <td>该记忆被检索和使用过的次数</td>
+            <td>访问计数器 + 时间归一化</td>
+          </tr>
+          <tr>
+            <td><strong>来源权威性 (Authority)</strong></td>
+            <td>记忆来源的可信度</td>
+            <td>人工标注权重(官方文档 > 社区帖子)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>综合得分 = w<sub>1</sub>*相关性 + w<sub>2</sub>*新鲜度 + w<sub>3</sub>*重要性 + w<sub>4</sub>*频率 + w<sub>5</sub>*权威性。权重系数根据任务类型动态调整——事实查询侧重于相关性，个性化推荐侧重于新鲜度和重要性。</p>
+
+      <h4>查询改写 (Query Rewriting) — 检索质量的隐形杠杆</h4>
+      <ul>
+        <li><strong>指代消解</strong>：将"那个"、"它"、"上次的方案"等指代词替换为具体实体名称。需注入短期记忆中的上下文。</li>
+        <li><strong>多角度查询生成</strong>：将一个用户查询改写为 2-3 个不同表述，分别检索后合并结果去重。例："Agent 如何管理记忆"改写为"AI Agent 记忆管理最佳实践"和"LLM 上下文窗口 管理策略"。</li>
+        <li><strong>HyDE (Hypothetical Document Embeddings)</strong>：让 LLM 先生成假设的理想答案，用假想答案(而非原始查询)做向量检索。原理：假想答案在语义空间中更接近真实文档。</li>
+      </ul>
+
+      <h4>混合检索 (Hybrid Search)</h4>
+      <p>向量检索擅长语义理解但对精确匹配(产品编号、API 名称)无能为力。<strong>混合检索 = 向量检索 + 关键词检索(BM25)</strong>，结果加权融合排序。这是大多数生产场景的最优选择——兼具语义广度与精确匹配深度。</p>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">实践路径</div>
+        <p>起步阶段不必过度追求复杂策略。先做好三件事：(1) 合理的语义分块 + overlap；(2) 混合检索(向量+BM25)；(3) 重排序。这三者即可将检索质量提升到可用水平。之后再逐步引入加权评分、查询改写等高级技巧。</p>
+      </div>
+    </div>
+
+    <!-- Card 7: Memory Compression & Eviction -->
+    <div class="content-card">
+      <h3>7. 记忆压缩与淘汰：在有限空间中保持无限智慧</h3>
+      <p>记忆不会无限增长——磁盘空间有限，检索速度随数据量增加而下降。记忆压缩和淘汰机制是维持系统长期健康的关键。</p>
+
+      <h4>记忆压缩策略</h4>
+      <ul>
+        <li><strong>周期性摘要压缩</strong>：定时任务对新增记忆聚类→每类生成摘要→用摘要替换原始条目。压缩比可达 10:1~50:1。例：用户一天中 20 次提到"天气"，压缩为"用户频繁关注北京和上海天气，偏好当天实时数据"。</li>
+        <li><strong>层级化压缩</strong>：三层存储——热数据(7天内，原始记忆)、温数据(7-30天，摘要)、冷数据(30天以上，元摘要)。时间越远越概括。</li>
+        <li><strong>实体融合</strong>：同实体多条相关记忆合并。如"用户喜欢蓝色"+"用户偏好深色主题"融合为"用户偏好：颜色方面倾向蓝色和深色系"。</li>
+      </ul>
+
+      <h4>记忆淘汰策略</h4>
+      <table>
+        <thead><tr><th>策略</th><th>触发条件</th><th>机制</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>时间衰减淘汰</strong></td>
+            <td>存储空间 > 80%</td>
+            <td>按复合得分排序(新鲜度权重加倍)，淘汰末尾 10-20%</td>
+          </tr>
+          <tr>
+            <td><strong>重复淘汰</strong></td>
+            <td>检测到语义高度相似的记忆</td>
+            <td>嵌入余弦相似度 > 0.95 视为重复，保留最新一条</td>
+          </tr>
+          <tr>
+            <td><strong>矛盾裁决</strong></td>
+            <td>检测到相互冲突的记忆</td>
+            <td>标记冲突→LLM 裁决→被否决方标记为"过时"并降权</td>
+          </tr>
+          <tr>
+            <td><strong>用户显式遗忘</strong></td>
+            <td>用户请求删除</td>
+            <td>支持"忘掉 X"和"忘掉关于 X 的全部"两种粒度</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box warning">
+        <div class="highlight-label">压缩的代价</div>
+        <p>压缩不可避免地丢失细节。好的做法：压缩时生成"可追溯标记"——当 LLM 发现摘要信息不足以回答问题时，可"展开"摘要回到原始记忆。类似 Git——日常工作看 commit message(摘要)，需要时 git diff 查看完整改动。</p>
+      </div>
+    </div>
+
+    <!-- Card 8: Full MemorySystem Code Implementation -->
+    <div class="content-card">
+      <h3>8. 代码实战：完整的三层记忆系统实现</h3>
+      <p>以下是可直接运行的生产级记忆系统实现：滑动窗口+摘要压缩的短期记忆、结构化状态追踪的工作记忆、ChromaDB 驱动的 RAG 长期记忆，以及统一的三层编排器。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 三层记忆系统完整实现</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> json, time, hashlib, logging
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Optional
+<span class="token-kw">from</span> collections <span class="token-kw">import</span> deque
+<span class="token-kw">import</span> numpy <span class="token-kw">as</span> np
+<span class="token-kw">import</span> chromadb
+<span class="token-kw">from</span> chromadb.utils <span class="token-kw">import</span> embedding_functions
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(<span class="token-str">"MemorySystem"</span>)
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 1. 短期记忆：滑动窗口 + 摘要压缩</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">class</span> <span class="token-cls">ShortTermMemory</span>:
+    <span class="token-str">"""管理 LLM 上下文窗口中的对话历史"""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, max_tokens: <span class="token-cls">int</span> = <span class="token-num">8000</span>, summary_threshold: <span class="token-cls">float</span> = <span class="token-num">0.7</span>):
+        <span class="token-kw">self</span>.messages: <span class="token-cls">deque</span>[<span class="token-cls">dict</span>] = <span class="token-fn">deque</span>(maxlen=<span class="token-num">200</span>)
+        <span class="token-kw">self</span>.max_tokens = max_tokens
+        <span class="token-kw">self</span>.summary_threshold = summary_threshold  <span class="token-cm"># 窗口占用 70% 时触发压缩</span>
+        <span class="token-kw">self</span>.summary: <span class="token-cls">str</span> = <span class="token-str">""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">add</span>(<span class="token-kw">self</span>, role: <span class="token-cls">str</span>, content: <span class="token-cls">str</span>, importance: <span class="token-cls">float</span> = <span class="token-num">0.5</span>):
+        msg = {<span class="token-str">"role"</span>: role, <span class="token-str">"content"</span>: content,
+               <span class="token-str">"importance"</span>: importance, <span class="token-str">"tokens"</span>: <span class="token-kw">self</span>.<span class="token-fn">_est_tokens</span>(content)}
+        <span class="token-kw">self</span>.messages.<span class="token-fn">append</span>(msg)
+        <span class="token-kw">self</span>.<span class="token-fn">_maybe_compress</span>()
+
+    <span class="token-kw">def</span> <span class="token-fn">get_context</span>(<span class="token-kw">self</span>) -> <span class="token-cls">list</span>[<span class="token-cls">dict</span>]:
+        llm_messages = []
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.summary:
+            llm_messages.append({<span class="token-str">"role"</span>: <span class="token-str">"system"</span>, <span class="token-str">"content"</span>: <span class="token-kw">self</span>.summary})
+        <span class="token-kw">for</span> m <span class="token-kw">in</span> <span class="token-kw">self</span>.messages:
+            llm_messages.append({<span class="token-str">"role"</span>: m[<span class="token-str">"role"</span>], <span class="token-str">"content"</span>: m[<span class="token-str">"content"</span>]})
+        <span class="token-kw">return</span> llm_messages
+
+    <span class="token-kw">def</span> <span class="token-fn">_maybe_compress</span>(<span class="token-kw">self</span>):
+        total = <span class="token-fn">sum</span>(m[<span class="token-str">"tokens"</span>] <span class="token-kw">for</span> m <span class="token-kw">in</span> <span class="token-kw">self</span>.messages)
+        <span class="token-kw">if</span> total > <span class="token-kw">self</span>.max_tokens * <span class="token-kw">self</span>.summary_threshold:
+            <span class="token-cm"># 压缩最旧的 30% 消息为摘要</span>
+            cutoff = <span class="token-fn">int</span>(<span class="token-fn">len</span>(<span class="token-kw">self</span>.messages) * <span class="token-num">0.3</span>)
+            old = [<span class="token-kw">self</span>.messages.<span class="token-fn">popleft</span>() <span class="token-kw">for</span> _ <span class="token-kw">in</span> <span class="token-fn">range</span>(cutoff)]
+            <span class="token-cm"># 实际应用需调 LLM 生成高质量摘要</span>
+            <span class="token-kw">self</span>.summary = <span class="token-str">f"[历史摘要({len(old)}条消息)] "</span> + <span class="token-kw">self</span>.summary
+
+    <span class="token-kw">def</span> <span class="token-fn">_est_tokens</span>(<span class="token-kw">self</span>, text: <span class="token-cls">str</span>) -> <span class="token-cls">int</span>:
+        chinese = <span class="token-fn">sum</span>(<span class="token-num">1</span> <span class="token-kw">for</span> c <span class="token-kw">in</span> text <span class="token-kw">if</span> <span class="token-str">'一'</span> <= c <= <span class="token-str">'鿿'</span>)
+        <span class="token-kw">return</span> <span class="token-fn">int</span>(chinese * <span class="token-num">0.4</span> + (<span class="token-fn">len</span>(text) - chinese) * <span class="token-num">0.3</span>)
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 2. 工作记忆：任务状态 + 便签区 + 事实缓存</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">class</span> <span class="token-cls">WorkingMemory</span>:
+    <span class="token-str">"""任务执行过程中结构化状态追踪"""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>):
+        <span class="token-kw">self</span>.task_state: <span class="token-cls">dict</span> = {}        <span class="token-cm"># 当前任务状态机</span>
+        <span class="token-kw">self</span>.scratchpad: <span class="token-cls">dict</span> = {}        <span class="token-cm"># 临时便签</span>
+        <span class="token-kw">self</span>.fact_cache: <span class="token-cls">dict</span> = {}        <span class="token-cm"># 已验证事实</span>
+        <span class="token-kw">self</span>.plan_trace: <span class="token-cls">list</span> = []         <span class="token-cm"># 执行计划追踪</span>
+        <span class="token-kw">self</span>.task_stack: <span class="token-cls">list</span> = []        <span class="token-cm"># 多任务上下文栈</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">start_task</span>(<span class="token-kw">self</span>, task_id: <span class="token-cls">str</span>, goal: <span class="token-cls">str</span>, plan: <span class="token-cls">list</span>):
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.task_state:
+            <span class="token-kw">self</span>.<span class="token-fn">_push_current_task</span>()
+        <span class="token-kw">self</span>.task_state = {<span class="token-str">"task_id"</span>: task_id, <span class="token-str">"goal"</span>: goal,
+                            <span class="token-str">"phase"</span>: <span class="token-str">"planning"</span>, <span class="token-str">"current_step"</span>: <span class="token-num">0</span>}
+        <span class="token-kw">self</span>.plan_trace = [{<span class="token-str">"step"</span>: i, <span class="token-str">"action"</span>: s, <span class="token-str">"status"</span>: <span class="token-str">"pending"</span>}
+                          <span class="token-kw">for</span> i, s <span class="token-kw">in</span> <span class="token-fn">enumerate</span>(plan)]
+        <span class="token-kw">self</span>.scratchpad = {}
+
+    <span class="token-kw">def</span> <span class="token-fn">step_complete</span>(<span class="token-kw">self</span>, idx: <span class="token-cls">int</span>, result: <span class="token-cls">Any</span>):
+        <span class="token-kw">self</span>.plan_trace[idx][<span class="token-str">"status"</span>] = <span class="token-str">"completed"</span>
+        <span class="token-kw">self</span>.plan_trace[idx][<span class="token-str">"result"</span>] = result
+        <span class="token-kw">self</span>.task_state[<span class="token-str">"current_step"</span>] = idx + <span class="token-num">1</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">get_state_summary</span>(<span class="token-kw">self</span>) -> <span class="token-cls">str</span>:
+        <span class="token-kw">if</span> <span class="token-kw">not</span> <span class="token-kw">self</span>.task_state:
+            <span class="token-kw">return</span> <span class="token-str">""</span>
+        completed = <span class="token-fn">sum</span>(<span class="token-num">1</span> <span class="token-kw">for</span> p <span class="token-kw">in</span> <span class="token-kw">self</span>.plan_trace <span class="token-kw">if</span> p[<span class="token-str">"status"</span>] == <span class="token-str">"completed"</span>)
+        <span class="token-kw">return</span> <span class="token-str">f"[任务: {self.task_state['goal']} | 进度: {completed}/{len(self.plan_trace)}步]"</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">_push_current_task</span>(<span class="token-kw">self</span>):
+        <span class="token-kw">self</span>.task_stack.append({
+            <span class="token-str">"state"</span>: <span class="token-kw">self</span>.task_state, <span class="token-str">"scratchpad"</span>: <span class="token-kw">self</span>.scratchpad.copy(),
+            <span class="token-str">"plan"</span>: <span class="token-kw">self</span>.plan_trace, <span class="token-str">"facts"</span>: <span class="token-kw">self</span>.fact_cache.copy()
+        })
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 3. 长期记忆：ChromaDB RAG 管线</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">class</span> <span class="token-cls">LongTermMemory</span>:
+    <span class="token-str">"""基于向量数据库的长期记忆 + RAG 检索"""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, collection: <span class="token-cls">str</span> = <span class="token-str">"agent_memory"</span>):
+        <span class="token-kw">self</span>.client = chromadb.PersistentClient(path=<span class="token-str">"./memory_db"</span>)
+        <span class="token-kw">self</span>.ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name=<span class="token-str">"BAAI/bge-large-zh-v1.5"</span>
+        )
+        <span class="token-kw">self</span>.col = <span class="token-kw">self</span>.client.<span class="token-fn">get_or_create_collection</span>(
+            name=collection, embedding_function=<span class="token-kw">self</span>.ef
+        )
+
+    <span class="token-kw">def</span> <span class="token-fn">store</span>(<span class="token-kw">self</span>, content: <span class="token-cls">str</span>, meta: <span class="token-cls">dict</span> = <span class="token-kw">None</span>, importance: <span class="token-cls">float</span> = <span class="token-num">0.5</span>) -> <span class="token-cls">str</span>:
+        mid = hashlib.<span class="token-fn">md5</span>(content.<span class="token-fn">encode</span>()).<span class="token-fn">hexdigest</span>()[:<span class="token-num">16</span>]
+        m = meta <span class="token-kw">or</span> {}
+        m.update({<span class="token-str">"importance"</span>: importance, <span class="token-str">"created_at"</span>: time.<span class="token-fn">time</span>()})
+        <span class="token-kw">self</span>.col.<span class="token-fn">upsert</span>(ids=[mid], documents=[content], metadatas=[m])
+        <span class="token-kw">return</span> mid
+
+    <span class="token-kw">def</span> <span class="token-fn">retrieve</span>(<span class="token-kw">self</span>, query: <span class="token-cls">str</span>, top_k: <span class="token-cls">int</span> = <span class="token-num">5</span>) -> <span class="token-cls">list</span>[<span class="token-cls">dict</span>]:
+        <span class="token-cm"># 向量检索(取2倍候选用于重排序)</span>
+        raw = <span class="token-kw">self</span>.col.<span class="token-fn">query</span>(query_texts=[query], n_results=top_k * <span class="token-num">2</span>)
+        entries = []
+        <span class="token-kw">for</span> i, doc <span class="token-kw">in</span> <span class="token-fn">enumerate</span>(raw[<span class="token-str">"documents"</span>][<span class="token-num">0</span>]):
+            meta = raw[<span class="token-str">"metadatas"</span>][<span class="token-num">0</span>][i]
+            age = (time.<span class="token-fn">time</span>() - meta.<span class="token-fn">get</span>(<span class="token-str">"created_at"</span>, time.<span class="token-fn">time</span>())) / <span class="token-num">86400</span>
+            recency = np.<span class="token-fn">exp</span>(-<span class="token-num">0.1</span> * age)
+            importance = meta.<span class="token-fn">get</span>(<span class="token-str">"importance"</span>, <span class="token-num">0.5</span>)
+            score = <span class="token-num">0.5</span> * <span class="token-num">1.0</span> + <span class="token-num">0.25</span> * recency + <span class="token-num">0.25</span> * importance
+            entries.append({<span class="token-str">"content"</span>: doc, <span class="token-str">"_score"</span>: score})
+        entries.<span class="token-fn">sort</span>(key=<span class="token-kw">lambda</span> x: x[<span class="token-str">"_score"</span>], reverse=<span class="token-kw">True</span>)
+        <span class="token-kw">return</span> entries[:top_k]
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 4. MemorySystem — 三层统一编排器</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">class</span> <span class="token-cls">MemorySystem</span>:
+    <span class="token-str">"""协调三层记忆，生成完整 LLM 上下文"""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, stm_tokens: <span class="token-cls">int</span> = <span class="token-num">8000</span>):
+        <span class="token-kw">self</span>.short_term = <span class="token-fn">ShortTermMemory</span>(max_tokens=stm_tokens)
+        <span class="token-kw">self</span>.working = <span class="token-fn">WorkingMemory</span>()
+        <span class="token-kw">self</span>.long_term = <span class="token-fn">LongTermMemory</span>()
+
+    <span class="token-kw">def</span> <span class="token-fn">build_context</span>(<span class="token-kw">self</span>, user_input: <span class="token-cls">str</span>) -> <span class="token-cls">list</span>[<span class="token-cls">dict</span>]:
+        ctx = []
+        <span class="token-cm"># 长期记忆检索</span>
+        memories = <span class="token-kw">self</span>.long_term.<span class="token-fn">retrieve</span>(user_input, top_k=<span class="token-num">3</span>)
+        <span class="token-kw">if</span> memories:
+            ltm = <span class="token-str">"\n"</span>.<span class="token-fn">join</span>([<span class="token-str">f"- {m['content']}"</span> <span class="token-kw">for</span> m <span class="token-kw">in</span> memories])
+            ctx.append({<span class="token-str">"role"</span>: <span class="token-str">"system"</span>, <span class="token-str">"content"</span>: <span class="token-str">f"[长期记忆]\n{ltm}"</span>})
+        <span class="token-cm"># 工作记忆状态</span>
+        s = <span class="token-kw">self</span>.working.<span class="token-fn">get_state_summary</span>()
+        <span class="token-kw">if</span> s:
+            ctx.append({<span class="token-str">"role"</span>: <span class="token-str">"system"</span>, <span class="token-str">"content"</span>: <span class="token-str">f"[工作记忆] {s}"</span>})
+        <span class="token-cm"># 短期记忆(对话历史)</span>
+        ctx.<span class="token-fn">extend</span>(<span class="token-kw">self</span>.short_term.<span class="token-fn">get_context</span>())
+        <span class="token-kw">return</span> ctx</code></pre>
+      </div>
+
+      <h4>代码设计要点</h4>
+      <ul>
+        <li><strong>ShortTermMemory</strong>：滑动窗口 deque + 自动摘要压缩(超阈值时压缩最早 30% 消息) + 中英文区分 token 估算。摘要阈值设为窗口 70%，给摘要过程预留操作空间。</li>
+        <li><strong>WorkingMemory</strong>：支持多任务上下文切换(task_stack 推入/恢复)、每一步状态追踪、50-200 token 精简摘要生成。</li>
+        <li><strong>LongTermMemory</strong>：ChromaDB+BGE 模型、2倍候选取回+多因子重排序(新鲜度衰减+重要性加权)、sha256 内容去重避免重复存储。</li>
+        <li><strong>MemorySystem</strong>：build_context() 按长期→工作→短期有序编排 LLM 上下文，每层信息清晰分隔便于 LLM 理解来源。</li>
+      </ul>
+    </div>
+
+    <!-- Card 9: Caching & Performance -->
+    <div class="content-card">
+      <h3>9. 记忆缓存与性能优化策略</h3>
+      <p>在频繁的 LLM 调用中，记忆系统的 I/O 操作可能成为瓶颈。合理的多层缓存大幅降低延迟和成本。</p>
+
+      <table>
+        <thead><tr><th>缓存层</th><th>位置</th><th>延迟</th><th>容量</th><th>内容</th></tr></thead>
+        <tbody>
+          <tr><td><strong>L1: 查询缓存</strong></td><td>进程内存 / Redis</td><td>微秒级</td><td>数百条</td><td>重复查询的检索结果(精确匹配或语义相似>0.95视为命中)</td></tr>
+          <tr><td><strong>L2: 嵌入缓存</strong></td><td>本地 SQLite / Redis</td><td>毫秒级</td><td>数万条</td><td>已计算过的文本嵌入向量(SHA256 哈希索引，避免重复 API 调用)</td></tr>
+          <tr><td><strong>L3: 磁盘持久化</strong></td><td>向量数据库</td><td>数毫秒~数十毫秒</td><td>百万~十亿级</td><td>完整长期记忆(最终数据源)</td></tr>
+        </tbody>
+      </table>
+
+      <h4>性能优化点</h4>
+      <ul>
+        <li><strong>批量嵌入</strong>：将多个待嵌入文本打包为批次(32-128条)，一次 API 调用处理，单条延迟降低 5-10 倍。</li>
+        <li><strong>增量索引</strong>：文档更新时仅重新嵌入变化的 chunk，基于文档版本号追踪变更，而非全量重建索引。</li>
+        <li><strong>缓存 TTL</strong>：事实类查询(如天气)TTL 短(数分钟)，知识类查询(如技术文档)TTL 长(数天甚至不限)。</li>
+        <li><strong>异步写入</strong>：长期记忆写入采用异步队列，避免阻塞主 Agent 循环。新记忆先入队列，后台线程批量写入向量数据库。</li>
+      </ul>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">性能指标参考</div>
+        <p>优化良好的记忆系统应达到：<strong>检索 P95 延迟 < 50ms</strong>、<strong>嵌入批处理吞吐 > 100 条/秒</strong>、<strong>嵌入缓存命中率 > 60%</strong>(在重复文档内容场景下)、<strong>索引构建速度 > 1000 条/秒</strong>。</p>
+      </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <div class="quiz-section" data-quiz="4">
+      <div class="quiz-title"><span style="font-size:28px;">&#128221;</span> 章节测验</div>
+      <div class="quiz-desc">测试你对记忆与状态管理的全面理解（共3题）</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 在 RAG 管线中，解决"向量相似度不等于语义相关性"问题的关键步骤是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 文本分块 (Chunking) — 更精细的分块能解决语义偏差</button>
+        <button class="quiz-option" data-answer="1">B. 向量化 (Embedding) — 换更好的嵌入模型即可</button>
+        <button class="quiz-option" data-answer="2">C. 重排序 (Reranking) — 对向量检索的候选结果进行更精细的语义匹配排序</button>
+        <button class="quiz-option" data-answer="3">D. 上下文注入 — 改变注入格式可以解决相关性偏差</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 采用混合检索 (Hybrid Search) 的主要理由是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 让检索速度翻倍，因为同时使用两种检索方法</button>
+        <button class="quiz-option" data-answer="1">B. 向量检索擅长语义理解但弱于精确匹配，混合 BM25 关键词检索能弥补这一短板</button>
+        <button class="quiz-option" data-answer="2">C. 混合检索可以完全替代重排序步骤，减少管线复杂度</button>
+        <button class="quiz-option" data-answer="3">D. 因为向量数据库不支持混合检索以外的模式</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 以下哪种场景最适合使用"重要性剪枝"而非"滑动窗口"来管理短期记忆？</div>
+        <button class="quiz-option" data-answer="0">A. 连续的简单问答，每句话信息价值相近</button>
+        <button class="quiz-option" data-answer="1">B. 用户在对话中混杂了关键约束(预算数字、截止日期)和大量闲聊寒暄</button>
+        <button class="quiz-option" data-answer="2">C. 纯工具调用序列，每步权重完全相同</button>
+        <button class="quiz-option" data-answer="3">D. 单次翻译任务，无需任何记忆管理</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a href="03-tool-calling.html" class="page-nav-btn">
+        <span>&#8592; 上一章</span>
+        <span class="page-nav-label">第3章：工具调用机制</span>
+      </a>
+      <a href="05-reasoning-planning.html" class="page-nav-btn">
+        <span>下一章 &#8594;</span>
+        <span class="page-nav-label">第5章：推理与规划</span>
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- ============================================
+     Agent Simulator Panel
+     ============================================ -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;">
+      <span class="sim-status-dot"></span> Agent 模拟器
+    </div>
+    <button id="simClose" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      &#128075; 你好！我是一个模拟的AI Agent。试试问我一些问题，观察我是如何<strong>思考&#8594;行动&#8594;观察</strong>的！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="sim-send-btn" id="simSend" style="padding:10px 16px;background:var(--accent-cyan);border:none;border-radius:8px;color:#080c14;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap;">发送</button>
+  </div>
+</div>
+
+<!-- ============================================
+     Notes Panel
+     ============================================ -->
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header">
+    <span>&#128214; 我的笔记</span>
+    <button id="notesClose" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">&#10005;</button>
+  </div>
+  <div class="notes-list" id="notesList"></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4" selected>第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：提示工程</option>
+        <option value="9">第9章：评估测试</option>
+        <option value="10">第10章：部署运维</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     Toast Container
+     ============================================ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第14章 企业集成模式 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent 开发框架</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link" data-chapter="13"><span class="nav-icon">13</span> 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link active" data-chapter="14"><span class="nav-icon">14</span> 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link" data-chapter="15"><span class="nav-icon">15</span> Agent 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link" data-chapter="16"><span class="nav-icon">16</span> 团队协作与MLOps</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="sidebar-section-title">学习进度</div>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>整体进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="14" id="chapter14">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 14 章</div>
+      <h2 class="chapter-title">企业集成模式</h2>
+      <p class="chapter-subtitle">深入掌握 Agent 与企业系统的安全集成：数据库、REST API、消息队列、认证授权、容错设计、隐私合规与全链路可观测性</p>
+    </header>
+
+    <!-- Card 1: 企业集成全景 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon blue">🌐</div>
+        <div>
+          <div class="card-title">企业集成全景 — Agent 作为智能中间件</div>
+          <div class="card-desc">理解 Agent 在企业 IT 架构中的定位、集成边界与核心设计原则</div>
+        </div>
+      </div>
+      <p>当 AI Agent 从原型阶段走向生产环境，它必须与已有的企业 IT 基础设施深度融合。企业级 Agent 不是一座孤岛——它需要安全地连接数据库、消息队列、REST API、ERP/CRM 系统、身份认证服务、监控平台等数十种企业组件。理解这些集成模式是 Agent 工程师从"能做"走向"能用"的关键分水岭。</p>
+
+      <h4>Agent 作为企业中间件的架构定位</h4>
+      <p>在传统企业架构中，中间件负责在不同系统之间传递消息、转换数据格式、编排业务流程。AI Agent 的出现为中间件层引入了<strong>智能决策能力</strong>——它不再是简单的消息路由，而是能够根据上下文理解用户意图、自主选择调用哪些后端服务、动态编排执行顺序，并在出现异常时自行决定重试或降级策略。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>集成类型</th>
+              <th>典型系统</th>
+              <th>Agent 角色</th>
+              <th>关键风险</th>
+              <th>集成难度</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>数据库</strong></td>
+              <td>PostgreSQL, MySQL, MongoDB, Redis</td>
+              <td>数据查询与分析助手</td>
+              <td>SQL 注入、数据泄露、性能冲击</td>
+              <td>中等</td>
+            </tr>
+            <tr>
+              <td><strong>REST API</strong></td>
+              <td>内部微服务、第三方 SaaS</td>
+              <td>服务编排与数据聚合</td>
+              <td>认证泄露、速率限制、响应过大</td>
+              <td>低</td>
+            </tr>
+            <tr>
+              <td><strong>消息队列</strong></td>
+              <td>RabbitMQ, Kafka, AWS SQS</td>
+              <td>异步任务消费者/生产者</td>
+              <td>消息丢失、重复消费、顺序性</td>
+              <td>中等</td>
+            </tr>
+            <tr>
+              <td><strong>ERP/CRM</strong></td>
+              <td>SAP, Salesforce, Oracle</td>
+              <td>业务流程自动化代理</td>
+              <td>数据一致性、权限边界、审计合规</td>
+              <td>高</td>
+            </tr>
+            <tr>
+              <td><strong>身份认证</strong></td>
+              <td>OAuth 2.0, LDAP, SAML</td>
+              <td>用户身份验证与授权</td>
+              <td>凭证泄露、权限提升</td>
+              <td>中等</td>
+            </tr>
+            <tr>
+              <td><strong>监控平台</strong></td>
+              <td>Prometheus, Grafana, Datadog</td>
+              <td>被监控对象与告警消费者</td>
+              <td>监控盲区、告警风暴</td>
+              <td>低</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Agent-as-Middleware 的核心设计原则</h4>
+      <p>将 Agent 视为中间件层时，需要遵循以下设计原则：<strong>最小权限</strong>——Agent 只应被授予完成任务所需的最小权限集合；<strong>纵深防御</strong>——在模型层、工具层、传输层、存储层分别部署安全控制；<strong>故障隔离</strong>——Agent 的失败不应级联影响它所连接的后端系统；<strong>可审计性</strong>——每一次 Agent 发起的对外调用都应当被记录下来，形成完整的审计追踪链。</p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">架构决策：Agent 应该直接访问数据库还是通过 API 层？</div>
+        <p>在企业环境中，<strong>强烈建议 Agent 通过专门的 API 网关或服务层访问后端系统</strong>，而非直接连接数据库。这样做的好处包括：统一的认证与授权控制、请求频率限制、响应数据过滤、审计日志集中管理。直接授予 Agent 数据库访问权限是<strong>极高风险</strong>的操作，仅在受控的数据分析场景且配置了只读副本与查询结果集限制时才可考虑。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: 数据库安全集成 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">🗄️</div>
+        <div>
+          <div class="card-title">数据库安全集成 — 让 Agent 安全地查询数据</div>
+          <div class="card-desc">只读副本、参数化查询、结果限制——构建防注入、可限流的数据访问层</div>
+        </div>
+      </div>
+      <p>数据库是大多数企业应用的核心，也是 Agent 集成中风险最高的目标之一。一个设计不当的数据库工具可能让 Agent 无意中执行危险的 DROP TABLE、泄露敏感数据、或对生产数据库造成性能冲击。以下是构建安全数据库 Agent 工具的完整实践指南。</p>
+
+      <h4>安全分层：只读副本 + 参数化查询 + 结果限制</h4>
+      <p>第一道防线是<strong>物理隔离</strong>：Agent 永远不应连接生产主库。应为其配置只读副本 (Read Replica)，即使最坏情况发生，也只影响查询性能而非数据完整性。第二道防线是<strong>参数化查询</strong>：绝不使用字符串拼接构造 SQL，所有用户/Agent 输入都必须通过参数化方式绑定。第三道防线是<strong>结果限制</strong>：强制添加 LIMIT 子句和查询超时，防止全表扫描耗尽数据库资源。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 安全的数据库查询工具 (带多层防护)</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> re
+<span class="token-kw">import</span> time
+<span class="token-kw">import</span> hashlib
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">import</span> psycopg2
+<span class="token-kw">from</span> psycopg2 <span class="token-kw">import</span> sql
+
+<span class="token-kw">class</span> <span class="token-class">DatabaseSafetyError</span>(<span class="token-builtin">Exception</span>):
+    <span class="token-string">"""数据库安全违规异常"""</span>
+    <span class="token-keyword">pass</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">QueryResult</span>:
+    columns: <span class="token-builtin">list</span>[<span class="token-builtin">str</span>]
+    rows: <span class="token-builtin">list</span>[<span class="token-builtin">tuple</span>]
+    row_count: <span class="token-builtin">int</span>
+    execution_ms: <span class="token-builtin">float</span>
+    truncated: <span class="token-builtin">bool</span> = <span class="token-keyword">False</span>
+
+<span class="token-kw">class</span> <span class="token-class">SafeDatabaseTool</span>:
+    <span class="token-string">"""企业级安全的数据库查询工具
+
+    多层安全防护：
+    1. 只读副本连接 — 物理隔离生产库
+    2. 参数化查询 — 100% 防止 SQL 注入
+    3. 危险关键词拦截 — 阻止 DDL/DCL 语句
+    4. 结果集限制 — 防止全表扫描
+    5. 查询超时 — 防止慢查询占满连接池
+    6. 审计日志 — 完整的查询追踪链
+    """</span>
+
+    <span class="token-cm"># 危险 SQL 关键词黑名单</span>
+    FORBIDDEN_KEYWORDS = [
+        <span class="token-string">'DROP'</span>, <span class="token-string">'ALTER'</span>, <span class="token-string">'CREATE'</span>, <span class="token-string">'TRUNCATE'</span>,
+        <span class="token-string">'INSERT'</span>, <span class="token-string">'UPDATE'</span>, <span class="token-string">'DELETE'</span>, <span class="token-string">'GRANT'</span>,
+        <span class="token-string">'REVOKE'</span>, <span class="token-string">'EXEC'</span>, <span class="token-string">'EXECUTE'</span>, <span class="token-string">'MERGE'</span>,
+        <span class="token-string">'REPLACE'</span>, <span class="token-string">'LOAD'</span>, <span class="token-string">'IMPORT'</span>, <span class="token-string">'COPY'</span>
+    ]
+
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, dsn: <span class="token-builtin">str</span>, max_rows: <span class="token-builtin">int</span> = 100,
+                 query_timeout_ms: <span class="token-builtin">int</span> = 5000):
+        <span class="token-keyword">self</span>.dsn = dsn
+        <span class="token-keyword">self</span>.max_rows = max_rows
+        <span class="token-keyword">self</span>.query_timeout_ms = query_timeout_ms
+        <span class="token-keyword">self</span>._conn = <span class="token-keyword">None</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">_get_connection</span>(<span class="token-keyword">self</span>):
+        <span class="token-string">"""获取或创建只读连接 (连接池模式)"""</span>
+        <span class="token-keyword">if</span> <span class="token-keyword">self</span>._conn <span class="token-keyword">is</span> <span class="token-keyword">None</span> <span class="token-keyword">or</span> <span class="token-keyword">self</span>._conn.closed:
+            <span class="token-keyword">self</span>._conn = psycopg2.connect(<span class="token-keyword">self</span>.dsn)
+            <span class="token-keyword">self</span>._conn.set_session(readonly=<span class="token-keyword">True</span>, autocommit=<span class="token-keyword">True</span>)
+        <span class="token-keyword">return</span> <span class="token-keyword">self</span>._conn
+
+    <span class="token-keyword">def</span> <span class="token-function">_validate_sql</span>(<span class="token-keyword">self</span>, query: <span class="token-builtin">str</span>) -> <span class="token-keyword">None</span>:
+        <span class="token-string">"""验证 SQL 安全性 — 拦截危险操作"""</span>
+        upper_query = query.upper().strip()
+        <span class="token-keyword">for</span> keyword <span class="token-keyword">in</span> <span class="token-keyword">self</span>.FORBIDDEN_KEYWORDS:
+            pattern = <span class="token-string">r'\b'</span> + keyword + <span class="token-string">r'\b'</span>
+            <span class="token-keyword">if</span> re.search(pattern, upper_query):
+                <span class="token-keyword">raise</span> DatabaseSafetyError(
+                    <span class="token-string">f"禁止的SQL操作: {keyword}. 仅支持只读查询 (SELECT)."</span>
+                )
+        <span class="token-keyword">if</span> <span class="token-keyword">not</span> upper_query.startswith(<span class="token-string">'SELECT'</span>):
+            <span class="token-keyword">raise</span> DatabaseSafetyError(<span class="token-string">"仅允许 SELECT 查询"</span>)
+        <span class="token-keyword">if</span> upper_query.count(<span class="token-string">'SELECT'</span>) > 3:
+            <span class="token-keyword">raise</span> DatabaseSafetyError(<span class="token-string">"子查询嵌套层数过多 (最大3层)"</span>)
+
+    <span class="token-keyword">def</span> <span class="token-function">execute_query</span>(<span class="token-keyword">self</span>, query: <span class="token-builtin">str</span>,
+                       params: <span class="token-builtin">dict</span>[<span class="token-builtin">str</span>, Any] | <span class="token-keyword">None</span> = <span class="token-keyword">None</span>) -> QueryResult:
+        <span class="token-string">"""执行安全的参数化查询"""</span>
+        <span class="token-keyword">self</span>._validate_sql(query)
+        <span class="token-keyword">if</span> <span class="token-string">'LIMIT'</span> <span class="token-keyword">not</span> <span class="token-keyword">in</span> query.upper():
+            query = query.rstrip(<span class="token-string">';'</span>) + <span class="token-string">f" LIMIT {self.max_rows + 1}"</span>
+        conn = <span class="token-keyword">self</span>._get_connection()
+        start_time = time.perf_counter()
+        <span class="token-keyword">try</span>:
+            <span class="token-keyword">with</span> conn.cursor() <span class="token-keyword">as</span> cur:
+                cur.execute(<span class="token-string">f"SET statement_timeout = {self.query_timeout_ms}"</span>)
+                cur.execute(query, params <span class="token-keyword">or</span> {})
+                columns = [desc[<span class="token-number">0</span>] <span class="token-keyword">for</span> desc <span class="token-keyword">in</span> cur.description]
+                rows = cur.fetchmany(<span class="token-keyword">self</span>.max_rows + <span class="token-number">1</span>)
+        <span class="token-keyword">except</span> psycopg2.errors.QueryCanceled:
+            <span class="token-keyword">raise</span> DatabaseSafetyError(<span class="token-string">f"查询超时 ({self.query_timeout_ms}ms). 请优化查询条件."</span>)
+        elapsed_ms = (time.perf_counter() - start_time) * <span class="token-number">1000</span>
+        truncated = <span class="token-keyword">len</span>(rows) > <span class="token-keyword">self</span>.max_rows
+        <span class="token-keyword">if</span> truncated:
+            rows = rows[:<span class="token-keyword">self</span>.max_rows]
+        <span class="token-keyword">return</span> QueryResult(
+            columns=columns, rows=rows, row_count=<span class="token-keyword">len</span>(rows),
+            execution_ms=elapsed_ms, truncated=truncated
+        )
+
+    <span class="token-keyword">def</span> <span class="token-function">format_for_llm</span>(<span class="token-keyword">self</span>, result: QueryResult) -> <span class="token-builtin">str</span>:
+        <span class="token-string">"""将查询结果格式化为 LLM 友好的文本"""</span>
+        lines = [<span class="token-string">f"查询结果: {result.row_count} 行, 耗时 {result.execution_ms:.0f}ms"</span>]
+        <span class="token-keyword">if</span> result.truncated:
+            lines.append(<span class="token-string">f"⚠️ 结果已截断至 {self.max_rows} 行. 请添加更精确的 WHERE 条件."</span>)
+        <span class="token-keyword">if</span> result.rows:
+            lines.append(<span class="token-string">"| "</span> + <span class="token-string">" | "</span>.join(result.columns) + <span class="token-string">" |"</span>)
+            lines.append(<span class="token-string">"|"</span> + <span class="token-string">"|"</span>.join([<span class="token-string">"---"</span>] * <span class="token-keyword">len</span>(result.columns)) + <span class="token-string">"|"</span>)
+            <span class="token-keyword">for</span> row <span class="token-keyword">in</span> result.rows[:<span class="token-number">20</span>]:
+                lines.append(<span class="token-string">"| "</span> + <span class="token-string">" | "</span>.join(<span class="token-builtin">str</span>(v) <span class="token-keyword">for</span> v <span class="token-keyword">in</span> row) + <span class="token-string">" |"</span>)
+        <span class="token-keyword">else</span>:
+            lines.append(<span class="token-string">"(无结果)"</span>)
+        <span class="token-keyword">return</span> <span class="token-string">"\n"</span>.join(lines)</code></pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">关键安全提醒：永远不要拼接 SQL</div>
+        <p>以下做法是<strong>绝对禁止</strong>的：<code>f"SELECT * FROM users WHERE name = '{user_input}'"</code>。即使你认为 Agent 的输出是"受控的"，LLM 可能被提示注入攻击诱导生成恶意 SQL。始终使用 <strong>参数化查询</strong>（%s 占位符 + 参数元组），让数据库驱动在协议层面分离代码与数据。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: REST API集成 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">🔗</div>
+        <div>
+          <div class="card-title">REST API 集成 — 将端点封装为安全工具</div>
+          <div class="card-desc">分页处理、速率限制、响应过滤——避免把整个 API 响应塞进 LLM 上下文</div>
+        </div>
+      </div>
+      <p>REST API 是 Agent 与企业内外部服务交互的最常见方式。然而直接暴露 API 端点给 Agent 存在几个核心问题：一是 API 响应通常包含大量 Agent 不需要的元数据和嵌套结构，浪费 Token；二是 Agent 可能以过高频率调用 API 触发限流；三是 Agent 可能遍历所有分页试图获取"全部数据"。</p>
+
+      <h4>API 工具封装的最佳实践</h4>
+      <p>每个 API 工具应该像一个精心设计的函数接口：有明确的输入参数、有结构的返回值、有内置的错误处理和速率限制。不要直接将原始 HTTP 响应返回给 LLM——而是提取关键字段，格式化为紧凑的结构化文本，并在工具描述中清晰说明该 API 的能力边界。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 企业级 API 调用工具 (含限流与响应过滤)</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> time
+<span class="token-kw">import</span> json
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Optional
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> collections <span class="token-kw">import</span> defaultdict
+<span class="token-kw">import</span> httpx
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">RateLimitConfig</span>:
+    max_requests_per_minute: <span class="token-builtin">int</span> = 30
+    max_requests_per_hour: <span class="token-builtin">int</span> = 500
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">ApiCallResult</span>:
+    status_code: <span class="token-builtin">int</span>
+    data: Any
+    elapsed_ms: <span class="token-builtin">float</span>
+    pagination_info: Optional[<span class="token-builtin">dict</span>] = <span class="token-keyword">None</span>
+
+<span class="token-kw">class</span> <span class="token-class">SecureApiClient</span>:
+    <span class="token-string">"""企业级 API 客户端 — 含速率限制、重试、响应过滤
+
+    特性：
+    - Token Bucket 速率限制 (本地保护 + 尊重服务端限流头)
+    - 指数退避重试 (配合服务端 Retry-After)
+    - 响应数据过滤 (只提取 LLM 需要的字段)
+    - 分页智能处理 (最多 N 页, 自动合并)
+    - 审计日志 (每个请求的哈希指纹)
+    """</span>
+
+    def __init__(self, base_url: str, auth_token: str):
+        self.base_url = base_url.rstrip('/')
+        self.auth_token = auth_token
+        self._request_timestamps: list[float] = []
+        self._hourly_count = 0
+        self._hour_start = time.time()
+
+    def _check_rate_limit(self):
+        now = time.time()
+        self._request_timestamps = [t for t in self._request_timestamps if now - t < 60]
+        if len(self._request_timestamps) >= 30:
+            raise Exception("API 速率限制: 超过每分钟30次请求")
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=30))
+    async def call_api(
+        self, method: str, path: str,
+        params: dict | None = None,
+        json_data: dict | None = None,
+        response_fields: list[str] | None = None,
+        max_pages: int = 1,
+        page_size: int = 50,
+    ) -> ApiCallResult:
+        self._check_rate_limit()
+        start = time.perf_counter()
+        url = f"{self.base_url}{path}"
+        headers = {
+            "Authorization": f"Bearer {self.auth_token}",
+            "Accept": "application/json",
+        }
+
+        all_data = []
+        page = 1
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            while page <= max_pages:
+                req_params = (params or {}).copy()
+                req_params["page"] = str(page)
+                req_params["per_page"] = str(page_size)
+                resp = await client.request(method, url, params=req_params, json=json_data, headers=headers)
+                if resp.status_code == 429:
+                    retry_after = int(resp.headers.get("Retry-After", "5"))
+                    raise Exception(f"服务端限流, {retry_after}s 后重试")
+                resp.raise_for_status()
+                page_data = resp.json()
+                if response_fields:
+                    if isinstance(page_data, list):
+                        filtered = [{k: item.get(k) for k in response_fields if k in item} for item in page_data]
+                    else:
+                        filtered = {k: page_data.get(k) for k in response_fields if k in page_data}
+                else:
+                    filtered = page_data
+                all_data.append(filtered)
+                if isinstance(page_data, list) and len(page_data) < page_size:
+                    break
+                page += 1
+
+        elapsed_ms = (time.perf_counter() - start) * 1000
+        self._request_timestamps.append(time.time())
+        self._hourly_count += 1
+
+        return ApiCallResult(
+            status_code=200,
+            data=all_data[0] if max_pages == 1 else all_data,
+            elapsed_ms=elapsed_ms,
+            pagination_info={"pages_fetched": page, "total_items": sum(len(d) if isinstance(d, list) else 1 for d in all_data)}
+        )
+
+    def format_for_llm(self, result: ApiCallResult) -> str:
+        data_str = json.dumps(result.data, ensure_ascii=False, indent=2, default=str)
+        if len(data_str) > 4000:
+            data_str = data_str[:4000] + "\n... (响应已截断至4000字符)"
+        return f"[API {result.status_code}, {result.elapsed_ms:.0f}ms]\n{data_str}"</code></pre>
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">响应过滤是性价比最高的优化</div>
+        <p>实践中，API 响应中 60-80% 的数据对 Agent 的决策没有价值。通过 <code>response_fields</code> 参数过滤响应、在工具描述中声明返回格式，可以显著降低 Token 消耗——通常可节省 40-60% 的输入 Token 成本，同时提升 Agent 的推理质量（减少噪声信息干扰）。</p>
+      </div>
+    </div>
+
+    <!-- Card 4: 消息队列集成 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon orange">📨</div>
+        <div>
+          <div class="card-title">消息队列集成 — Agent 作为异步生产者与消费者</div>
+          <div class="card-desc">RabbitMQ / SQS / Kafka 模式：解耦 Agent 调用与业务处理</div>
+        </div>
+      </div>
+      <p>消息队列是企业异步架构的基石。Agent 可以作为消息的<strong>智能消费者</strong>（分析消息内容并触发相应动作）和<strong>智能生产者</strong>（根据对话上下文生成需要异步处理的任务）。消息队列模式天然解决了 Agent 的同步等待问题：耗时操作通过队列异步执行，Agent 可以立即响应用户并稍后通知结果。</p>
+
+      <h4>三种核心集成模式</h4>
+      <p><strong>模式一：请求-回调 (Request-Callback)</strong>——Agent 将任务发布到队列，注册回调或 Webhook，待任务完成后异步通知用户。适用于长时间运行的分析任务、报表生成等。<strong>模式二：事件驱动 (Event-Driven)</strong>——Agent 作为队列消费者，监听系统事件（如订单创建、告警触发），自动分析并执行预定义的操作流程。<strong>模式三：扇出分发 (Fan-Out)</strong>——Agent 分析一条消息，根据内容决定将其路由到多个下游处理器并行执行，最后聚合结果。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — Agent 消息队列消费者/生产者 (基于 RabbitMQ)</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> json
+<span class="token-kw">import</span> uuid
+<span class="token-kw">import</span> asyncio
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Callable, Awaitable
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> datetime <span class="token-kw">import</span> datetime, timezone
+<span class="token-kw">import</span> aio_pika
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">AgentTask</span>:
+    task_id: <span class="token-builtin">str</span>
+    task_type: <span class="token-builtin">str</span>
+    payload: <span class="token-builtin">dict</span>
+    priority: <span class="token-builtin">int</span> = <span class="token-number">5</span>
+    created_at: <span class="token-builtin">str</span> = field(default_factory=<span class="token-keyword">lambda</span>: datetime.now(timezone.utc).isoformat())
+    max_retries: <span class="token-builtin">int</span> = <span class="token-number">3</span>
+    ttl_seconds: <span class="token-builtin">int</span> = <span class="token-number">3600</span>
+
+<span class="token-kw">class</span> <span class="token-class">AgentMessageQueue</span>:
+    <span class="token-string">"""Agent 消息队列管理器
+
+    支持的队列拓扑:
+    - agent.tasks.high    (优先级1-3)
+    - agent.tasks.normal  (优先级4-7)
+    - agent.tasks.low     (优先级8-10)
+    - agent.results       (任务结果回调)
+    - agent.events        (系统事件通知)
+    - agent.dead_letter   (失败任务)
+    """</span>
+
+    def __init__(self, amqp_url: str):
+        self.amqp_url = amqp_url
+        self._connection: aio_pika.RobustConnection | None = None
+        self._channel: aio_pika.RobustChannel | None = None
+        self._handlers: dict[str, Callable] = {}
+
+    async def connect(self):
+        self._connection = await aio_pika.connect_robust(self.amqp_url)
+        self._channel = await self._connection.channel()
+        self._task_exchange = await self._channel.declare_exchange("agent.tasks", aio_pika.ExchangeType.TOPIC, durable=True)
+        for priority_level in ["high", "normal", "low"]:
+            queue = await self._channel.declare_queue(
+                f"agent.tasks.{priority_level}", durable=True,
+                arguments={"x-message-ttl": 3600000, "x-max-priority": 10, "x-dead-letter-exchange": "agent.dead_letter"}
+            )
+            await queue.bind(self._task_exchange, f"task.{priority_level}")
+        await self._channel.declare_queue("agent.dead_letter", durable=True)
+
+    async def publish_task(self, task: AgentTask):
+        priority_key = "task.high" if task.priority <= 3 else "task.normal" if task.priority <= 7 else "task.low"
+        message = aio_pika.Message(
+            body=json.dumps(task.__dict__).encode(),
+            content_type="application/json",
+            message_id=task.task_id,
+            priority=task.priority,
+            expiration=task.ttl_seconds * 1000,
+            delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
+        )
+        await self._task_exchange.publish(message, routing_key=priority_key)
+
+    async def register_handler(self, task_type: str, handler: Callable[[dict], Awaitable[dict]]):
+        self._handlers[task_type] = handler
+
+    async def start_consuming(self, queue_name: str = "agent.tasks.normal"):
+        queue = await self._channel.get_queue(queue_name)
+        async def on_message(message: aio_pika.IncomingMessage):
+            async with message.process():
+                try:
+                    task_data = json.loads(message.body.decode())
+                    task_type = task_data.get("task_type")
+                    if task_type in self._handlers:
+                        result = await self._handlers[task_type](task_data["payload"])
+                    else:
+                        await message.reject(requeue=False)
+                except Exception as e:
+                    retry_count = message.headers.get("x-retry-count", 0) if message.headers else 0
+                    if retry_count < task_data.get("max_retries", 3):
+                        await self._channel.default_exchange.publish(
+                            aio_pika.Message(body=message.body, headers={"x-retry-count": retry_count + 1}),
+                            routing_key=message.routing_key,
+                        )
+                    else:
+                        await message.reject(requeue=False)
+        await queue.consume(on_message)
+
+    async def close(self):
+        if self._connection:
+            await self._connection.close()</code></pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">消息队列集成的幂等性要求</div>
+        <p>消息队列环境中，<strong>至少一次</strong>投递是最常见的保证，这意味着同一消息可能被 Agent 处理多次。务必在任务处理逻辑中实现<strong>幂等性</strong>——基于 task_id 或业务唯一键去重，确保重复处理不会造成数据不一致。对于资金相关操作，建议使用<strong>数据库唯一约束</strong>而非应用层检查来保证幂等性。</p>
+      </div>
+    </div>
+
+    <!-- Card 5: 认证与授权 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon red">🔐</div>
+        <div>
+          <div class="card-title">认证与授权 — Agent 身份管理与最小权限</div>
+          <div class="card-desc">API Key vs OAuth 2.0 vs JWT vs IAM：选择正确的认证策略并管理密钥</div>
+        </div>
+      </div>
+      <p>Agent 在企业环境中需要代表用户或服务账户访问资源。认证机制的选择直接影响安全性、可维护性和合规性。关键问题是：Agent 应该以谁的身份执行操作？是固定服务账户、委托用户身份，还是基于角色的临时凭证？</p>
+
+      <h4>四种认证模式的对比与选择</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模式</th>
+              <th>适用场景</th>
+              <th>优点</th>
+              <th>风险</th>
+              <th>推荐度</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>API Key</strong></td>
+              <td>内部工具、低风险只读操作</td>
+              <td>简单、易实现</td>
+              <td>泄露后无法追踪使用者、难以轮转</td>
+              <td>仅限开发/测试</td>
+            </tr>
+            <tr>
+              <td><strong>OAuth 2.0 Client Credentials</strong></td>
+              <td>服务间通信、Agent连接自己的API</td>
+              <td>标准化、支持作用域、可自动轮转</td>
+              <td>需要管理 client_secret</td>
+              <td>推荐</td>
+            </tr>
+            <tr>
+              <td><strong>JWT (用户委派)</strong></td>
+              <td>Agent 代表用户操作</td>
+              <td>保留用户身份、天然支持审计</td>
+              <td>Token 有效期管理、刷新逻辑复杂</td>
+              <td>推荐（用户操作场景）</td>
+            </tr>
+            <tr>
+              <td><strong>IAM Roles (云环境)</strong></td>
+              <td>AWS/GCP/Azure 云资源访问</td>
+              <td>无需管理凭证、自动轮转、细粒度</td>
+              <td>云平台锁定、跨云场景复杂</td>
+              <td>推荐（云原生）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 多策略认证包装器 + Vault 密钥管理</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> os
+<span class="token-kw">import</span> time
+<span class="token-kw">import</span> jwt
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+<span class="token-kw">import</span> httpx
+
+<span class="token-kw">class</span> <span class="token-class">AuthMethod</span>(Enum):
+    API_KEY = <span class="token-string">"api_key"</span>
+    OAUTH_CC = <span class="token-string">"oauth_client_credentials"</span>
+    JWT_USER = <span class="token-string">"jwt_user_delegation"</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">AuthContext</span>:
+    method: AuthMethod
+    token: <span class="token-builtin">str</span>
+    expires_at: <span class="token-builtin">float</span>
+    scopes: <span class="token-builtin">list</span>[<span class="token-builtin">str</span>]
+    user_id: Optional[<span class="token-builtin">str</span>] = <span class="token-keyword">None</span>
+
+<span class="token-kw">class</span> <span class="token-class">AgentAuthManager</span>:
+    <span class="token-string">"""Agent 认证管理器 — 支持多策略与自动刷新
+
+    密钥来源优先级:
+    1. HashiCorp Vault (生产环境首选)
+    2. 环境变量 (测试/CI环境)
+    3. AWS/GCP Secrets Manager (云环境)
+    """</span>
+
+    def __init__(self, vault_url: str | None = None):
+        self.vault_url = vault_url
+        self._token_cache: dict[str, AuthContext] = {}
+
+    async def _get_secret(self, key: str) -> str:
+        if self.vault_url:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    f"{self.vault_url}/v1/secret/data/agent/{key}",
+                    headers={"X-Vault-Token": os.environ["VAULT_TOKEN"]}
+                )
+                resp.raise_for_status()
+                return resp.json()["data"]["data"]["value"]
+        else:
+            value = os.environ.get(key)
+            if not value:
+                raise Exception(f"密钥 {key} 未在环境变量中找到")
+            return value
+
+    async def get_oauth_cc_auth(self, token_url: str, client_id: str, scopes: list[str]) -> AuthContext:
+        cache_key = f"oauth_cc:{client_id}:{':'.join(sorted(scopes))}"
+        if cache_key in self._token_cache:
+            cached = self._token_cache[cache_key]
+            if cached.expires_at > time.time() + 60:
+                return cached
+        client_secret = await self._get_secret(f"OAUTH_{client_id.upper()}_SECRET")
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(token_url, data={
+                "grant_type": "client_credentials",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "scope": " ".join(scopes),
+            })
+            resp.raise_for_status()
+            data = resp.json()
+        auth = AuthContext(
+            method=AuthMethod.OAUTH_CC,
+            token=data["access_token"],
+            expires_at=time.time() + data.get("expires_in", 3600),
+            scopes=scopes,
+        )
+        self._token_cache[cache_key] = auth
+        return auth
+
+    async def get_jwt_user_auth(self, user_id: str, scopes: list[str]) -> AuthContext:
+        signing_key = await self._get_secret("JWT_SIGNING_KEY")
+        now = int(time.time())
+        payload = {
+            "sub": user_id, "iss": "agent-platform",
+            "iat": now, "exp": now + 900,
+            "scopes": scopes,
+            "agent_id": os.environ.get("AGENT_ID", "unknown"),
+            "delegated": True,
+        }
+        token = jwt.encode(payload, signing_key, algorithm="HS256")
+        return AuthContext(method=AuthMethod.JWT_USER, token=token, expires_at=now + 900, scopes=scopes, user_id=user_id)
+
+    def build_headers(self, auth: AuthContext) -> dict[str, str]:
+        if auth.method == AuthMethod.API_KEY:
+            return {"X-API-Key": auth.token}
+        elif auth.method in (AuthMethod.OAUTH_CC, AuthMethod.JWT_USER):
+            return {"Authorization": f"Bearer {auth.token}"}
+        else:
+            raise ValueError(f"不支持的认证方式: {auth.method}")</code></pre>
+      </div>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">密钥管理的致命错误</div>
+        <p>以下是 Agent 项目中常见的密钥管理错误：(1) 将 API Key 硬编码在源代码中；(2) 将 .env 文件提交到 Git；(3) 在日志中打印完整 Token；(4) 使用默认密码或弱密钥；(5) 所有环境使用同一套密钥；(6) 密钥从不轮转。解决之道：使用 <strong>HashiCorp Vault</strong> 或云平台 <strong>Secrets Manager</strong> 进行集中式密钥管理，配合自动轮转和访问审计。</p>
+      </div>
+    </div>
+
+    <!-- Card 6: 可靠性与容错 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">🛡️</div>
+        <div>
+          <div class="card-title">可靠性与容错 — 打造不会崩溃的 Agent</div>
+          <div class="card-desc">指数退避、熔断器、超时管理、优雅降级——这些模式是生产 Agent 的生命线</div>
+        </div>
+      </div>
+      <p>企业环境中的网络不可靠、API 会限流、数据库会超时、第三方服务会宕机。Agent 作为这些依赖的编排者，必须具备强大的容错能力。本章介绍的三种核心模式——指数退避重试、熔断器、优雅降级——构成了 Agent 可靠性工程的基石。</p>
+
+      <h4>模式一：带抖动的指数退避 (Exponential Backoff with Jitter)</h4>
+      <p>当 API 调用失败时，立即以相同频率重试只会加剧问题（thundering herd）。指数退避逐渐增加重试间隔，而<strong>随机抖动</strong>防止多个客户端同步重试。业界实践证明，添加抖动后系统的整体恢复速度提升 3-5 倍。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 指数退避重试 + 熔断器完整实现</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> time
+<span class="token-kw">import</span> random
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Callable, TypeVar
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> functools <span class="token-kw">import</span> wraps
+
+T = TypeVar(<span class="token-string">'T'</span>)
+
+<span class="token-kw">class</span> <span class="token-class">CircuitState</span>(Enum):
+    CLOSED = <span class="token-string">"closed"</span>
+    OPEN = <span class="token-string">"open"</span>
+    HALF_OPEN = <span class="token-string">"half_open"</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">CircuitBreakerConfig</span>:
+    failure_threshold: <span class="token-builtin">int</span> = 5
+    recovery_timeout: <span class="token-builtin">float</span> = 30.0
+    half_open_max_requests: <span class="token-builtin">int</span> = 3
+    success_threshold: <span class="token-builtin">int</span> = 2
+
+<span class="token-kw">class</span> <span class="token-class">CircuitBreaker</span>:
+    <span class="token-string">"""熔断器 — 防止级联故障
+
+    状态转换:
+    CLOSED ──(连续失败N次)──> OPEN
+    OPEN ──(超时后)──> HALF_OPEN
+    HALF_OPEN ──(连续成功M次)──> CLOSED
+    HALF_OPEN ──(任何失败)──> OPEN
+    """</span>
+
+    def __init__(self, name: str, config: CircuitBreakerConfig = CircuitBreakerConfig()):
+        self.name = name
+        self.config = config
+        self.state = CircuitState.CLOSED
+        self.failure_count = 0
+        self.success_count = 0
+        self.last_failure_time = 0.0
+        self._half_open_requests = 0
+
+    def before_call(self) -> bool:
+        now = time.time()
+        if self.state == CircuitState.OPEN:
+            if now - self.last_failure_time >= self.config.recovery_timeout:
+                self.state = CircuitState.HALF_OPEN
+                self._half_open_requests = 0
+                self.success_count = 0
+            else:
+                raise CircuitBreakerOpenError(
+                    f"熔断器 {self.name} 已断开. 剩余冷却: {self.config.recovery_timeout - (now - self.last_failure_time):.0f}s"
+                )
+        if self.state == CircuitState.HALF_OPEN:
+            if self._half_open_requests >= self.config.half_open_max_requests:
+                raise CircuitBreakerOpenError(f"熔断器 {self.name} 半开状态已达最大探测请求数")
+            self._half_open_requests += 1
+        return True
+
+    def on_success(self):
+        if self.state == CircuitState.HALF_OPEN:
+            self.success_count += 1
+            if self.success_count >= self.config.success_threshold:
+                self.state = CircuitState.CLOSED
+                self.failure_count = 0
+        elif self.state == CircuitState.CLOSED:
+            self.failure_count = 0
+
+    def on_failure(self):
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        if self.state == CircuitState.HALF_OPEN:
+            self.state = CircuitState.OPEN
+        elif self.state == CircuitState.CLOSED and self.failure_count >= self.config.failure_threshold:
+            self.state = CircuitState.OPEN
+
+<span class="token-kw">class</span> <span class="token-class">CircuitBreakerOpenError</span>(<span class="token-builtin">Exception</span>):
+    <span class="token-keyword">pass</span>
+
+<span class="token-cm"># ============ 组合装饰器：重试 + 熔断 + 降级 ============</span>
+
+<span class="token-kw">def</span> <span class="token-function">with_resilience</span>(
+    max_retries: <span class="token-builtin">int</span> = 3,
+    base_delay: <span class="token-builtin">float</span> = 1.0,
+    max_delay: <span class="token-builtin">float</span> = 30.0,
+    circuit_name: <span class="token-builtin">str</span> = "default",
+    fallback_value: T = <span class="token-keyword">None</span>,
+    retryable_exceptions: <span class="token-builtin">tuple</span> = (<span class="token-builtin">Exception</span>,),
+):
+    <span class="token-string">"""可靠性装饰器 = 重试 + 熔断 + 降级 三合一"""</span>
+    circuit = CircuitBreaker(circuit_name)
+    <span class="token-keyword">def</span> <span class="token-function">decorator</span>(func: Callable[..., T]) -> Callable[..., T]:
+        <span class="token-keyword">@wraps</span>(func)
+        <span class="token-keyword">def</span> <span class="token-function">wrapper</span>(*args, **kwargs) -> T:
+            circuit.before_call()
+            last_exception = <span class="token-keyword">None</span>
+            <span class="token-keyword">for</span> attempt <span class="token-keyword">in</span> <span class="token-builtin">range</span>(max_retries + 1):
+                <span class="token-keyword">try</span>:
+                    result = func(*args, **kwargs)
+                    circuit.on_success()
+                    <span class="token-keyword">return</span> result
+                <span class="token-keyword">except</span> retryable_exceptions <span class="token-keyword">as</span> e:
+                    last_exception = e
+                    circuit.on_failure()
+                    <span class="token-keyword">if</span> attempt == max_retries:
+                        <span class="token-keyword">break</span>
+                    delay = <span class="token-builtin">min</span>(base_delay * (2 ** attempt), max_delay)
+                    jitter = random.uniform(0, delay * 0.3)
+                    time.sleep(delay + jitter)
+            <span class="token-keyword">print</span>(<span class="token-string">f"[降级] {func.__name__} 所有重试失败, 返回降级值"</span>)
+            <span class="token-keyword">return</span> fallback_value
+        <span class="token-keyword">return</span> wrapper
+    <span class="token-keyword">return</span> decorator</code></pre>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">生产可靠性检查清单</div>
+        <p>以下每一项都应在上线前验证：<strong>(1)</strong> 所有外部 API 调用都有超时设置（默认不超过 30 秒）；<strong>(2)</strong> 重试逻辑包含指数退避和随机抖动；<strong>(3)</strong> 至少关键路径部署了熔断器；<strong>(4)</strong> 每个工具都有降级策略（返回缓存值、友好错误信息或跳过非关键步骤）；<strong>(5)</strong> 超时和重试次数通过配置管理，不要硬编码。</p>
+      </div>
+    </div>
+
+    <!-- Card 7: 数据隐私与合规 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon pink">🔒</div>
+        <div>
+          <div class="card-title">数据隐私与合规 — PII 检测、脱敏与审计</div>
+          <div class="card-desc">GDPR、个人信息保护法框架下的 Agent 数据处理策略</div>
+        </div>
+      </div>
+      <p>Agent 在生产环境中必然接触到用户数据——姓名、邮箱、电话号码、地址、甚至医疗或金融等敏感信息。数据隐私合规（GDPR、CCPA、个人信息保护法等）要求对这些数据进行严格的保护和处理。Agent 工程师需要在不影响功能的前提下，实现数据的最小化收集、自动脱敏和完整的审计追踪。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — PII 检测与脱敏中间件</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> re
+<span class="token-kw">import</span> hashlib
+<span class="token-kw">import</span> json
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> datetime <span class="token-kw">import</span> datetime, timezone
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+
+<span class="token-kw">class</span> <span class="token-class">PIIType</span>(Enum):
+    EMAIL = <span class="token-string">"email"</span>
+    PHONE = <span class="token-string">"phone"</span>
+    ID_CARD = <span class="token-string">"id_card"</span>
+    CREDIT_CARD = <span class="token-string">"credit_card"</span>
+    IP_ADDRESS = <span class="token-string">"ip_address"</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">PIIMatch</span>:
+    pii_type: PIIType
+    original: <span class="token-builtin">str</span>
+    masked: <span class="token-builtin">str</span>
+    start_pos: <span class="token-builtin">int</span>
+    end_pos: <span class="token-builtin">int</span>
+
+<span class="token-kw">class</span> <span class="token-class">PIIMiddleware</span>:
+    <span class="token-string">"""PII 检测与脱敏中间件
+
+    数据流: 用户输入 → PII检测 → 脱敏 → Agent处理 → 解掩码(如需要) → 用户输出
+    特性: 正则检测、确定性掩码、审计日志、GDPR删除权支持
+    """</span>
+
+    PII_PATTERNS = {
+        PIIType.EMAIL: re.compile(<span class="token-string">r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'</span>),
+        PIIType.PHONE: re.compile(<span class="token-string">r'\b(1[3-9]\d{9})\b'</span>),
+        PIIType.ID_CARD: re.compile(<span class="token-string">r'\b(\d{17}[\dXx])\b'</span>),
+        PIIType.CREDIT_CARD: re.compile(<span class="token-string">r'\b(\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4})\b'</span>),
+        PIIType.IP_ADDRESS: re.compile(<span class="token-string">r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b'</span>),
+    }
+
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, salt: <span class="token-builtin">str</span> = <span class="token-string">"agent-pii-salt-2024"</span>):
+        <span class="token-keyword">self</span>.salt = salt
+        <span class="token-keyword">self</span>.audit_logs: <span class="token-builtin">list</span>[<span class="token-builtin">dict</span>] = []
+        <span class="token-keyword">self</span>._mask_map: <span class="token-builtin">dict</span>[<span class="token-builtin">str</span>, <span class="token-builtin">str</span>] = {}
+
+    <span class="token-keyword">def</span> <span class="token-function">_hash_value</span>(<span class="token-keyword">self</span>, value: <span class="token-builtin">str</span>) -> <span class="token-builtin">str</span>:
+        <span class="token-keyword">return</span> hashlib.sha256((value + <span class="token-keyword">self</span>.salt).encode()).hexdigest()[:<span class="token-number">16</span>]
+
+    <span class="token-keyword">def</span> <span class="token-function">_generate_mask</span>(<span class="token-keyword">self</span>, pii_type: PIIType, original: <span class="token-builtin">str</span>) -> <span class="token-builtin">str</span>:
+        hash_sig = <span class="token-keyword">self</span>._hash_value(original)
+        prefix_map = {PIIType.EMAIL: <span class="token-string">"EMAIL"</span>, PIIType.PHONE: <span class="token-string">"PHONE"</span>, PIIType.ID_CARD: <span class="token-string">"ID"</span>, PIIType.CREDIT_CARD: <span class="token-string">"CCARD"</span>, PIIType.IP_ADDRESS: <span class="token-string">"IP"</span>}
+        <span class="token-keyword">return</span> <span class="token-string">f"[PII_{prefix_map.get(pii_type, 'UNKNOWN')}_{hash_sig[:8]}]"</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">detect_and_mask</span>(<span class="token-keyword">self</span>, text: <span class="token-builtin">str</span>, user_id: <span class="token-builtin">str</span> = <span class="token-string">"system"</span>) -> <span class="token-builtin">str</span>:
+        matches: <span class="token-builtin">list</span>[PIIMatch] = []
+        <span class="token-keyword">for</span> pii_type, pattern <span class="token-keyword">in</span> <span class="token-keyword">self</span>.PII_PATTERNS.items():
+            <span class="token-keyword">for</span> match <span class="token-keyword">in</span> pattern.finditer(text):
+                original = match.group(<span class="token-number">0</span>)
+                masked = <span class="token-keyword">self</span>._generate_mask(pii_type, original)
+                <span class="token-keyword">self</span>._mask_map[masked] = original
+                matches.append(PIIMatch(pii_type=pii_type, original=original, masked=masked, start_pos=match.start(), end_pos=match.end()))
+                <span class="token-keyword">self</span>.audit_logs.append({<span class="token-string">"timestamp"</span>: datetime.now(timezone.utc).isoformat(), <span class="token-string">"action"</span>: <span class="token-string">"mask"</span>, <span class="token-string">"pii_type"</span>: pii_type.value, <span class="token-string">"hash"</span>: <span class="token-keyword">self</span>._hash_value(original), <span class="token-string">"user_id"</span>: user_id})
+        result = text
+        <span class="token-keyword">for</span> m <span class="token-keyword">in</span> <span class="token-builtin">sorted</span>(matches, key=<span class="token-keyword">lambda</span> x: x.start_pos, reverse=<span class="token-keyword">True</span>):
+            result = result[:m.start_pos] + m.masked + result[m.end_pos:]
+        <span class="token-keyword">return</span> result
+
+    <span class="token-keyword">def</span> <span class="token-function">unmask</span>(<span class="token-keyword">self</span>, text: <span class="token-builtin">str</span>) -> <span class="token-builtin">str</span>:
+        result = text
+        <span class="token-keyword">for</span> mask, original <span class="token-keyword">in</span> <span class="token-keyword">self</span>._mask_map.items():
+            result = result.replace(mask, original)
+        <span class="token-keyword">return</span> result
+
+    <span class="token-keyword">def</span> <span class="token-function">gdpr_delete</span>(<span class="token-keyword">self</span>, identifier_hash: <span class="token-builtin">str</span>) -> <span class="token-builtin">int</span>:
+        before = <span class="token-keyword">len</span>(<span class="token-keyword">self</span>.audit_logs)
+        <span class="token-keyword">self</span>.audit_logs = [log <span class="token-keyword">for</span> log <span class="token-keyword">in</span> <span class="token-keyword">self</span>.audit_logs <span class="token-keyword">if</span> log[<span class="token-string">"hash"</span>] != identifier_hash]
+        <span class="token-keyword">return</span> before - <span class="token-keyword">len</span>(<span class="token-keyword">self</span>.audit_logs)</code></pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">数据驻留与跨境传输合规</div>
+        <p>请务必确认 LLM API 提供商的数据处理位置。如果你的用户数据受 GDPR（欧盟）或中国《个人信息保护法》管辖，需要确认：(1) 数据是否在境内处理；(2) API 提供商是否将数据用于模型训练（Anthropic/OpenAI API 默认<strong>不使用</strong>客户数据训练模型，但需在合同中确认）；(3) 是否签署了 DPA（数据处理协议）。对于高合规要求场景，考虑使用<strong>本地部署的开源模型</strong>。</p>
+      </div>
+    </div>
+
+    <!-- Card 8: 监控与可观测性 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon teal">📊</div>
+        <div>
+          <div class="card-title">监控与可观测性 — 让 Agent 的行为透明可见</div>
+          <div class="card-desc">结构化日志、OpenTelemetry 追踪、Prometheus 指标与告警规则</div>
+        </div>
+      </div>
+      <p>企业级 Agent 系统的可观测性包含三大支柱：<strong>日志 (Logs)</strong>——记录离散事件；<strong>指标 (Metrics)</strong>——聚合数值数据；<strong>追踪 (Traces)</strong>——展示请求在系统各组件间的流转路径。三者结合才能完整回答"Agent 现在在做什么"、"Agent 历史上做了多少次某操作"、"Agent 的某次慢响应是卡在哪个环节"。</p>
+
+      <h4>结构化 JSON 日志设计</h4>
+      <p>Agent 日志应使用结构化 JSON 格式，包含以下关键字段：<code>timestamp</code>, <code>trace_id</code>, <code>span_id</code>, <code>agent_id</code>, <code>tool_name</code>, <code>llm_model</code>, <code>input_tokens</code>, <code>output_tokens</code>, <code>step_number</code>, <code>duration_ms</code>, <code>error</code>。禁止使用非结构化的 <code>print</code> 或自由文本日志——它们无法被日志聚合系统（ELK、Loki）有效索引和查询。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — Agent 可观测性: OpenTelemetry + Prometheus + 结构化日志</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> time
+<span class="token-kw">import</span> json
+<span class="token-kw">import</span> logging
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional
+<span class="token-kw">from</span> contextlib <span class="token-kw">import</span> contextmanager
+<span class="token-kw">from</span> opentelemetry <span class="token-kw">import</span> trace, metrics
+<span class="token-kw">from</span> prometheus_client <span class="token-kw">import</span> Counter, Gauge, Histogram, CollectorRegistry
+
+<span class="token-cm"># ============ Prometheus 指标定义 ============</span>
+registry = CollectorRegistry()
+
+agent_requests_total = Counter(
+    <span class="token-string">'agent_requests_total'</span>, <span class="token-string">'Agent 请求总数'</span>,
+    [<span class="token-string">'agent_id'</span>, <span class="token-string">'status'</span>],
+    registry=registry,
+)
+
+tool_calls_total = Counter(
+    <span class="token-string">'agent_tool_calls_total'</span>, <span class="token-string">'工具调用总次数'</span>,
+    [<span class="token-string">'tool_name'</span>, <span class="token-string">'status'</span>],
+    registry=registry,
+)
+
+agent_latency_seconds = Histogram(
+    <span class="token-string">'agent_latency_seconds'</span>, <span class="token-string">'Agent 端到端延迟 (秒)'</span>,
+    [<span class="token-string">'agent_id'</span>],
+    buckets=[0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 60.0],
+    registry=registry,
+)
+
+tool_latency_ms = Histogram(
+    <span class="token-string">'agent_tool_latency_ms'</span>, <span class="token-string">'工具调用延迟 (毫秒)'</span>,
+    [<span class="token-string">'tool_name'</span>],
+    buckets=[10, 50, 100, 200, 500, 1000, 2000, 5000],
+    registry=registry,
+)
+
+tokens_per_request = Gauge(
+    <span class="token-string">'agent_tokens_per_request'</span>, <span class="token-string">'每次请求的 Token 消耗'</span>,
+    [<span class="token-string">'agent_id'</span>, <span class="token-string">'direction'</span>],
+    registry=registry,
+)
+
+circuit_breaker_state = Gauge(
+    <span class="token-string">'agent_circuit_breaker_state'</span>, <span class="token-string">'熔断器状态 (0=closed, 1=open, 2=half_open)'</span>,
+    [<span class="token-string">'circuit_name'</span>],
+    registry=registry,
+)
+
+<span class="token-cm"># ============ 结构化日志 ============</span>
+
+<span class="token-kw">class</span> <span class="token-class">StructuredLogger</span>:
+    <span class="token-string">"""结构化 JSON 日志记录器"""</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, agent_id: <span class="token-builtin">str</span>):
+        <span class="token-keyword">self</span>.agent_id = agent_id
+        <span class="token-keyword">self</span>.logger = logging.getLogger(<span class="token-string">f"agent.{agent_id}"</span>)
+
+    <span class="token-keyword">def</span> <span class="token-function">tool_call</span>(<span class="token-keyword">self</span>, tool_name: <span class="token-builtin">str</span>, params: <span class="token-builtin">dict</span>,
+                  duration_ms: <span class="token-builtin">float</span>, success: <span class="token-builtin">bool</span>,
+                  error: Optional[<span class="token-builtin">str</span>] = <span class="token-keyword">None</span>):
+        log_entry = {
+            <span class="token-string">"timestamp"</span>: time.strftime(<span class="token-string">"%Y-%m-%dT%H:%M:%S.000Z"</span>),
+            <span class="token-string">"agent_id"</span>: <span class="token-keyword">self</span>.agent_id,
+            <span class="token-string">"event"</span>: <span class="token-string">"tool_call"</span>,
+            <span class="token-string">"tool_name"</span>: tool_name,
+            <span class="token-string">"duration_ms"</span>: <span class="token-builtin">round</span>(duration_ms, <span class="token-number">2</span>),
+            <span class="token-string">"success"</span>: success,
+        }
+        <span class="token-keyword">if</span> error:
+            log_entry[<span class="token-string">"error"</span>] = error
+        level = <span class="token-string">"error"</span> <span class="token-keyword">if</span> <span class="token-keyword">not</span> success <span class="token-keyword">else</span> <span class="token-string">"info"</span>
+        <span class="token-keyword">self</span>.logger.info(json.dumps(log_entry, ensure_ascii=<span class="token-keyword">False</span>)) <span class="token-keyword">if</span> level == <span class="token-string">"info"</span> <span class="token-keyword">else</span> <span class="token-keyword">self</span>.logger.error(json.dumps(log_entry, ensure_ascii=<span class="token-keyword">False</span>))
+
+    <span class="token-keyword">def</span> <span class="token-function">llm_request</span>(<span class="token-keyword">self</span>, model: <span class="token-builtin">str</span>, input_tokens: <span class="token-builtin">int</span>,
+                    output_tokens: <span class="token-builtin">int</span>, duration_ms: <span class="token-builtin">float</span>,
+                    step: <span class="token-builtin">int</span>, cache_hit: <span class="token-builtin">bool</span> = <span class="token-keyword">False</span>):
+        <span class="token-keyword">self</span>.logger.info(json.dumps({
+            <span class="token-string">"timestamp"</span>: time.strftime(<span class="token-string">"%Y-%m-%dT%H:%M:%S.000Z"</span>),
+            <span class="token-string">"agent_id"</span>: <span class="token-keyword">self</span>.agent_id,
+            <span class="token-string">"event"</span>: <span class="token-string">"llm_request"</span>,
+            <span class="token-string">"model"</span>: model,
+            <span class="token-string">"input_tokens"</span>: input_tokens,
+            <span class="token-string">"output_tokens"</span>: output_tokens,
+            <span class="token-string">"total_tokens"</span>: input_tokens + output_tokens,
+            <span class="token-string">"duration_ms"</span>: <span class="token-builtin">round</span>(duration_ms, <span class="token-number">2</span>),
+            <span class="token-string">"step"</span>: step,
+            <span class="token-string">"cache_hit"</span>: cache_hit,
+        }, ensure_ascii=<span class="token-keyword">False</span>))
+
+<span class="token-cm"># ============ OpenTelemetry 追踪 ============</span>
+
+<span class="token-keyword">@contextmanager</span>
+<span class="token-keyword">def</span> <span class="token-function">traced_span</span>(name: <span class="token-builtin">str</span>, attributes: <span class="token-builtin">dict</span> = {}):
+    tracer = trace.get_tracer(__name__)
+    <span class="token-keyword">with</span> tracer.start_as_current_span(name) <span class="token-keyword">as</span> span:
+        <span class="token-keyword">for</span> k, v <span class="token-keyword">in</span> attributes.items():
+            span.set_attribute(k, <span class="token-builtin">str</span>(v))
+        start = time.perf_counter()
+        <span class="token-keyword">try</span>:
+            <span class="token-keyword">yield</span> span
+            span.set_status(trace.StatusCode.OK)
+        <span class="token-keyword">except</span> <span class="token-builtin">Exception</span> <span class="token-keyword">as</span> e:
+            span.set_status(trace.StatusCode.ERROR, <span class="token-builtin">str</span>(e))
+            <span class="token-keyword">raise</span>
+        <span class="token-keyword">finally</span>:
+            span.set_attribute(<span class="token-string">"duration_ms"</span>, (time.perf_counter() - start) * <span class="token-number">1000</span>)</code></pre>
+      </div>
+
+      <h4>关键告警规则</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>告警阈值</th>
+              <th>持续时间</th>
+              <th>严重级别</th>
+              <th>处理动作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Agent 错误率</td>
+              <td>&gt; 5%</td>
+              <td>5 分钟</td>
+              <td>Critical</td>
+              <td>自动回滚、PagerDuty 通知</td>
+            </tr>
+            <tr>
+              <td>P99 延迟</td>
+              <td>&gt; 30s</td>
+              <td>10 分钟</td>
+              <td>Warning</td>
+              <td>检查下游服务、考虑扩容</td>
+            </tr>
+            <tr>
+              <td>熔断器 OPEN</td>
+              <td>任意</td>
+              <td>即时</td>
+              <td>Critical</td>
+              <td>检查下游依赖健康状态</td>
+            </tr>
+            <tr>
+              <td>Token 预算</td>
+              <td>&gt; 80%</td>
+              <td>即时</td>
+              <td>Warning</td>
+              <td>触发成本优化审查</td>
+            </tr>
+            <tr>
+              <td>PII 泄露事件</td>
+              <td>&gt; 0</td>
+              <td>即时</td>
+              <td>Critical</td>
+              <td>安全团队响应、数据隔离</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 9: 企业安全审查清单 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon red">✅</div>
+        <div>
+          <div class="card-title">企业安全审查清单 — 上线前的 25 项必检项</div>
+          <div class="card-desc">从输入验证到事件响应，覆盖 Agent 安全的每一个层面</div>
+        </div>
+      </div>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">上线前必须通过的审查清单</div>
+        <p>以下清单应在每次 Agent 版本发布前由安全工程师和 Agent 工程师共同审查。任何一项未通过都<strong>不应</strong>上线。</p>
+      </div>
+
+      <h4>一、输入验证与注入防护</h4>
+      <ol>
+        <li><strong>Prompt 注入防护</strong>：是否在系统提示词中明确声明了用户输入不可信？是否对用户输入进行了 PII 检测和脱敏？</li>
+        <li><strong>工具参数验证</strong>：所有工具的参数是否经过类型验证、长度限制、白名单检查？</li>
+        <li><strong>SQL/命令注入防护</strong>：数据库查询是否 100% 使用参数化查询？Shell 命令是否通过 subprocess 的列表参数而非字符串执行？</li>
+        <li><strong>文件路径遍历防护</strong>：文件操作工具是否限制了访问目录（chroot jail）？是否拒绝了 <code>../</code> 路径？</li>
+        <li><strong>URL/SSRF 防护</strong>：HTTP 工具是否拒绝了内网地址 (127.0.0.1, 10.x, 192.168.x)？</li>
+      </ol>
+
+      <h4>二、输出过滤与数据保护</h4>
+      <ol start="6">
+        <li><strong>PII/PHI 输出过滤</strong>：Agent 输出是否经过 PII 检测中间件？敏感信息是否被自动脱敏？</li>
+        <li><strong>内容安全检查</strong>：是否过滤了暴力、色情、歧视等不安全内容？</li>
+        <li><strong>数据最小化</strong>：LLM 请求中是否只发送了必要的数据？是否裁剪了上下文中的冗余信息？</li>
+      </ol>
+
+      <h4>三、认证与访问控制</h4>
+      <ol start="9">
+        <li><strong>最小权限原则</strong>：Agent 的每个工具是否只被授予了最小所需权限？是否定期审计工具权限？</li>
+        <li><strong>密钥管理</strong>：所有 API Key/Token 是否存储在 Vault/Secrets Manager 中？是否配置了自动轮转？</li>
+        <li><strong>用户身份委派</strong>：Agent 代表用户操作时，是否正确传播了用户身份信息？审计日志是否记录了原始用户？</li>
+        <li><strong>会话管理</strong>：用户会话是否有时效限制？是否在退出时正确清理了上下文？</li>
+      </ol>
+
+      <h4>四、加密与传输安全</h4>
+      <ol start="13">
+        <li><strong>传输加密</strong>：所有 Agent 对外通信是否使用 TLS 1.2+？</li>
+        <li><strong>静态数据加密</strong>：Agent 的持久化存储（数据库、日志、缓存）是否加密？</li>
+        <li><strong>LLM API 传输</strong>：调用 LLM API 时是否通过 HTTPS？是否验证了服务端证书？</li>
+      </ol>
+
+      <h4>五、日志与审计</h4>
+      <ol start="16">
+        <li><strong>审计日志完整性</strong>：是否记录了每次工具调用的发起者、参数哈希、时间戳和结果？</li>
+        <li><strong>日志脱敏</strong>：日志中是否已过滤 API Key、Token、密码等敏感信息？</li>
+        <li><strong>日志保留策略</strong>：审计日志的保留时间是否满足合规要求（通常 90 天到 7 年）？</li>
+        <li><strong>异常行为检测</strong>：是否配置了基于日志的异常检测规则（如短时间大量工具调用）？</li>
+      </ol>
+
+      <h4>六、供应链安全</h4>
+      <ol start="20">
+        <li><strong>依赖扫描</strong>：是否定期扫描 Python/Node.js 依赖的已知漏洞（使用 Dependabot/Snyk）？</li>
+        <li><strong>LLM 模型来源</strong>：使用的模型是否来自可信提供商？是否了解模型的训练数据来源和偏见风险？</li>
+        <li><strong>第三方工具安全</strong>：Agent 调用的每个第三方 API 是否经过安全评估？</li>
+      </ol>
+
+      <h4>七、事件响应</h4>
+      <ol start="23">
+        <li><strong>应急预案</strong>：是否有 Agent 异常行为的应急处置流程（如立即禁用特定工具、切换模型、回滚提示词）？</li>
+        <li><strong>熔断开关</strong>：是否存在一键熔断所有 Agent 操作的能力？</li>
+        <li><strong>事件复盘</strong>：每次 Agent 安全事故后是否有复盘和改进流程？</li>
+      </ol>
+
+      <div class="alert alert-success">
+        <div class="alert-title">安全是持续过程，不是一次性检查</div>
+        <p>同学，请记住：安全审查清单不是上线前打勾就完事的。Agent 的行为会随着模型更新、提示词调整、新工具添加而改变。建议<strong>每季度</strong>重新执行一次完整审查，并在每次模型版本升级后进行针对性的回归安全测试。</p>
+      </div>
+    </div>
+
+    <!-- Card 10: 实战案例：Agent接入客服系统 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon blue">🏢</div>
+        <div>
+          <div class="card-title">实战案例：Agent 接入企业客服系统</div>
+          <div class="card-desc">完整演练：将 AI Agent 集成到 Zendesk / Salesforce 客服工作流中</div>
+        </div>
+      </div>
+      <p>本节通过一个完整的实战案例，展示如何将 AI Agent 集成到企业的客服系统中。我们以 Zendesk 作为工单系统，Salesforce 作为 CRM，构建一个能够自动分类、路由和处理客户问题的智能客服 Agent。</p>
+
+      <h4>系统架构概览</h4>
+      <p>整体架构分为四层：<strong>接入层</strong>——Zendesk Webhook 接收新工单事件，通过 API Gateway 转发到 Agent 服务；<strong>Agent 层</strong>——核心 Agent 进行工单分析、情绪检测、知识库检索和响应生成；<strong>集成层</strong>——通过预定义的工具连接 Zendesk API（更新工单）、Salesforce API（查询客户信息）、内部知识库（RAG 检索）；<strong>监控层</strong>——Prometheus + Grafana 全链路监控。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 客服 Agent 的核心编排逻辑</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional
+
+<span class="token-kw">class</span> <span class="token-class">TicketPriority</span>(Enum):
+    LOW = <span class="token-string">"low"</span>
+    NORMAL = <span class="token-string">"normal"</span>
+    HIGH = <span class="token-string">"high"</span>
+    URGENT = <span class="token-string">"urgent"</span>
+
+<span class="token-kw">class</span> <span class="token-class">TicketCategory</span>(Enum):
+    TECHNICAL = <span class="token-string">"technical"</span>
+    BILLING = <span class="token-string">"billing"</span>
+    ACCOUNT = <span class="token-string">"account"</span>
+    FEATURE_REQUEST = <span class="token-string">"feature_request"</span>
+    GENERAL = <span class="token-string">"general"</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">CustomerContext</span>:
+    customer_id: <span class="token-builtin">str</span>
+    name: <span class="token-builtin">str</span>
+    plan: <span class="token-builtin">str</span>
+    mrr: <span class="token-builtin">float</span>
+    active_tickets: <span class="token-builtin">int</span>
+    churn_risk: <span class="token-builtin">str</span>
+    recent_sentiment: <span class="token-builtin">str</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-class">AgentDecision</span>:
+    category: TicketCategory
+    priority: TicketPriority
+    suggested_response: <span class="token-builtin">str</span>
+    actions: <span class="token-builtin">list</span>[<span class="token-builtin">str</span>]
+    needs_human: <span class="token-builtin">bool</span>
+    confidence: <span class="token-builtin">float</span>
+    knowledge_base_refs: <span class="token-builtin">list</span>[<span class="token-builtin">str</span>]
+
+<span class="token-kw">class</span> <span class="token-class">CustomerServiceAgent</span>:
+    <span class="token-string">"""客服系统 Agent — 智能工单处理
+
+    核心流程:
+    1. 接收工单 → 2. 分析意图和情绪 → 3. 查询客户上下文
+    → 4. 检索知识库 → 5. 生成响应 → 6. 自动或人工路由
+    """</span>
+
+    SYSTEM_PROMPT = <span class="token-string">"""你是一个企业客服系统的 AI Agent。你的职责是:
+
+    1. 分析客户工单内容，判断问题类别和紧急程度
+    2. 查询客户的历史记录、订阅计划和情绪倾向
+    3. 从知识库中检索最相关的解决方案
+    4. 生成专业、友好、准确的回复草稿
+    5. 判断是否需要升级到人工客服
+
+    重要规则:
+    - 高价值客户 (enterprise plan 或 MRR > $1000) 的问题优先处理
+    - 涉及退款、账号删除、法律问题的工单必须转人工
+    - 回复中绝不承诺你无法控制的事情
+    - 如果置信度低于 0.7，标记为需要人工审核
+    """</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, zen_api, sf_api, kb_search, logger):
+        <span class="token-keyword">self</span>.zen_api = zen_api
+        <span class="token-keyword">self</span>.sf_api = sf_api
+        <span class="token-keyword">self</span>.kb_search = kb_search
+        <span class="token-keyword">self</span>.logger = logger
+
+    <span class="token-keyword">def</span> <span class="token-function">define_tools</span>(<span class="token-keyword">self</span>) -> <span class="token-builtin">list</span>[<span class="token-builtin">dict</span>]:
+        <span class="token-keyword">return</span> [
+            {<span class="token-string">"name"</span>: <span class="token-string">"lookup_customer"</span>, <span class="token-string">"description"</span>: <span class="token-string">"通过邮箱查询客户信息: 订阅计划, MRR, 活跃工单数, 流失风险, 近期情绪"</span>, <span class="token-string">"parameters"</span>: {<span class="token-string">"email"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}}},
+            {<span class="token-string">"name"</span>: <span class="token-string">"search_knowledge_base"</span>, <span class="token-string">"description"</span>: <span class="token-string">"搜索内部知识库, 返回最相关的解决方案文章"</span>, <span class="token-string">"parameters"</span>: {<span class="token-string">"query"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}, <span class="token-string">"top_k"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"integer"</span>, <span class="token-string">"default"</span>: <span class="token-number">3</span>}}},
+            {<span class="token-string">"name"</span>: <span class="token-string">"get_ticket_history"</span>, <span class="token-string">"description"</span>: <span class="token-string">"查询客户的历史工单记录"</span>, <span class="token-string">"parameters"</span>: {<span class="token-string">"customer_id"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}, <span class="token-string">"limit"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"integer"</span>, <span class="token-string">"default"</span>: <span class="token-number">5</span>}}},
+            {<span class="token-string">"name"</span>: <span class="token-string">"update_ticket"</span>, <span class="token-string">"description"</span>: <span class="token-string">"更新工单: 修改优先级、分类、添加内部备注或公开回复"</span>, <span class="token-string">"parameters"</span>: {<span class="token-string">"ticket_id"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}, <span class="token-string">"priority"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}, <span class="token-string">"public_reply"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}}},
+            {<span class="token-string">"name"</span>: <span class="token-string">"escalate_to_human"</span>, <span class="token-string">"description"</span>: <span class="token-string">"将工单升级到人工客服队列, 附带 AI 分析摘要"</span>, <span class="token-string">"parameters"</span>: {<span class="token-string">"ticket_id"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}, <span class="token-string">"reason"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}, <span class="token-string">"ai_summary"</span>: {<span class="token-string">"type"</span>: <span class="token-string">"string"</span>}}},
+        ]
+
+    <span class="token-keyword">async</span> <span class="token-keyword">def</span> <span class="token-function">process_ticket</span>(<span class="token-keyword">self</span>, ticket_id: <span class="token-builtin">str</span>, ticket_content: <span class="token-builtin">str</span>, customer_email: <span class="token-builtin">str</span>) -> AgentDecision:
+        <span class="token-keyword">self</span>.logger.info(<span class="token-string">f"开始处理工单 {ticket_id}"</span>)
+        <span class="token-keyword">with</span> traced_span(<span class="token-string">"lookup_customer"</span>):
+            customer = <span class="token-keyword">await</span> <span class="token-keyword">self</span>.sf_api.lookup_customer(customer_email)
+        <span class="token-keyword">with</span> traced_span(<span class="token-string">"search_knowledge_base"</span>):
+            kb_results = <span class="token-keyword">await</span> <span class="token-keyword">self</span>.kb_search.search(ticket_content, top_k=<span class="token-number">3</span>)
+        <span class="token-keyword">with</span> traced_span(<span class="token-string">"agent_reasoning"</span>):
+            decision = <span class="token-keyword">await</span> <span class="token-keyword">self</span>._agent_reasoning(ticket_content, customer, kb_results)
+        <span class="token-keyword">if</span> decision.needs_human:
+            <span class="token-keyword">await</span> <span class="token-keyword">self</span>.zen_api.escalate_ticket(ticket_id, decision)
+        <span class="token-keyword">else</span>:
+            <span class="token-keyword">await</span> <span class="token-keyword">self</span>.zen_api.update_ticket(ticket_id, priority=decision.priority.value, public_reply=decision.suggested_response)
+        agent_requests_total.labels(agent_id=<span class="token-string">"cs-agent"</span>, status=<span class="token-string">"success"</span>).inc()
+        <span class="token-keyword">return</span> decision</code></pre>
+      </div>
+
+      <h4>实践经验与关键教训</h4>
+      <p>在将 Agent 集成到客服系统的过程中，团队总结出以下关键经验：<strong>(1) 先从辅助模式开始</strong>——Agent 先只生成建议回复，由人工客服审核后发送，运行 2-4 周收集反馈后再开启自动回复。<strong>(2) 情绪检测至关重要</strong>——极度愤怒的客户应直接升级到高级客服。<strong>(3) 建立反馈循环</strong>——人工客服对 Agent 建议的采纳/修改率是衡量 Agent 质量的最直接指标。<strong>(4) A/B 测试</strong>——通过分流对比 Agent 辅助组和纯人工组的客户满意度、解决时间和成本，量化 Agent 的实际 ROI。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>纯人工</th>
+              <th>人工+Agent</th>
+              <th>全自动Agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>平均响应时间</td>
+              <td>45 分钟</td>
+              <td>8 分钟</td>
+              <td>&lt; 1 分钟</td>
+            </tr>
+            <tr>
+              <td>首次解决率</td>
+              <td>72%</td>
+              <td>78%</td>
+              <td>65% (简单问题 85%)</td>
+            </tr>
+            <tr>
+              <td>客户满意度 (CSAT)</td>
+              <td>4.2/5</td>
+              <td>4.3/5</td>
+              <td>3.9/5 (简单问题 4.4/5)</td>
+            </tr>
+            <tr>
+              <td>每工单成本</td>
+              <td>$12.50</td>
+              <td>$8.20</td>
+              <td>$1.80</td>
+            </tr>
+            <tr>
+              <td>24小时覆盖</td>
+              <td>否 (需排班)</td>
+              <td>部分</td>
+              <td>是 (Agent 7x24)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">案例核心收获</div>
+        <p>同学，这个案例的精华不在于技术实现——那些 API 调用在任何项目中都差不多。真正重要的是<strong>渐进式上线策略</strong>和<strong>基于数据的迭代</strong>。Agent 不是一上线就能替代人工的魔法盒子，它需要在实际业务场景中逐步打磨，通过与人工客服的协作不断优化。把 Agent 看作团队的新成员而非替代者，这种心态转变是项目成功的关键。</p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="14">
+      <div class="quiz-title">📝 章节测验 — 企业集成模式</div>
+      <div class="quiz-desc">测试你对 Agent 企业级集成、安全与可靠性的理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 在数据库安全集成中，以下哪种做法是绝对禁止的？</div>
+        <button class="quiz-option" data-answer="0">A. 使用只读副本连接数据库</button>
+        <button class="quiz-option" data-answer="1">B. 对查询结果添加 LIMIT 限制</button>
+        <button class="quiz-option" data-answer="2">C. 使用字符串拼接构造 SQL 查询语句</button>
+        <button class="quiz-option" data-answer="3">D. 记录每次查询的审计日志</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 熔断器 (Circuit Breaker) 从 OPEN 状态恢复时，首先进入什么状态？</div>
+        <button class="quiz-option" data-answer="0">A. HALF_OPEN — 放行少量探测请求测试下游是否恢复</button>
+        <button class="quiz-option" data-answer="1">B. 直接回到 CLOSED 状态</button>
+        <button class="quiz-option" data-answer="2">C. 保持在 OPEN 状态直到手动重置</button>
+        <button class="quiz-option" data-answer="3">D. 进入 LOCKED 状态等待管理员确认</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 关于 Agent 的认证策略，以下哪个说法是正确的？</div>
+        <button class="quiz-option" data-answer="0">A. API Key 是最安全的认证方式，适合所有生产环境</button>
+        <button class="quiz-option" data-answer="1">B. OAuth 2.0 Client Credentials 适合服务间通信，支持作用域和自动轮转</button>
+        <button class="quiz-option" data-answer="2">C. 所有 Agent 都应该使用同一个超级管理员账号以简化权限管理</button>
+        <button class="quiz-option" data-answer="3">D. JWT Token 的有效期应该设置得越长越好以减少刷新开销</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a class="btn" href="../chapters/13-build-first-agent.html">
+        ← <span>第13章：构建第一个生产Agent</span>
+      </a>
+      <a class="btn btn-primary" href="../chapters/15-performance-optimization.html">
+        <span>第15章：Agent 性能优化</span> →
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- Agent Simulator Panel -->
+<button class="sim-toggle" id="simToggle" title="Agent 模拟器">🤖</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <span><span class="sim-status-dot"></span> Agent 模拟器</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="simClose">✕</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      你好！试试让我执行一个涉及数据库查询、API调用或消息队列的企业级任务吧！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:106px;width:48px;height:48px;border-radius:50%;background:var(--bg-tertiary);border:1px solid var(--border-color);z-index:85;">📝</button>
+
+<div class="sim-panel" id="notesPanel" style="bottom:96px;right:106px;width:380px;height:480px;">
+  <div class="sim-header">
+    <span>📒 我的笔记</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="notesClose">✕</button>
+  </div>
+  <div class="sim-messages" id="notesList" style="padding:12px;">
+    <div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div>
+  </div>
+  <div class="sim-input-area" style="flex-direction:column;gap:8px;">
+    <textarea class="sim-input" id="noteInput" placeholder="在这里写笔记..." rows="3"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：提示词工程</option>
+        <option value="9">第9章：Agent框架</option>
+        <option value="10">第10章：评估与测试</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+        <option value="13">第13章：构建第一个Agent</option>
+        <option value="14" selected>第14章：企业集成模式</option>
+        <option value="15">第15章：性能优化</option>
+        <option value="16">第16章：团队协作与MLOps</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- JavaScript -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "chapters": [
+    { "num": 1, "title": "什么是 AI Agent", "file": "01-what-is-agent.html", "desc": "AI Agent 的核心定义、与传统LLM的区别、能力边界和实际应用场景概览", "category": "basic", "difficulty": "入门", "readingTime": "15分钟" },
+    { "num": 2, "title": "Agent 的核心架构", "file": "02-core-architecture.html", "desc": "感知-规划-行动-反馈循环、LLM推理引擎、上下文窗口和五大核心组件详解", "category": "basic", "difficulty": "入门", "readingTime": "20分钟" },
+    { "num": 3, "title": "工具调用机制", "file": "03-tool-calling.html", "desc": "Function Calling原理、JSON Schema设计、工具生命周期和错误处理策略", "category": "core", "difficulty": "基础", "readingTime": "20分钟" },
+    { "num": 4, "title": "记忆与状态管理", "file": "04-memory-management.html", "desc": "三层记忆架构、RAG检索增强生成、向量数据库和记忆管理最佳实践", "category": "core", "difficulty": "基础", "readingTime": "20分钟" },
+    { "num": 5, "title": "推理与规划", "file": "05-reasoning-planning.html", "desc": "ReAct模式、Chain-of-Thought、Plan-and-Execute、思维树等高级推理策略", "category": "core", "difficulty": "核心", "readingTime": "25分钟" },
+    { "num": 6, "title": "多 Agent 系统", "file": "06-multi-agent.html", "desc": "多Agent协作模式、通信协议、任务编排和Swarm/Hierarchical架构对比", "category": "core", "difficulty": "核心", "readingTime": "25分钟" },
+    { "num": 7, "title": "安全与可靠性", "file": "07-safety-reliability.html", "desc": "提示注入防护、沙箱执行、权限控制、输出验证和审计监控体系", "category": "intermediate", "difficulty": "进阶", "readingTime": "20分钟" },
+    { "num": 8, "title": "提示词工程", "file": "08-prompt-engineering.html", "desc": "系统提示词设计、Few-shot引导、动态提示词组装和优化迭代方法", "category": "intermediate", "difficulty": "进阶", "readingTime": "25分钟" },
+    { "num": 9, "title": "Agent 框架生态", "file": "09-agent-frameworks.html", "desc": "LangChain、CrewAI、AutoGen、Anthropic SDK等主流框架深度对比", "category": "intermediate", "difficulty": "进阶", "readingTime": "25分钟" },
+    { "num": 10, "title": "评估与测试", "file": "10-evaluation-testing.html", "desc": "Agent评估指标、测试方法论、A/B实验和回归测试体系建设", "category": "advanced", "difficulty": "高阶", "readingTime": "20分钟" },
+    { "num": 11, "title": "部署与运维", "file": "11-deployment-ops.html", "desc": "生产架构设计、成本管控、监控告警、CI/CD和扩缩容策略", "category": "advanced", "difficulty": "高阶", "readingTime": "25分钟" },
+    { "num": 12, "title": "未来趋势与展望", "file": "12-future-trends.html", "desc": "多模态Agent、具身智能、自我进化、监管格局和技术预测", "category": "advanced", "difficulty": "前沿", "readingTime": "20分钟" },
+    { "num": 13, "title": "构建第一个生产Agent", "file": "13-build-first-agent.html", "desc": "从环境搭建到部署上线完整实操：SDK安装→工具定义→核心循环→测试→命令行部署", "category": "project", "difficulty": "实战", "readingTime": "45分钟" },
+    { "num": 14, "title": "企业集成模式", "file": "14-enterprise-integration.html", "desc": "数据库/API/消息队列对接、认证授权、容错机制、数据合规与安全审查清单", "category": "enterprise", "difficulty": "企业", "readingTime": "30分钟" },
+    { "num": 15, "title": "性能优化", "file": "15-performance-optimization.html", "desc": "Token经济学、Prompt缓存、模型分层路由、并行工具调用、成本降低80%实战案例", "category": "optimization", "difficulty": "优化", "readingTime": "30分钟" },
+    { "num": 16, "title": "团队协作与面试", "file": "16-team-collaboration.html", "desc": "MLOps for Agent、CI/CD、30+设计审查清单、10道高频面试题详解、职业发展路径", "category": "career", "difficulty": "职业", "readingTime": "35分钟" }
+  ],
+  "tools": [
+    { "title": "提示词演练场", "file": "prompt-playground.html", "desc": "编写和测试系统提示词，获得实时分析和优化建议", "icon": "💬" },
+    { "title": "工具Schema设计器", "file": "tool-designer.html", "desc": "可视化设计工具接口，实时生成JSON Schema配置", "icon": "🔧" },
+    { "title": "Agent可视化构建器", "file": "agent-builder.html", "desc": "分步向导式配置Agent，自动生成部署配置", "icon": "🤖" },
+    { "title": "API成本计算器", "file": "cost-calculator.html", "desc": "估算Agent运行成本，对比不同模型的性价比", "icon": "💰" },
+    { "title": "记忆系统可视化", "file": "memory-viz.html", "desc": "交互式演示Agent的三层记忆架构和数据流动", "icon": "🧠" }
+  ],
+  "references": [
+    { "title": "完整术语表", "file": "glossary.html", "desc": "20+个Agent相关核心术语的详细定义，支持分类筛选和搜索", "icon": "📕" },
+    { "title": "框架全面对比", "file": "framework-comparison.html", "desc": "8大主流Agent框架的多维度深度对比和选型决策指南", "icon": "📊" },
+    { "title": "实战案例研究", "file": "case-studies.html", "desc": "4个真实场景的Agent实施方案、架构设计和经验教训", "icon": "💼" }
+  ]
+}

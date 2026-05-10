@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第15章 Agent 性能优化 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+
+<!-- ============================================================
+     Top Navigation Bar
+     ============================================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================================
+     Sidebar Navigation
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent 开发框架</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link" data-chapter="13"><span class="nav-icon">13</span> 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14"><span class="nav-icon">14</span> 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link active" data-chapter="15"><span class="nav-icon">15</span> Agent 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link" data-chapter="16"><span class="nav-icon">16</span> 团队协作与MLOps</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="sidebar-section-title">学习进度</div>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>整体进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     Main Content
+     ============================================================ -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="15" id="chapter15">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 15 章</div>
+      <h2 class="chapter-title">Agent 性能优化</h2>
+      <p class="chapter-subtitle">深入掌握 Token 经济学、缓存策略、模型路由、并行执行与上下文优化，将 Agent 成本降低 80% 同时提升 3 倍速度</p>
+    </header>
+
+    <!-- Card 1: Token经济学基础 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">💰</div>
+        <div>
+          <div class="card-title">Token 经济学基础 — 理解 LLM 的计价体系</div>
+          <div class="card-desc">从微观 Token 成本到宏观总拥有成本 (TCO)</div>
+        </div>
+      </div>
+      <p>Agent 系统的运营成本主要来源于 LLM API 调用。深入理解 Token 经济学是性能优化的第一步：</p>
+      <ul>
+        <li><strong>Token 的基本计价模型</strong>
+          <ul>
+            <li>输入 Token (Input Token)：发送给模型的全部上下文，包括系统提示词、工具定义、对话历史、用户输入。通常价格较低，但在多轮 Agent 对话中占比很大</li>
+            <li>输出 Token (Output Token)：模型生成的文本，包括推理过程、工具调用指令、最终回复。价格通常是输入 Token 的 3-5 倍</li>
+            <li>Cache Write Token：将内容写入缓存时产生的费用，通常比正常输入贵 25%</li>
+            <li>Cache Read Token：从缓存中读取的 Token，通常比正常输入便宜 90%</li>
+          </ul>
+        </li>
+        <li><strong>单次请求成本估算公式</strong>
+          <ul>
+            <li><code>成本 = input_tokens × 输入单价 + output_tokens × 输出单价 + cache_write_tokens × 写入单价 + cache_read_tokens × 读取单价</code></li>
+            <li>对于典型的 Agent 请求 (~2000 input, ~500 output, ~1000 cache read)，使用 Claude Sonnet 的成本约 $0.01-0.03/次</li>
+            <li>多步 Agent (5-10 轮循环) 的 Token 消耗远高于单次聊天，每步都需要携带工具定义和累积的上下文</li>
+          </ul>
+        </li>
+        <li><strong>总拥有成本 (TCO) 的组成部分</strong>
+          <ul>
+            <li>LLM API 费用 (通常占 50-70%)</li>
+            <li>Embedding API 费用 (用于 RAG，占 5-15%)</li>
+            <li>基础设施费用：服务器、数据库、Redis 缓存、CDN</li>
+            <li>监控/日志/追踪工具费用</li>
+            <li>人力成本：开发、运维、评估</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>Input 价格 ($/1M tokens)</th>
+              <th>Output 价格 ($/1M tokens)</th>
+              <th>Cache Read ($/1M tokens)</th>
+              <th>Cache Write ($/1M tokens)</th>
+              <th>典型用途</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Claude Opus 4</strong></td>
+              <td>$15.00</td>
+              <td>$75.00</td>
+              <td>$1.50</td>
+              <td>$18.75</td>
+              <td>最复杂推理、代码架构设计</td>
+            </tr>
+            <tr>
+              <td><strong>Claude Sonnet 4</strong></td>
+              <td>$3.00</td>
+              <td>$15.00</td>
+              <td>$0.30</td>
+              <td>$3.75</td>
+              <td>日常 Agent、工具调用、RAG</td>
+            </tr>
+            <tr>
+              <td><strong>Claude Haiku 4</strong></td>
+              <td>$0.80</td>
+              <td>$4.00</td>
+              <td>$0.08</td>
+              <td>$1.00</td>
+              <td>简单分类、快速路由、轻量任务</td>
+            </tr>
+            <tr>
+              <td><strong>GPT-4o</strong></td>
+              <td>$2.50</td>
+              <td>$10.00</td>
+              <td>$1.25 (自动)</td>
+              <td>N/A</td>
+              <td>多模态 Agent、复杂生成</td>
+            </tr>
+            <tr>
+              <td><strong>GPT-4o-mini</strong></td>
+              <td>$0.15</td>
+              <td>$0.60</td>
+              <td>$0.075 (自动)</td>
+              <td>N/A</td>
+              <td>轻量任务、路由分类</td>
+            </tr>
+            <tr>
+              <td><strong>DeepSeek-V3</strong></td>
+              <td>$0.27</td>
+              <td>$1.10</td>
+              <td>$0.07</td>
+              <td>$0.14</td>
+              <td>高性价比中文 Agent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-info">
+        <div class="alert-title">Token 成本计算实践</div>
+        <p>以上价格为 2025 年三季度参考价，实际价格请以各厂商官网为准。在选择模型时，<strong>不要只看单价</strong>——Claude Sonnet 的单价比 GPT-4o 高 20%，但它在工具调用准确率上可能强 30%，从而减少重试次数，反而总成本更低。成本优化的关键是<strong>总任务完成成本</strong>而非单次 API 调用成本。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Prompt缓存策略 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">📦</div>
+        <div>
+          <div class="card-title">Prompt 缓存策略 — 将重复 Token 成本降低 90%</div>
+          <div class="card-desc">Anthropic Prompt Caching 深度解析与语义缓存实战</div>
+        </div>
+      </div>
+      <p>Agent 系统有一个显著特征：<strong>系统提示词、工具定义和多轮对话中的上下文前缀在每次请求中高度重复</strong>。Prompt Caching 正是利用这一特征，将大量重复的输入 Token 成本降低 90%：</p>
+      <ul>
+        <li><strong>Anthropic Prompt Caching 工作原理</strong>
+          <ul>
+            <li>在消息内容中设置 <code>cache_control: {"type": "ephemeral"}</code> 断点</li>
+            <li>断点之前的全部内容会被缓存，后续请求如果前缀匹配则直接从缓存读取</li>
+            <li>缓存有 5 分钟 TTL (Time-To-Live)，每次命中后自动续期 5 分钟</li>
+            <li>缓存读取价格为正常输入价格的 10%，大幅节省成本</li>
+            <li>最多可在一条消息中设置 4 个缓存断点</li>
+          </ul>
+        </li>
+        <li><strong>缓存最佳实践</strong>
+          <ul>
+            <li><strong>将静态内容放在最前面</strong>：系统提示词、工具定义、角色设定等不随请求变化的内容优先放置，并在末尾加 cache_control 断点</li>
+            <li><strong>多断点策略</strong>：断点1在系统提示词后，断点2在工具定义后，断点3在对话历史摘要后，断点4在最近几条消息后</li>
+            <li><strong>保持前缀稳定</strong>：缓存的命中依赖前缀精确匹配，不要在缓存区域前插入任何动态内容</li>
+            <li><strong>对长文档使用缓存</strong>：如果 Agent 需要反复参考一份长文档（如产品手册），将其放在缓存区域</li>
+          </ul>
+        </li>
+        <li><strong>语义缓存 (Semantic Caching)</strong>
+          <ul>
+            <li>不同于 Prompt Caching 的精确前缀匹配，语义缓存通过向量相似度匹配来复用历史响应</li>
+            <li>流程：新用户问题 → 计算 Embedding → 在向量数据库中搜索相似问题 → 如果相似度 > 0.95，直接返回缓存的响应 → 否则调用 LLM</li>
+            <li>适合场景：FAQ 型客服、相似度高的模板化查询、热门问题的快速响应</li>
+            <li>核心权衡：缓存命中率 vs 准确性（相似度阈值设太高，命中率低；设太低，可能返回不准确的答案）</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Card 3: Prompt缓存代码示例 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">💻</div>
+        <div>
+          <div class="card-title">Prompt 缓存与语义缓存 — 双缓存实现</div>
+          <div class="card-desc">Anthropic Prompt Caching + Embedding 语义缓存的生产级实现</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — 双层缓存系统：Prompt Caching + Semantic Caching</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">import</span> hashlib
+<span class="token-kw">import</span> json
+<span class="token-kw">import</span> time
+<span class="token-kw">import</span> numpy <span class="token-kw">as</span> np
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional, List, Dict
+<span class="token-kw">from</span> anthropic <span class="token-kw">import</span> Anthropic, CacheControlEphemeral
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">CacheEntry</span>:
+    <span class="token-str">"""语义缓存条目"""</span>
+    query_embedding: np.ndarray
+    response: <span class="token-cls">str</span>
+    tokens_saved: <span class="token-cls">int</span>
+    created_at: <span class="token-cls">float</span> = field(default_factory=time.time)
+
+<span class="token-kw">class</span> <span class="token-cls">DualLayerCache</span>:
+    <span class="token-str">"""
+    双层缓存系统：
+    Layer 1 — Anthropic Prompt Caching (精确前缀匹配，自动托管)
+    Layer 2 — Semantic Caching (语义相似匹配，自管理)
+    """</span>
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(
+        <span class="token-kw">self</span>,
+        anthropic_client: Anthropic,
+        embedding_model=<span class="token-str">"text-embedding-3-small"</span>,
+        similarity_threshold=<span class="token-num">0.95</span>,
+        semantic_cache_size=<span class="token-num">10000</span>
+    ):
+        <span class="token-kw">self</span>.client = anthropic_client
+        <span class="token-kw">self</span>.embedding_model = embedding_model
+        <span class="token-kw">self</span>.similarity_threshold = similarity_threshold
+        <span class="token-kw">self</span>.semantic_cache: <span class="token-cls">List</span>[<span class="token-cls">CacheEntry</span>] = []
+        <span class="token-kw">self</span>.max_cache_size = semantic_cache_size
+
+    <span class="token-kw">def</span> <span class="token-fn">build_messages_with_cache</span>(
+        <span class="token-kw">self</span>,
+        system_prompt: <span class="token-cls">str</span>,
+        tools: <span class="token-cls">List</span>[<span class="token-cls">Dict</span>],
+        conversation_history: <span class="token-cls">List</span>[<span class="token-cls">Dict</span>],
+        user_message: <span class="token-cls">str</span>
+    ) -> <span class="token-cls">List</span>[<span class="token-cls">Dict</span>]:
+        <span class="token-str">"""
+        构建带 Prompt Caching 断点的消息列表。
+        缓存策略：
+        - 断点1：系统提示词之后 → 缓存所有系统提示词
+        - 断点2：工具定义之后 → 缓存所有工具定义
+        后续请求将命中这些缓存，节省 90% 输入成本。
+        """</span>
+        system_block = {
+            <span class="token-str">"type"</span>: <span class="token-str">"text"</span>,
+            <span class="token-str">"text"</span>: system_prompt,
+            <span class="token-str">"cache_control"</span>: {<span class="token-str">"type"</span>: <span class="token-str">"ephemeral"</span>}
+        }
+
+        tools_text = json.dumps(tools, ensure_ascii=<span class="token-num">False</span>, indent=<span class="token-num">2</span>)
+        tools_block = {
+            <span class="token-str">"type"</span>: <span class="token-str">"text"</span>,
+            <span class="token-str">"text"</span>: <span class="token-str">f"## Available Tools\n{tools_text}"</span>,
+            <span class="token-str">"cache_control"</span>: {<span class="token-str">"type"</span>: <span class="token-str">"ephemeral"</span>}
+        }
+
+        messages = [system_block, tools_block] + conversation_history + [
+            {<span class="token-str">"role"</span>: <span class="token-str">"user"</span>, <span class="token-str">"content"</span>: user_message}
+        ]
+        <span class="token-kw">return</span> messages
+
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">query_with_semantic_cache</span>(
+        <span class="token-kw">self</span>,
+        user_query: <span class="token-cls">str</span>,
+        llm_call_func: <span class="token-cls">callable</span>
+    ) -> <span class="token-cls">Dict</span>:
+        <span class="token-str">"""
+        语义缓存查询：
+        1. 计算查询的 embedding
+        2. 在缓存中搜索最相似的条目
+        3. 如果相似度 >= 阈值，直接返回缓存响应
+        4. 否则调用 LLM 并缓存结果
+        """</span>
+        <span class="token-cm"># 1. 计算查询 embedding</span>
+        query_embedding = <span class="token-kw">self</span>.<span class="token-fn">_get_embedding</span>(user_query)
+
+        <span class="token-cm"># 2. 搜索相似缓存</span>
+        best_match, best_similarity = <span class="token-kw">self</span>.<span class="token-fn">_find_best_match</span>(query_embedding)
+
+        <span class="token-cm"># 3. 命中：直接返回</span>
+        <span class="token-kw">if</span> best_match <span class="token-kw">and</span> best_similarity >= <span class="token-kw">self</span>.similarity_threshold:
+            <span class="token-kw">return</span> {
+                <span class="token-str">"response"</span>: best_match.response,
+                <span class="token-str">"cached"</span>: <span class="token-num">True</span>,
+                <span class="token-str">"similarity"</span>: best_similarity,
+                <span class="token-str">"tokens_saved"</span>: best_match.tokens_saved
+            }
+
+        <span class="token-cm"># 4. 未命中：调用 LLM</span>
+        response = <span class="token-kw">await</span> llm_call_func(user_query)
+
+        <span class="token-cm"># 5. 缓存新结果</span>
+        <span class="token-kw">self</span>.<span class="token-fn">_add_to_cache</span>(query_embedding, response, tokens_saved=<span class="token-num">500</span>)
+
+        <span class="token-kw">return</span> {<span class="token-str">"response"</span>: response, <span class="token-str">"cached"</span>: <span class="token-num">False</span>}
+
+    <span class="token-kw">def</span> <span class="token-fn">_get_embedding</span>(<span class="token-kw">self</span>, text: <span class="token-cls">str</span>) -> np.ndarray:
+        <span class="token-str">"""调用 Embedding API 获取向量表示"""</span>
+        <span class="token-cm"># 实际实现需调用 OpenAI/Anthropic Embedding API</span>
+        cached_hash = hashlib.md5(text.encode()).<span class="token-fn">hexdigest</span>()
+        np.random.seed(<span class="token-builtin">int</span>(cached_hash, <span class="token-num">16</span>) % (<span class="token-num">2</span>**<span class="token-num">32</span>))
+        <span class="token-kw">return</span> np.random.randn(<span class="token-num">1536</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">_find_best_match</span>(<span class="token-kw">self</span>, query_emb: np.ndarray) -> <span class="token-cls">tuple</span>:
+        <span class="token-str">"""在语义缓存中查找最相似条目，使用余弦相似度"""</span>
+        <span class="token-kw">if</span> <span class="token-kw">not</span> <span class="token-kw">self</span>.semantic_cache:
+            <span class="token-kw">return</span> <span class="token-num">None</span>, <span class="token-num">0.0</span>
+
+        best_match = <span class="token-num">None</span>
+        best_similarity = <span class="token-num">0.0</span>
+
+        <span class="token-kw">for</span> entry <span class="token-kw">in</span> <span class="token-kw">self</span>.semantic_cache:
+            similarity = <span class="token-kw">self</span>.<span class="token-fn">_cosine_similarity</span>(query_emb, entry.query_embedding)
+            <span class="token-kw">if</span> similarity > best_similarity:
+                best_similarity = similarity
+                best_match = entry
+
+        <span class="token-kw">return</span> best_match, best_similarity
+
+    <span class="token-kw">def</span> <span class="token-fn">_cosine_similarity</span>(<span class="token-kw">self</span>, a: np.ndarray, b: np.ndarray) -> <span class="token-cls">float</span>:
+        <span class="token-str">"""计算两个向量之间的余弦相似度"""</span>
+        <span class="token-kw">return</span> np.<span class="token-fn">dot</span>(a, b) / (np.linalg.<span class="token-fn">norm</span>(a) * np.linalg.<span class="token-fn">norm</span>(b))
+
+    <span class="token-kw">def</span> <span class="token-fn">_add_to_cache</span>(<span class="token-kw">self</span>, embedding: np.ndarray, response: <span class="token-cls">str</span>, tokens_saved: <span class="token-cls">int</span>):
+        <span class="token-str">"""添加条目到语义缓存，超出容量时淘汰最旧的条目"""</span>
+        <span class="token-kw">if</span> <span class="token-builtin">len</span>(<span class="token-kw">self</span>.semantic_cache) >= <span class="token-kw">self</span>.max_cache_size:
+            <span class="token-kw">self</span>.semantic_cache.pop(<span class="token-num">0</span>)  <span class="token-cm"># FIFO 淘汰策略</span>
+        <span class="token-kw">self</span>.semantic_cache.append(
+            <span class="token-cls">CacheEntry</span>(query_embedding=embedding, response=response, tokens_saved=tokens_saved)
+        )
+
+<span class="token-cm"># ===== 使用示例 =====</span>
+client = Anthropic()
+cache = <span class="token-cls">DualLayerCache</span>(anthropic_client=client)
+
+<span class="token-cm"># 第1次请求 — Prompt Cache MISS, Semantic Cache MISS → 全额 LLM 调用</span>
+messages = cache.<span class="token-fn">build_messages_with_cache</span>(
+    system_prompt=<span class="token-str">"你是一个专业的客服 Agent..."</span>,
+    tools=[{<span class="token-str">"name"</span>: <span class="token-str">"search"</span>, <span class="token-str">"description"</span>: <span class="token-str">"..."</span>}],
+    conversation_history=[],
+    user_message=<span class="token-str">"如何退货？"</span>
+)
+
+<span class="token-cm"># 第2次请求 — Prompt Cache HIT (系统提示词+工具定义命中) → 节省 90%</span>
+messages2 = cache.<span class="token-fn">build_messages_with_cache</span>(
+    system_prompt=<span class="token-str">"你是一个专业的客服 Agent..."</span>,  <span class="token-cm"># 相同前缀 → 缓存命中!</span>
+    tools=[{<span class="token-str">"name"</span>: <span class="token-str">"search"</span>, <span class="token-str">"description"</span>: <span class="token-str">"..."</span>}],
+    conversation_history=[],
+    user_message=<span class="token-str">"如何换货？"</span>
+)</code></pre>
+    </div>
+
+    <!-- Card 4: 模型分层路由 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">🔀</div>
+        <div>
+          <div class="card-title">模型分层路由 — 用对模型，省对钱</div>
+          <div class="card-desc">将简单任务路由到便宜模型，复杂任务升级到强大模型</div>
+        </div>
+      </div>
+      <p>模型分层 (Model Tiering) 是 Agent 成本优化的核心策略：<strong>并非所有任务都需要最强的模型</strong>。通过智能路由将任务分配到最适合的模型层级，可以在保持质量的同时大幅降低成本：</p>
+      <ul>
+        <li><strong>三层模型架构</strong>
+          <ul>
+            <li><strong>Tier 1 — 快速层</strong>：Claude Haiku 或 GPT-4o-mini。处理简单分类、意图识别、问候回复、状态查询等低复杂度任务。响应时间 < 1s，成本 < $0.001/次</li>
+            <li><strong>Tier 2 — 标准层</strong>：Claude Sonnet 或 GPT-4o。处理大部分 Agent 任务：工具调用、中等复杂度推理、RAG 问答、代码生成。响应时间 2-5s，成本约 $0.01-0.03/次</li>
+            <li><strong>Tier 3 — 高级层</strong>：Claude Opus。处理最复杂的任务：多步推理链、复杂代码架构设计、多文档综合分析。响应时间 5-15s，成本约 $0.05-0.15/次</li>
+          </ul>
+        </li>
+        <li><strong>路由决策因素</strong>
+          <ul>
+            <li>查询复杂度评分：基于用户输入的长度、关键词、历史失败模式</li>
+            <li>任务类型识别：分类任务 → Tier 1；工具调用 → Tier 2；开放式推理 → Tier 3</li>
+            <li>用户等级：免费用户优先路由到 Tier 1/2，付费用户可使用 Tier 3</li>
+            <li>预算状态：接近预算上限时降级到低层模型</li>
+          </ul>
+        </li>
+        <li><strong>路由实现方式</strong>
+          <ul>
+            <li>基于规则的路由：正则表达式 + 关键词匹配识别简单问题</li>
+            <li>基于分类器的路由：用小模型 (如 Haiku) 判断问题复杂度，决定升级到哪个层级</li>
+            <li>动态路由：运行时监测 Agent 行为，如果 Haiku 多次失败则自动升级到 Sonnet</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="alert alert-warning">
+        <div class="alert-title">模型分层的风险</div>
+        <p>路由器的判断本身也可能出错——把一个需要深度推理的问题误判为简单问题，导致用户得到低质量回答。建议在路由器中设置<strong>"不确定即升级"</strong>策略：当分类器对复杂度判断的置信度低于 70% 时，默认升级到高层模型。</p>
+      </div>
+    </div>
+
+    <!-- Card 5: ModelRouter代码示例 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">💻</div>
+        <div>
+          <div class="card-title">ModelRouter 类 — 智能模型路由器实现</div>
+          <div class="card-desc">基于查询复杂度的自适应模型选择与自动升级机制</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — 智能模型路由器 (规则 + 分类器 + 动态升级)</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">import</span> re
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Callable, Optional
+
+<span class="token-kw">class</span> <span class="token-cls">ModelTier</span>(<span class="token-cls">Enum</span>):
+    FAST = <span class="token-str">"haiku"</span>      <span class="token-cm"># $0.80/$4.00 per 1M — 简单任务</span>
+    STANDARD = <span class="token-str">"sonnet"</span>   <span class="token-cm"># $3.00/$15.00 per 1M — 日常 Agent 任务</span>
+    ADVANCED = <span class="token-str">"opus"</span>     <span class="token-cm"># $15.00/$75.00 per 1M — 复杂推理</span>
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">RoutingDecision</span>:
+    tier: ModelTier
+    reason: <span class="token-cls">str</span>
+    confidence: <span class="token-cls">float</span>  <span class="token-cm"># 0.0 - 1.0</span>
+    estimated_tokens: <span class="token-cls">int</span>
+    estimated_cost: <span class="token-cls">float</span>
+
+<span class="token-kw">class</span> <span class="token-cls">ModelRouter</span>:
+    <span class="token-str">"""
+    模型路由器 — 根据查询复杂度智能选择模型层级。
+    包含三个决策层：规则层、分类器层、动态升级层。
+    """</span>
+
+    <span class="token-cm"># 简单任务的规则特征</span>
+    SIMPLE_PATTERNS = [
+        <span class="token-str">r"^(你好|hi|hello|早上好|晚上好|再见)"</span>,    <span class="token-cm"># 问候</span>
+        <span class="token-str">r"^(谢谢|感谢|thanks)"</span>,                      <span class="token-cm"># 感谢</span>
+        <span class="token-str">r"^(是|否|对|不对|yes|no)$"</span>,                  <span class="token-cm"># 简单确认</span>
+        <span class="token-str">r"^现在几点|今天周几|今天是几号"</span>,               <span class="token-cm"># 简单查询</span>
+        <span class="token-str">r"^什么是\s*\w{1,6}$"</span>                          <span class="token-cm"># 极短的"What is X"</span>
+    ]
+
+    <span class="token-cm"># 复杂任务的特征</span>
+    COMPLEX_PATTERNS = [
+        <span class="token-str">r"(设计|架构|分析|评估|比较|对比|重构|优化方案)"</span>,
+        <span class="token-str">r"(代码审查|code review|代码review)"</span>,
+        <span class="token-str">r"(多步|复杂|综合|全面|深度)"</span>,
+        <span class="token-str">r"(帮我写|帮我实现|帮我设计).{30,}"</span>,
+        <span class="token-str">r".*(法律|金融|医疗|安全漏洞).*"</span>
+    ]
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, complexity_classifier: <span class="token-cls">Optional</span>[<span class="token-cls">Callable</span>] = <span class="token-num">None</span>):
+        <span class="token-kw">self</span>.classifier = complexity_classifier
+        <span class="token-kw">self</span>.routing_history: <span class="token-cls">list</span> = []
+        <span class="token-kw">self</span>.cost_breakdown = {tier: <span class="token-num">0.0</span> <span class="token-kw">for</span> tier <span class="token-kw">in</span> ModelTier}
+
+    <span class="token-kw">def</span> <span class="token-fn">route</span>(<span class="token-kw">self</span>, query: <span class="token-cls">str</span>, conversation_context: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-num">None</span>) -> RoutingDecision:
+        <span class="token-str">"""
+        三步决策流程：
+        1. 规则层：快速匹配明显简单/复杂的查询
+        2. 分类器层：用小模型评估查询复杂度
+        3. 动态升级层：检查上下文，判断是否需要升级
+        """</span>
+
+        <span class="token-cm"># Layer 1: 规则层</span>
+        rule_result = <span class="token-kw">self</span>.<span class="token-fn">_rule_based_route</span>(query)
+        <span class="token-kw">if</span> rule_result <span class="token-kw">and</span> rule_result.confidence > <span class="token-num">0.9</span>:
+            <span class="token-kw">return</span> rule_result
+
+        <span class="token-cm"># Layer 2: 分类器层（使用小模型评估复杂度）</span>
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.classifier:
+            complexity = <span class="token-kw">self</span>.<span class="token-fn">_classify_complexity</span>(query, conversation_context)
+        <span class="token-kw">else</span>:
+            complexity = <span class="token-kw">self</span>.<span class="token-fn">_heuristic_complexity</span>(query)
+
+        <span class="token-cm"># Layer 3: 动态升级 — 根据上下文调整</span>
+        complexity = <span class="token-kw">self</span>.<span class="token-fn">_apply_contextual_upgrade</span>(complexity, conversation_context)
+
+        <span class="token-cm"># 决策</span>
+        <span class="token-kw">if</span> complexity < <span class="token-num">0.25</span>:
+            tier = ModelTier.FAST
+            reason = <span class="token-str">"低复杂度，使用快速模型"</span>
+        <span class="token-kw">elif</span> complexity < <span class="token-num">0.65</span>:
+            tier = ModelTier.STANDARD
+            reason = <span class="token-str">"中等复杂度，使用标准模型"</span>
+        <span class="token-kw">else</span>:
+            tier = ModelTier.ADVANCED
+            reason = <span class="token-str">"高复杂度，使用高级模型"</span>
+
+        decision = <span class="token-cls">RoutingDecision</span>(
+            tier=tier,
+            reason=reason,
+            confidence=complexity <span class="token-kw">if</span> complexity > <span class="token-num">0.75</span> <span class="token-kw">else</span> <span class="token-num">1</span> - complexity,
+            estimated_tokens=<span class="token-keyword">self</span>.<span class="token-fn">_estimate_tokens</span>(query),
+            estimated_cost=<span class="token-num">0.0</span>
+        )
+
+        <span class="token-kw">self</span>.routing_history.append({<span class="token-str">"query"</span>: query[:<span class="token-num">80</span>], <span class="token-str">"tier"</span>: tier.value, <span class="token-str">"complexity"</span>: complexity})
+        <span class="token-kw">return</span> decision
+
+    <span class="token-kw">def</span> <span class="token-fn">_rule_based_route</span>(<span class="token-kw">self</span>, query: <span class="token-cls">str</span>) -> <span class="token-cls">Optional</span>[<span class="token-cls">RoutingDecision</span>]:
+        <span class="token-str">"""规则引擎 — 快速识别明确简单/复杂的查询"""</span>
+        <span class="token-kw">for</span> pattern <span class="token-kw">in</span> <span class="token-kw">self</span>.SIMPLE_PATTERNS:
+            <span class="token-kw">if</span> re.<span class="token-fn">match</span>(pattern, query.strip()):
+                <span class="token-kw">return</span> <span class="token-cls">RoutingDecision</span>(
+                    tier=ModelTier.FAST, reason=<span class="token-str">"规则匹配：简单查询"</span>,
+                    confidence=<span class="token-num">0.95</span>, estimated_tokens=<span class="token-num">100</span>, estimated_cost=<span class="token-num">0.0005</span>
+                )
+
+        <span class="token-kw">for</span> pattern <span class="token-kw">in</span> <span class="token-kw">self</span>.COMPLEX_PATTERNS:
+            <span class="token-kw">if</span> re.<span class="token-fn">search</span>(pattern, query):
+                <span class="token-kw">return</span> <span class="token-cls">RoutingDecision</span>(
+                    tier=ModelTier.ADVANCED, reason=<span class="token-str">"规则匹配：复杂查询"</span>,
+                    confidence=<span class="token-num">0.9</span>, estimated_tokens=<span class="token-num">3000</span>, estimated_cost=<span class="token-num">0.08</span>
+                )
+
+        <span class="token-kw">return</span> <span class="token-num">None</span>  <span class="token-cm"># 规则无法判断，升级到分类器层</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">_heuristic_complexity</span>(<span class="token-kw">self</span>, query: <span class="token-cls">str</span>) -> <span class="token-cls">float</span>:
+        <span class="token-str">"""
+        启发式复杂度评估（不需要 LLM 调用的快速近似）：
+        - 查询长度
+        - 多步推理关键词
+        - 代码相关度
+        - 列表/结构化请求
+        """</span>
+        score = <span class="token-num">0.0</span>
+
+        <span class="token-cm"># 长度因子</span>
+        <span class="token-kw">if</span> <span class="token-builtin">len</span>(query) > <span class="token-num">200</span>: score += <span class="token-num">0.3</span>
+        <span class="token-kw">elif</span> <span class="token-builtin">len</span>(query) > <span class="token-num">100</span>: score += <span class="token-num">0.15</span>
+
+        <span class="token-cm"># 推理关键词</span>
+        reasoning_keywords = [<span class="token-str">"为什么"</span>, <span class="token-str">"怎么"</span>, <span class="token-str">"原因"</span>, <span class="token-str">"分析"</span>, <span class="token-str">"方案"</span>, <span class="token-str">"步骤"</span>]
+        score += <span class="token-num">0.05</span> * <span class="token-builtin">sum</span>(<span class="token-num">1</span> <span class="token-kw">for</span> kw <span class="token-kw">in</span> reasoning_keywords <span class="token-kw">if</span> kw <span class="token-kw">in</span> query)
+
+        <span class="token-cm"># 代码相关</span>
+        <span class="token-kw">if</span> <span class="token-str">"```"</span> <span class="token-kw">in</span> query <span class="token-kw">or</span> <span class="token-str">"def "</span> <span class="token-kw">in</span> query <span class="token-kw">or</span> <span class="token-str">"class "</span> <span class="token-kw">in</span> query: score += <span class="token-num">0.25</span>
+
+        <span class="token-cm"># 多部分请求</span>
+        <span class="token-kw">if</span> <span class="token-builtin">len</span>(re.<span class="token-fn">findall</span>(<span class="token-str">r"\d+[\.、)]"</span>, query)) >= <span class="token-num">3</span>: score += <span class="token-num">0.2</span>
+
+        <span class="token-kw">return</span> <span class="token-builtin">min</span>(score, <span class="token-num">1.0</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">_apply_contextual_upgrade</span>(<span class="token-kw">self</span>, complexity: <span class="token-cls">float</span>, context: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>]) -> <span class="token-cls">float</span>:
+        <span class="token-str">"""根据对话上下文动态调整复杂度评分"""</span>
+        <span class="token-kw">if</span> context <span class="token-kw">and</span> <span class="token-builtin">len</span>(context) > <span class="token-num">2000</span>:
+            complexity = <span class="token-builtin">min</span>(complexity + <span class="token-num">0.2</span>, <span class="token-num">1.0</span>)  <span class="token-cm"># 长上下文增加复杂度</span>
+        <span class="token-kw">return</span> complexity
+
+    <span class="token-kw">def</span> <span class="token-fn">_estimate_tokens</span>(<span class="token-kw">self</span>, query: <span class="token-cls">str</span>) -> <span class="token-cls">int</span>:
+        <span class="token-str">"""快速估算 Token 数 (简化为字符/4)"""</span>
+        <span class="token-kw">return</span> <span class="token-builtin">max</span>(<span class="token-builtin">len</span>(query) // <span class="token-num">2</span>, <span class="token-num">50</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">get_stats</span>(<span class="token-kw">self</span>) -> <span class="token-cls">Dict</span>:
+        <span class="token-str">"""获取路由统计信息"""</span>
+        total = <span class="token-builtin">len</span>(<span class="token-kw">self</span>.routing_history)
+        <span class="token-kw">if</span> total == <span class="token-num">0</span>: <span class="token-kw">return</span> {}
+        <span class="token-kw">return</span> {
+            <span class="token-str">"total_requests"</span>: total,
+            <span class="token-str">"tier_distribution"</span>: {
+                tier.value: <span class="token-builtin">sum</span>(<span class="token-num">1</span> <span class="token-kw">for</span> r <span class="token-kw">in</span> <span class="token-kw">self</span>.routing_history <span class="token-kw">if</span> r[<span class="token-str">"tier"</span>] == tier.value) / total
+                <span class="token-kw">for</span> tier <span class="token-kw">in</span> ModelTier
+            }
+        }
+
+<span class="token-cm"># ===== 使用示例 =====</span>
+router = <span class="token-cls">ModelRouter</span>()
+
+<span class="token-cm"># 1. 简单问候 → FAST 层</span>
+decision = router.<span class="token-fn">route</span>(<span class="token-str">"你好！"</span>)
+<span class="token-builtin">print</span>(<span class="token-str">f"路由: {decision.tier.value} | 原因: {decision.reason}"</span>)
+<span class="token-cm"># 输出: 路由: haiku | 原因: 规则匹配：简单查询</span>
+
+<span class="token-cm"># 2. 复杂架构分析 → ADVANCED 层</span>
+decision = router.<span class="token-fn">route</span>(<span class="token-str">"帮我设计一个多Agent协作的客服系统架构，包含负载均衡和容灾方案"</span>)
+<span class="token-builtin">print</span>(<span class="token-str">f"路由: {decision.tier.value} | 原因: {decision.reason}"</span>)
+<span class="token-cm"># 输出: 路由: opus | 原因: 规则匹配：复杂查询</span>
+
+<span class="token-cm"># 3. 中等查询 → STANDARD 层</span>
+decision = router.<span class="token-fn">route</span>(<span class="token-str">"帮我查一下北京的天气，然后告诉我今天适合穿什么"</span>)
+<span class="token-builtin">print</span>(<span class="token-str">f"路由: {decision.tier.value} | 复杂度: {decision.confidence:.2f}"</span>)</code></pre>
+    </div>
+
+    <!-- Card 6: 并行工具调用 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">⚡</div>
+        <div>
+          <div class="card-title">并行工具调用 — 从串行到并发的加速</div>
+          <div class="card-desc">识别独立性，将Agent响应时间从 15s 降到 5s</div>
+        </div>
+      </div>
+      <p>当 Agent 需要调用多个工具时，<strong>如果这些工具之间没有数据依赖关系，就应该并行执行</strong>。这是性能优化中投入产出比最高的策略——零额外成本，显著减少延迟：</p>
+      <ul>
+        <li><strong>识别可并行的工具调用</strong>
+          <ul>
+            <li><strong>独立查询</strong>："查询北京、上海、广州的天气" → 3 次独立的天气 API 调用，完全可以并行</li>
+            <li><strong>多源检索</strong>：同时搜索内部知识库、外部文档、代码仓库 → 3 个独立的检索操作</li>
+            <li><strong>多维度分析</strong>：同时进行情感分析、实体提取、关键词提取 → 3 个独立的 NLP 任务</li>
+            <li><strong>数据验证</strong>：同时校验字段A、B、C的合法性 → 3 个独立的验证</li>
+          </ul>
+        </li>
+        <li><strong>依赖感知调度</strong>
+          <ul>
+            <li><strong>必须串行的情况</strong>：工具 B 的输入参数来自工具 A 的输出（如：先搜索文档ID，再用ID获取文档内容）</li>
+            <li><strong>部分并行</strong>：A、B 各自独立但都依赖 C 的结果 → 先并行执行 A、B，等 C 完成后决定下一步</li>
+            <li><strong>构建依赖图 (DAG)</strong>：工具 A → 工具 C → 工具 E；工具 B → 工具 D。则可以 [A||B] → [C||D] → [E]</li>
+          </ul>
+        </li>
+        <li><strong>性能对比（典型 Agent 任务）</strong>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>执行模式</th><th>3 个工具各 3s</th><th>5 个工具各 2s</th><th>10 个工具各 1s</th></tr></thead>
+              <tbody>
+                <tr><td><strong>串行执行</strong></td><td>9 秒</td><td>10 秒</td><td>10 秒</td></tr>
+                <tr><td><strong>并行执行</strong></td><td>3 秒 (3x)</td><td>2 秒 (5x)</td><td>1 秒 (10x)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </li>
+      </ul>
+      <div class="alert alert-success">
+        <div class="alert-title">实践建议</div>
+        <p>在 Agent 循环中，LLM 每次可以返回多个工具调用 (tool_calls 数组)。现代的 LLM SDK 支持同时执行这些工具调用。确保<strong>每个工具都是线程安全的</strong>（没有全局副作用），这是并行执行的前提条件。</p>
+      </div>
+    </div>
+
+    <!-- Card 7: 并行工具调用代码示例 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">💻</div>
+        <div>
+          <div class="card-title">依赖感知并行工具执行器</div>
+          <div class="card-desc">自动构建依赖图，最大化并发执行独立工具</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — 依赖感知并行工具调度器</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">import</span> asyncio
+<span class="token-kw">import</span> time
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> List, Dict, Set, Tuple
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ToolCall</span>:
+    name: <span class="token-cls">str</span>
+    arguments: <span class="token-cls">Dict</span>
+    depends_on: <span class="token-cls">Set</span>[<span class="token-cls">str</span>]  <span class="token-cm"># 依赖的工具调用名称集合</span>
+    result: <span class="token-cls">str</span> = <span class="token-str">""</span>
+
+<span class="token-kw">class</span> <span class="token-cls">ParallelToolExecutor</span>:
+    <span class="token-str">"""
+    依赖感知的并行工具执行器。
+    自动构建 DAG (有向无环图)，在每个层级上最大化并行执行。
+    """</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, tool_registry: <span class="token-cls">Dict</span>):
+        <span class="token-str">"""tool_registry: {name: async_callable}"""</span>
+        <span class="token-kw">self</span>.tools = tool_registry
+
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">execute_all</span>(<span class="token-kw">self</span>, tool_calls: <span class="token-cls">List</span>[<span class="token-cls">ToolCall</span>]) -> <span class="token-cls">Dict</span>[<span class="token-cls">str</span>, <span class="token-cls">str</span>]:
+        <span class="token-str">"""
+        按依赖关系分层执行所有工具调用。
+        同层无依赖的工具并行执行，不同层按依赖顺序执行。
+
+        例：A→C→E, B→D→E, F(独立)
+        Layer 0: [A, B, F] 并行
+        Layer 1: [C, D] 并行
+        Layer 2: [E]
+        """</span>
+        remaining = {tc.name: tc <span class="token-kw">for</span> tc <span class="token-kw">in</span> tool_calls}
+        completed: <span class="token-cls">Dict</span>[<span class="token-cls">str</span>, <span class="token-cls">str</span>] = {}
+        start_time = time.time()
+
+        <span class="token-kw">while</span> remaining:
+            <span class="token-cm"># 找出所有依赖已满足的工具调用</span>
+            ready = [
+                tc <span class="token-kw">for</span> tc <span class="token-kw">in</span> remaining.values()
+                <span class="token-kw">if</span> tc.depends_on.<span class="token-fn">issubset</span>(completed.keys())
+            ]
+
+            <span class="token-kw">if</span> <span class="token-kw">not</span> ready:
+                unresolved = [
+                    <span class="token-str">f"{tc.name} (等待: {tc.depends_on - set(completed.keys())})"</span>
+                    <span class="token-kw">for</span> tc <span class="token-kw">in</span> remaining.values()
+                ]
+                <span class="token-kw">raise</span> <span class="token-cls">RuntimeError</span>(<span class="token-str">f"检测到循环依赖或缺失工具: {unresolved}"</span>)
+
+            <span class="token-cm"># 并行执行所有就绪的工具</span>
+            layer_start = time.time()
+            tasks = [<span class="token-kw">self</span>.<span class="token-fn">_execute_one</span>(tc) <span class="token-kw">for</span> tc <span class="token-kw">in</span> ready]
+            results = <span class="token-kw">await</span> asyncio.<span class="token-fn">gather</span>(*tasks, return_exceptions=<span class="token-num">True</span>)
+
+            layer_time = time.time() - layer_start
+            <span class="token-builtin">print</span>(<span class="token-str">f"Layer [{len(ready)} tools] completed in {layer_time:.2f}s"</span>)
+
+            <span class="token-kw">for</span> tc, result <span class="token-kw">in</span> <span class="token-builtin">zip</span>(ready, results):
+                <span class="token-kw">if</span> <span class="token-builtin">isinstance</span>(result, <span class="token-cls">Exception</span>):
+                    completed[tc.name] = <span class="token-str">f"Error: {str(result)}"</span>
+                <span class="token-kw">else</span>:
+                    completed[tc.name] = <span class="token-builtin">str</span>(result)
+                    tc.result = <span class="token-builtin">str</span>(result)
+
+                <span class="token-keyword">del</span> remaining[tc.name]
+
+        total_time = time.time() - start_time
+        <span class="token-builtin">print</span>(<span class="token-str">f"全部 {len(tool_calls)} 个工具执行完成，总耗时 {total_time:.2f}s"</span>)
+        <span class="token-kw">return</span> completed
+
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">_execute_one</span>(<span class="token-kw">self</span>, tc: ToolCall) -> <span class="token-cls">str</span>:
+        <span class="token-str">"""执行单个工具调用"""</span>
+        func = <span class="token-keyword">self</span>.tools.get(tc.name)
+        <span class="token-kw">if</span> <span class="token-kw">not</span> func:
+            <span class="token-kw">return</span> <span class="token-str">f"Unknown tool: {tc.name}"</span>
+        <span class="token-kw">return</span> <span class="token-kw">await</span> func(**tc.arguments)
+
+    <span class="token-kw">def</span> <span class="token-fn">estimate_speedup</span>(<span class="token-kw">self</span>, tool_calls: <span class="token-cls">List</span>[<span class="token-cls">ToolCall</span>]) -> <span class="token-cls">float</span>:
+        <span class="token-str">"""估算并行执行相比串行的加速比"""</span>
+        <span class="token-kw">if</span> <span class="token-kw">not</span> tool_calls:
+            <span class="token-kw">return</span> <span class="token-num">1.0</span>
+
+        serial_time = <span class="token-builtin">len</span>(tool_calls)  <span class="token-cm"># 假设每个工具1单位时间</span>
+
+        <span class="token-cm"># 计算拓扑层数</span>
+        completed = <span class="token-builtin">set</span>()
+        remaining = {tc.name: tc <span class="token-kw">for</span> tc <span class="token-kw">in</span> tool_calls}
+        layers = <span class="token-num">0</span>
+        <span class="token-kw">while</span> remaining:
+            ready = {name <span class="token-kw">for</span> name, tc <span class="token-kw">in</span> remaining.items()
+                     <span class="token-kw">if</span> tc.depends_on.<span class="token-fn">issubset</span>(completed)}
+            completed.<span class="token-fn">update</span>(ready)
+            <span class="token-kw">for</span> name <span class="token-kw">in</span> ready: <span class="token-keyword">del</span> remaining[name]
+            layers += <span class="token-num">1</span>
+
+        parallel_time = layers
+        <span class="token-kw">return</span> serial_time / parallel_time
+
+<span class="token-cm"># ===== 使用示例 =====</span>
+<span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">main</span>():
+    <span class="token-cm"># 模拟工具注册表</span>
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">weather</span>(city: <span class="token-cls">str</span>): <span class="token-kw">await</span> asyncio.<span class="token-fn">sleep</span>(<span class="token-num">1</span>); <span class="token-kw">return</span> <span class="token-str">f"{city}天气: 晴 22°C"</span>
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">news</span>(topic: <span class="token-cls">str</span>): <span class="token-kw">await</span> asyncio.<span class="token-fn">sleep</span>(<span class="token-num">1.2</span>); <span class="token-kw">return</span> <span class="token-str">f"{topic}最新新闻: ..."</span>
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">summarize</span>(text: <span class="token-cls">str</span>): <span class="token-kw">await</span> asyncio.<span class="token-fn">sleep</span>(<span class="token-num">0.8</span>); <span class="token-kw">return</span> <span class="token-str">f"摘要: {text[:30]}..."</span>
+
+    executor = <span class="token-cls">ParallelToolExecutor</span>({
+        <span class="token-str">"weather"</span>: weather,
+        <span class="token-str">"news"</span>: news,
+        <span class="token-str">"summarize"</span>: summarize
+    })
+
+    <span class="token-cm"># 定义工具调用及其依赖关系</span>
+    calls = [
+        <span class="token-cls">ToolCall</span>(name=<span class="token-str">"weather_bj"</span>, arguments={<span class="token-str">"city"</span>: <span class="token-str">"北京"</span>}, depends_on=<span class="token-builtin">set</span>()),
+        <span class="token-cls">ToolCall</span>(name=<span class="token-str">"weather_sh"</span>, arguments={<span class="token-str">"city"</span>: <span class="token-str">"上海"</span>}, depends_on=<span class="token-builtin">set</span>()),
+        <span class="token-cls">ToolCall</span>(name=<span class="token-str">"news_ai"</span>,   arguments={<span class="token-str">"topic"</span>: <span class="token-str">"AI"</span>},   depends_on=<span class="token-builtin">set</span>()),
+        <span class="token-cls">ToolCall</span>(name=<span class="token-str">"summary"</span>,   arguments={<span class="token-str">"text"</span>: <span class="token-str">"...合成文本..."</span>}, depends_on={<span class="token-str">"weather_bj"</span>, <span class="token-str">"weather_sh"</span>}),
+    ]
+
+    <span class="token-cm"># 估算加速比</span>
+    speedup = executor.<span class="token-fn">estimate_speedup</span>(calls)
+    <span class="token-builtin">print</span>(<span class="token-str">f"预计并行加速: {speedup:.1f}x (4 个工具，2 个依赖层级)"</span>)
+
+    <span class="token-cm"># 并行执行</span>
+    results = <span class="token-kw">await</span> executor.<span class="token-fn">execute_all</span>(calls)
+    <span class="token-builtin">print</span>(<span class="token-str">f"结果: {list(results.keys())}"</span>)
+    <span class="token-cm"># 串行需 4s，并行约 2s (Layer0: 3个并行，Layer1: 1个)</span>
+
+asyncio.<span class="token-fn">run</span>(main())</code></pre>
+    </div>
+
+    <!-- Card 8: 上下文窗口优化 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">🪟</div>
+        <div>
+          <div class="card-title">上下文窗口优化 — 在有限空间内保留最大价值</div>
+          <div class="card-desc">智能摘要、滑动窗口、重要性评分三管齐下</div>
+        </div>
+      </div>
+      <p>虽然模型的上下文窗口不断增长（Claude 200K, Gemini 2M），但越大的上下文意味着越高的延迟和成本。而且 Agent 的多步循环会快速累积对话历史和工具结果，<strong>上下文膨胀是 Agent 性能的头号隐形杀手</strong>：</p>
+      <ul>
+        <li><strong>智能摘要压缩 (Intelligent Summarization)</strong>
+          <ul>
+            <li>使用 LLM 对历史对话进行阶段性摘要：每 N 轮或上下文达到一定阈值时，将之前的内容压缩为摘要</li>
+            <li>摘要应保留：当前任务目标、关键决策点、已获取的重要信息、待完成的事项</li>
+            <li>摘要可以丢弃：冗余的中间推理过程、失败的尝试（保留教训即可）、重复的工具调用结果</li>
+            <li>推荐摘要间隔：每 10-15 轮对话自动触发摘要</li>
+          </ul>
+        </li>
+        <li><strong>滑动窗口 + 重要性评分 (Sliding Window with Importance Scoring)</strong>
+          <ul>
+            <li>为每条消息（包括用户消息、助手消息、工具结果）计算"重要性分数"</li>
+            <li>重要性评分维度：消息对后续决策的帮助程度、包含的信息是否可从其他消息中推断、时效性</li>
+            <li>当上下文接近窗��上限时，按重要性分数从低到高裁剪消息</li>
+            <li>始终保留：系统提示词、工具定义、最近 N 条消息（N 通常为 5-10）</li>
+          </ul>
+        </li>
+        <li><strong>分块处理大文档 (Chunked Processing)</strong>
+          <ul>
+            <li>不要将整个 100 页 PDF 塞进上下文</li>
+            <li>使用检索增强 (RAG)：先通过向量检索找到相关段落，只将相关段落放入上下文</li>
+            <li>对超长文档使用 Map-Reduce 模式：分段分析 → 合并结果</li>
+          </ul>
+        </li>
+        <li><strong>上下文使用率监控</strong>
+          <ul>
+            <li>在每次 LLM 调用前检查 <code>input_tokens</code> 数量</li>
+            <li>设置警戒线：当上下文使用超过 70% 时触发摘要，超过 90% 时强制执行裁剪</li>
+            <li>记录上下文使用率的时序变化，识别哪些类型的任务最容易导致上下文膨胀</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Card 9: 上下文窗口管理器代码 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">💻</div>
+        <div>
+          <div class="card-title">上下文窗口管理器 — 自动摘要与裁剪</div>
+          <div class="card-desc">智能维护上下文在预算范围内，摘要低价值消息</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — 上下文窗口管理器 (摘要 + 重要性评分 + 自动裁剪)</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">import</span> tiktoken
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> List, Dict, Optional
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ContextMessage</span>:
+    role: <span class="token-cls">str</span>
+    content: <span class="token-cls">str</span>
+    importance: <span class="token-cls">float</span> = <span class="token-num">0.5</span>   <span class="token-cm"># 0.0 (可丢弃) ~ 1.0 (必须保留)</span>
+    token_count: <span class="token-cls">int</span> = <span class="token-num">0</span>
+    is_summary: <span class="token-cls">bool</span> = <span class="token-num">False</span>
+
+<span class="token-kw">class</span> <span class="token-cls">ContextWindowManager</span>:
+    <span class="token-str">"""
+    上下文窗口管理器：
+    - 追踪 Token 使用量
+    - 当接近预算时自动触发摘要
+    - 按重要性评分裁剪低价值消息
+    - 保证核心信息始终保留
+    """</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(
+        <span class="token-kw">self</span>,
+        max_tokens: <span class="token-cls">int</span> = <span class="token-num">100000</span>,          <span class="token-cm"># 上下文窗口总 Token 预算</span>
+        system_prompt_tokens: <span class="token-cls">int</span> = <span class="token-num">2000</span>,
+        tool_def_tokens: <span class="token-cls">int</span> = <span class="token-num">3000</span>,
+        summary_trigger_ratio: <span class="token-cls">float</span> = <span class="token-num">0.7</span>,   <span class="token-cm"># 70% 触发摘要</span>
+        force_prune_ratio: <span class="token-cls">float</span> = <span class="token-num">0.9</span>,       <span class="token-cm"># 90% 强制裁剪</span>
+        keep_recent: <span class="token-cls">int</span> = <span class="token-num">6</span>                  <span class="token-cm"># 始终保留最近 N 条消息</span>
+    ):
+        <span class="token-kw">self</span>.max_tokens = max_tokens
+        <span class="token-kw">self</span>.reserved_tokens = system_prompt_tokens + tool_def_tokens
+        <span class="token-kw">self</span>.available_tokens = max_tokens - <span class="token-kw">self</span>.reserved_tokens
+        <span class="token-kw">self</span>.summary_trigger = <span class="token-builtin">int</span>(<span class="token-kw">self</span>.available_tokens * summary_trigger_ratio)
+        <span class="token-kw">self</span>.force_prune = <span class="token-builtin">int</span>(<span class="token-kw">self</span>.available_tokens * force_prune_ratio)
+        <span class="token-kw">self</span>.keep_recent = keep_recent
+        <span class="token-kw">self</span>.messages: <span class="token-cls">List</span>[<span class="token-cls">ContextMessage</span>] = []
+        <span class="token-kw">self</span>.summary: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-num">None</span>
+        <span class="token-kw">self</span>.encoder = tiktoken.<span class="token-fn">get_encoding</span>(<span class="token-str">"cl100k_base"</span>)
+        <span class="token-kw">self</span>.total_tokens_used = <span class="token-num">0</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">add_message</span>(<span class="token-kw">self</span>, role: <span class="token-cls">str</span>, content: <span class="token-cls">str</span>, importance: <span class="token-cls">float</span> = <span class="token-num">0.5</span>) -> <span class="token-cls">List</span>[<span class="token-cls">ContextMessage</span>]:
+        <span class="token-str">"""添加消息并自动管理上下文窗口"""</span>
+        token_count = <span class="token-builtin">len</span>(<span class="token-keyword">self</span>.encoder.<span class="token-fn">encode</span>(content))
+        msg = <span class="token-cls">ContextMessage</span>(role=role, content=content, importance=importance, token_count=token_count)
+        <span class="token-kw">self</span>.messages.append(msg)
+        <span class="token-kw">self</span>.total_tokens_used += token_count
+
+        <span class="token-cm"># 检查是否需要管理上下文</span>
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.total_tokens_used > <span class="token-kw">self</span>.force_prune:
+            <span class="token-kw">return</span> <span class="token-kw">self</span>.<span class="token-fn">force_prune_context</span>()
+        <span class="token-kw">elif</span> <span class="token-kw">self</span>.total_tokens_used > <span class="token-kw">self</span>.summary_trigger:
+            <span class="token-kw">return</span> <span class="token-kw">self</span>.<span class="token-fn">create_summary_and_trim</span>()
+
+        <span class="token-kw">return</span> <span class="token-kw">self</span>.messages
+
+    <span class="token-kw">def</span> <span class="token-fn">create_summary_and_trim</span>(<span class="token-kw">self</span>) -> <span class="token-cls">List</span>[<span class="token-cls">ContextMessage</span>]:
+        <span class="token-str">"""
+        创建摘要 + 裁剪低价值消息：
+        1. 取最旧的 N 条消息生成摘要
+        2. 用摘要替换这些消息
+        3. 保留最近 keep_recent 条消息不变
+        """</span>
+        <span class="token-kw">if</span> <span class="token-builtin">len</span>(<span class="token-kw">self</span>.messages) <= <span class="token-kw">self</span>.keep_recent + <span class="token-num">3</span>:
+            <span class="token-kw">return</span> <span class="token-kw">self</span>.messages  <span class="token-cm"># 消息太少，不值得摘要</span>
+
+        <span class="token-cm"># 分离待摘要的消息和应保留的消息</span>
+        to_summarize = <span class="token-kw">self</span>.messages[:-<span class="token-kw">self</span>.keep_recent]
+        to_keep = <span class="token-kw">self</span>.messages[-<span class="token-kw">self</span>.keep_recent:]
+
+        <span class="token-cm"># 生成摘要 (实际应调用 LLM，此处简化为拼接)</span>
+        summary_content = <span class="token-kw">self</span>.<span class="token-fn">_generate_summary</span>(to_summarize)
+
+        <span class="token-cm"># 替换：摘要消息 + 最近消息</span>
+        summary_msg = <span class="token-cls">ContextMessage</span>(
+            role=<span class="token-str">"system"</span>,
+            content=<span class="token-str">f"[对话历史摘要]\n{summary_content}"</span>,
+            importance=<span class="token-num">0.9</span>,
+            token_count=<span class="token-builtin">len</span>(<span class="token-keyword">self</span>.encoder.<span class="token-fn">encode</span>(summary_content)),
+            is_summary=<span class="token-num">True</span>
+        )
+
+        <span class="token-kw">self</span>.messages = [summary_msg] + to_keep
+        <span class="token-kw">self</span>.total_tokens_used = <span class="token-builtin">sum</span>(m.token_count <span class="token-kw">for</span> m <span class="token-kw">in</span> <span class="token-kw">self</span>.messages)
+        <span class="token-kw">self</span>.summary = summary_content
+
+        <span class="token-keyword">print</span>(<span class="token-str">f"[ContextManager] 摘要完成: 压缩 {len(to_summarize)} 条消息 → Token 使用: {self.total_tokens_used}"</span>)
+        <span class="token-kw">return</span> <span class="token-kw">self</span>.messages
+
+    <span class="token-kw">def</span> <span class="token-fn">force_prune_context</span>(<span class="token-kw">self</span>) -> <span class="token-cls">List</span>[<span class="token-cls">ContextMessage</span>]:
+        <span class="token-str">"""
+        强制裁剪：按重要性分数从低到高删除消息，直到 Token 预算回到安全线以下。
+        最近 keep_recent 条消息始终保留。
+        """</span>
+        <span class="token-kw">if</span> <span class="token-builtin">len</span>(<span class="token-kw">self</span>.messages) <= <span class="token-kw">self</span>.keep_recent:
+            <span class="token-kw">return</span> <span class="token-keyword">self</span>.messages
+
+        recent = <span class="token-kw">self</span>.messages[-<span class="token-keyword">self</span>.keep_recent:]
+        candidates = <span class="token-kw">self</span>.messages[:-<span class="token-keyword">self</span>.keep_recent]
+
+        <span class="token-cm"># 按重要性升序排列（最低的在前面）</span>
+        candidates.<span class="token-fn">sort</span>(key=<span class="token-keyword">lambda</span> m: m.importance)
+
+        target_tokens = <span class="token-builtin">int</span>(<span class="token-keyword">self</span>.available_tokens * <span class="token-num">0.6</span>)
+        current_tokens = <span class="token-builtin">sum</span>(m.token_count <span class="token-kw">for</span> m <span class="token-kw">in</span> recent)
+
+        kept = []
+        removed_count = <span class="token-num">0</span>
+        <span class="token-kw">for</span> msg <span class="token-kw">in</span> candidates:
+            <span class="token-kw">if</span> current_tokens + msg.token_count <= target_tokens <span class="token-kw">and</span> msg.importance >= <span class="token-num">0.5</span>:
+                kept.append(msg)
+                current_tokens += msg.token_count
+            <span class="token-kw">else</span>:
+                removed_count += <span class="token-num">1</span>
+
+        <span class="token-keyword">self</span>.messages = kept + recent
+        <span class="token-keyword">self</span>.total_tokens_used = current_tokens
+
+        <span class="token-keyword">print</span>(<span class="token-str">f"[ContextManager] 强制裁剪: 删除 {removed_count} 条低价值消息，当前 Token: {self.total_tokens_used}"</span>)
+        <span class="token-kw">return</span> <span class="token-keyword">self</span>.messages
+
+    <span class="token-kw">def</span> <span class="token-fn">_generate_summary</span>(<span class="token-kw">self</span>, messages: <span class="token-cls">List</span>[<span class="token-cls">ContextMessage</span>]) -> <span class="token-cls">str</span>:
+        <span class="token-str">"""生成消息摘要 (简化版，实际应调用 LLM)"""</span>
+        key_points = []
+        <span class="token-kw">for</span> msg <span class="token-kw">in</span> messages:
+            <span class="token-kw">if</span> msg.importance > <span class="token-num">0.6</span> <span class="token-kw">and</span> <span class="token-keyword">not</span> msg.is_summary:
+                prefix = msg.content[:<span class="token-num">50</span>].<span class="token-fn">replace</span>(<span class="token-str">"\n"</span>, <span class="token-str">" "</span>)
+                key_points.append(<span class="token-str">f"- [{msg.role}] {prefix}..."</span>)
+        <span class="token-kw">return</span> <span class="token-str">"\n"</span>.<span class="token-fn">join</span>(key_points[:<span class="token-num">15</span>])  <span class="token-cm"># 最多15条要点</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">get_context_stats</span>(<span class="token-kw">self</span>) -> <span class="token-cls">Dict</span>:
+        <span class="token-str">"""获取上下文使用统计"""</span>
+        <span class="token-kw">return</span> {
+            <span class="token-str">"total_messages"</span>: <span class="token-builtin">len</span>(<span class="token-keyword">self</span>.messages),
+            <span class="token-str">"tokens_used"</span>: <span class="token-keyword">self</span>.total_tokens_used,
+            <span class="token-str">"tokens_available"</span>: <span class="token-keyword">self</span>.available_tokens,
+            <span class="token-str">"usage_percent"</span>: <span class="token-keyword">self</span>.total_tokens_used / <span class="token-keyword">self</span>.available_tokens * <span class="token-num">100</span>,
+            <span class="token-str">"has_summary"</span>: <span class="token-keyword">self</span>.summary <span class="token-keyword">is</span> <span class="token-keyword">not</span> <span class="token-num">None</span>
+        }
+
+<span class="token-cm"># ===== 使用示例 =====</span>
+cwm = <span class="token-cls">ContextWindowManager</span>(max_tokens=<span class="token-num">50000</span>)
+
+<span class="token-cm"># 模拟 20 轮对话</span>
+<span class="token-kw">for</span> i <span class="token-kw">in</span> <span class="token-builtin">range</span>(<span class="token-num">20</span>):
+    importance = <span class="token-num">0.3</span> + (<span class="token-num">0.03</span> * i)  <span class="token-cm"># 模拟逐渐增加的重要性</span>
+    msgs = cwm.<span class="token-fn">add_message</span>(
+        role=<span class="token-str">"user"</span> <span class="token-kw">if</span> i % <span class="token-num">2</span> == <span class="token-num">0</span> <span class="token-kw">else</span> <span class="token-str">"assistant"</span>,
+        content=<span class="token-str">f"消息 #{i}: " + "分析数据 " * (<span class="token-num">10</span> + i * <span class="token-num">5</span>),
+        importance=importance
+    )
+
+<span class="token-builtin">print</span>(cwm.<span class="token-fn">get_context_stats</span>())
+<span class="token-cm"># {'total_messages': 15, 'tokens_used': 12500, 'usage_percent': 25.0, ...}</span></code></pre>
+    </div>
+
+    <!-- Card 10: 批处理与高吞吐 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">📊</div>
+        <div>
+          <div class="card-title">批处理与高吞吐 — 离线场景的成本利器</div>
+          <div class="card-desc">Batch API 50% 折扣的适用场景与实践</div>
+        </div>
+      </div>
+      <p>对于不需要实时响应的任务（数据标注、评估运行、报告生成），使用 Batch API 可以节省 50% 的 API 费用：</p>
+      <ul>
+        <li><strong>Batch API 工作原理</strong>
+          <ul>
+            <li><strong>Anthropic Message Batches API</strong>：提交一批请求（最多 10,000 个），Anthropic 在 24 小时内异步处理完成。价格是实时 API 的 50%</li>
+            <li><strong>OpenAI Batch API</strong>：类似机制，提交批量请求后在 24 小时内完成，输出 Token 享受 50% 折扣</li>
+            <li>请求在后台队列中排队，资源闲置时处理，不会抢占实时用户的资源</li>
+          </ul>
+        </li>
+        <li><strong>适合批处理的场景</strong>
+          <ul>
+            <li><strong>评估运行</strong>：对评估集的数百个测试用例批量运行 Agent，获取准确率、延迟、成本指标</li>
+            <li><strong>数据标注</strong>：用 LLM 对大量文本进行分类、实体提取、摘要等标注任务</li>
+            <li><strong>预计算</strong>：为常见的查询提前生成回复并缓存（如 FAQ 答案），当用户实际提问时直接返回缓存结果</li>
+            <li><strong>离线分析</strong>：日志分析、用户反馈分类、错误模式挖掘</li>
+          </ul>
+        </li>
+        <li><strong>不适合批处理的场景</strong>
+          <ul>
+            <li>实时对话交互（用户等待响应）</li>
+            <li>多步 Agent 任务（每步依赖上一步结果，无法批处理）</li>
+            <li>需要上下文延续的会话（批处理请求之间独立，无法共享会话状态）</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="alert alert-info">
+        <div class="alert-title">批处理吞吐量计算</div>
+        <p>假设使用 Claude Sonnet 批处理 ($1.50/$7.50 per 1M tokens)，每个评估用例消耗 3000 tokens。1000 个用例的总成本 = 1000 x 3000 x $1.50/1M = $4.50。同样的任务使用实时 API 需要 $9.00。如果每天运行一次评估，每月节省 $135。</p>
+      </div>
+    </div>
+
+    <!-- Card 11: 延迟优化与性能监控 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">⏱️</div>
+        <div>
+          <div class="card-title">延迟优化技巧与性能监控仪表盘</div>
+          <div class="card-desc">TTFT、预计算、边缘部署与全面的可观测性指标</div>
+        </div>
+      </div>
+      <p><strong>延迟优化</strong>的目标是在不改变 LLM 推理速度的前提下，让用户感觉 Agent 响应更快：</p>
+      <ul>
+        <li><strong>流式输出 (Streaming)</strong>
+          <ul>
+            <li><strong>TTFT (Time To First Token)</strong>：从发送请求到收到第一个 Token 的时间。流式输出让用户在 200-500ms 内看到第一个字，大幅改善体感延迟</li>
+            <li>对于 Agent 工具调用，流&#24335;输出可以让用户实时看到 Agent 的"思考过程"（思考 → 决定调用什么工具 → 执行中 → 返回结果），形成更好的交互体验</li>
+          </ul>
+        </li>
+        <li><strong>预计算与预热</strong>
+          <ul>
+            <li>对高频查询（如热门问题）预计算答案并缓存</li>
+            <li>保持与 LLM API 的常驻连接（HTTP Keep-Alive），减少 TCP/TLS 握手开销</li>
+            <li>预热 GPU 实例：在预期流量高峰前预先启动 GPU 实例，避免冷启动</li>
+          </ul>
+        </li>
+      </ul>
+      <p><strong>性能监控</strong>是持续优化的基础，需要从四个维度追踪：</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>监控维度</th>
+              <th>关键指标</th>
+              <th>告警阈值建议</th>
+              <th>工具</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>延迟</strong></td>
+              <td>TTFT, TTFR (Time To Final Response), P50/P95/P99 端到端延迟</td>
+              <td>P95 > 15s 告警, P99 > 30s 紧急</td>
+              <td>Datadog APM, Grafana + Tempo</td>
+            </tr>
+            <tr>
+              <td><strong>吞吐</strong></td>
+              <td>QPS (每秒请求数), TPS (每秒 Token 数), 并发用户数</td>
+              <td>QPS 接近容量上限的 80% 告警</td>
+              <td>Prometheus + Grafana</td>
+            </tr>
+            <tr>
+              <td><strong>成本</strong></td>
+              <td>每请求 Token 数, 缓存命中率, 每请求成本, 每日总成本</td>
+              <td>每日成本超预算 90% 告警</td>
+              <td>LangSmith, 自定义 Dashboard</td>
+            </tr>
+            <tr>
+              <td><strong>质量</strong></td>
+              <td>任务完成率, 重试率, 用户满意度评分, 工具调用成功率</td>
+              <td>错误率 > 5% 告警, 完成率 < 80% 告警</td>
+              <td>LangFuse, Weights & Biases</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 12: 优化案例 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">🏆</div>
+        <div>
+          <div class="card-title">优化案例：将 Agent 成本降低 80%，速度提升 3 倍</div>
+          <div class="card-desc">一个真实的端到端优化过程</div>
+        </div>
+      </div>
+      <p>以下是一个典型的客服 Agent 从初版到优化版的完整过程，展示了本章各优化策略的实际效果：</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>优化阶段</th>
+              <th>策略</th>
+              <th>每请求成本</th>
+              <th>平均延迟</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>初版 (V0)</strong></td>
+              <td>Claude Sonnet，无缓存，串行工具调用，完整上下文</td>
+              <td>$0.50</td>
+              <td>12.0 秒</td>
+              <td>每次请求重复传输完整的系统提示词 (3000 tokens)</td>
+            </tr>
+            <tr>
+              <td><strong>V1: 加缓存</strong></td>
+              <td>启用 Prompt Caching (系统提示词+工具定义)</td>
+              <td>$0.30 (-40%)</td>
+              <td>11.5 秒</td>
+              <td>输入 Token 成本降低 90%，但上下文仍不断膨胀</td>
+            </tr>
+            <tr>
+              <td><strong>V2: 模型路由</strong></td>
+              <td>简单查询 → Haiku，复杂查询 → Sonnet</td>
+              <td>$0.15 (-50%)</td>
+              <td>8.0 秒</td>
+              <td>60% 的请求由 Haiku 处理（更便宜且更快）</td>
+            </tr>
+            <tr>
+              <td><strong>V3: 并行执行</strong></td>
+              <td>识别独立工具调用并并行执行</td>
+              <td>$0.12 (-20%)</td>
+              <td>4.5 秒 (-44%)</td>
+              <td>3 个独立工具从串行 9s 变为并行 3s</td>
+            </tr>
+            <tr>
+              <td><strong>V4: 上下文优化</strong></td>
+              <td>智能摘要 + 滑动窗口裁剪</td>
+              <td>$0.10 (-17%)</td>
+              <td>4.0 秒</td>
+              <td>平均上下文从 15K tokens 降到 6K tokens</td>
+            </tr>
+            <tr>
+              <td><strong>V5: 语义缓存</strong></td>
+              <td>对 FAQ 类查询加入语义缓存</td>
+              <td>$0.08 (-20%)</td>
+              <td>0.3 秒 (缓存命中时)</td>
+              <td>缓存命中率约 15%，命中时几乎是零成本+即时响应</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-success">
+        <div class="alert-title">最终成果</div>
+        <p>从 V0 到 V5，<strong>每请求成本从 $0.50 降至 $0.08（节省 84%）</strong>，平均延迟从 12 秒降至 4 秒（缓存命中时仅 0.3 秒），<strong>速度提升 3 倍</strong>。更重要的是，这些优化没有对用户体验造成任何负面影响——事实上，由于响应更快，用户满意度反而提升了。</p>
+        <p style="margin-top:8px;"><strong>关键洞察</strong>：性能优化不是一次性活动，而是一个持续迭代的过程。最重要的是建立<strong>度量驱动</strong>的优化文化——先测量，再优化，然后验证。没有指标的优化只是猜测。</p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="15">
+      <div class="quiz-title">📝 章节测验 — Agent 性能优化</div>
+      <div class="quiz-desc">测试你对 Token 经济学、缓存策略和性能优化的理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 在 Agent 成本优化中，以下哪种策略的投入产出比通常最高？</div>
+        <button class="quiz-option" data-answer="0">A. 启用 Prompt Caching 缓存系统提示词和工具定义</button>
+        <button class="quiz-option" data-answer="1">B. 购买更多 GPU 服务器</button>
+        <button class="quiz-option" data-answer="2">C. 增加 Agent 的 max_steps 限制</button>
+        <button class="quiz-option" data-answer="3">D. 为每个请求使用最强的模型</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 模型分层路由 (Model Tiering) 的核心思想是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 所有任务都使用同一个模型</button>
+        <button class="quiz-option" data-answer="1">B. 总是使用最强的模型以保证质量</button>
+        <button class="quiz-option" data-answer="2">C. 根据查询复杂度将任务路由到不同层级的模型（简单任务用便宜模型，复杂任务用强大模型）</button>
+        <button class="quiz-option" data-answer="3">D. 只使用开源模型</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 以下哪组工具调用适合并行执行？</div>
+        <button class="quiz-option" data-answer="0">A. 先搜索文档ID，再用ID获取文档内容</button>
+        <button class="quiz-option" data-answer="1">B. 同时查询北京、上海、广州三个城市的天气</button>
+        <button class="quiz-option" data-answer="2">C. 先创建文件，再读取文件内容</button>
+        <button class="quiz-option" data-answer="3">D. 先计算总价，再根据总价计算折扣</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a class="btn" href="../chapters/14-enterprise-integration.html">
+        ← <span>第14章：企业集成模式</span>
+      </a>
+      <a class="btn btn-primary" href="../chapters/16-team-collaboration.html">
+        <span>第16章：团队协作与MLOps</span> →
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- ============================================================
+     Agent Simulator Panel
+     ============================================================ -->
+<button class="sim-toggle" id="simToggle" title="Agent 模拟器">🤖</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <span><span class="sim-status-dot"></span> Agent 模拟器</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="simClose">✕</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      👋 你好！试试让我执行一个带工具调用的任务——看看我如何并行处理多个请求，并实时展示 Token 消耗情况！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Notes Panel
+     ============================================================ -->
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:106px;width:48px;height:48px;border-radius:50%;background:var(--bg-tertiary);border:1px solid var(--border-color);z-index:85;">📝</button>
+
+<div class="sim-panel" id="notesPanel" style="bottom:96px;right:106px;width:380px;height:480px;">
+  <div class="sim-header">
+    <span>📒 我的笔记</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="notesClose">✕</button>
+  </div>
+  <div class="sim-messages" id="notesList" style="padding:12px;">
+    <div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧 📝</div>
+  </div>
+  <div class="sim-input-area" style="flex-direction:column;gap:8px;">
+    <textarea class="sim-input" id="noteInput" placeholder="在这里写笔记..." rows="3"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：实战进阶</option>
+        <option value="9">第9章：Agent框架</option>
+        <option value="10">第10章：评估与测试</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+        <option value="13">第13章：安全深度攻防</option>
+        <option value="14">第14章：实战案例剖析</option>
+        <option value="15" selected>第15章：Agent 性能优化</option>
+        <option value="16">第16章：团队协作与MLOps</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

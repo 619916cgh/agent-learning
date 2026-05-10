@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt 工程演练场 — AI Agent 学习平台</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+/* Page-specific styles */
+.pg-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
+.pg-full { grid-column: 1 / -1; }
+
+.pg-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.pg-panel h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pg-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  resize: vertical;
+  transition: all var(--ease-fast);
+  outline: none;
+}
+
+.pg-textarea:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px var(--border-glow-cyan);
+}
+
+.pg-textarea.large { min-height: 200px; }
+
+.template-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.template-chip {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--ease-fast);
+  white-space: nowrap;
+}
+
+.template-chip:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--border-glow-cyan);
+}
+
+.template-chip.active {
+  background: var(--accent-cyan);
+  color: #000;
+  border-color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.pg-btn-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.analysis-item {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.analysis-item.pass {
+  border-color: var(--accent-green);
+  border-left: 3px solid var(--accent-green);
+}
+
+.analysis-item.fail {
+  border-color: var(--accent-orange);
+  border-left: 3px solid var(--accent-orange);
+}
+
+.analysis-item.missing {
+  border-color: var(--accent-red);
+  border-left: 3px solid var(--accent-red);
+}
+
+.analysis-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.analysis-item.pass .analysis-label { color: var(--accent-green); }
+.analysis-item.fail .analysis-label { color: var(--accent-orange); }
+.analysis-item.missing .analysis-label { color: var(--accent-red); }
+
+.analysis-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.token-display {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.token-badge {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+}
+
+.token-badge strong {
+  color: var(--accent-cyan);
+  font-size: 18px;
+}
+
+.issue-list {
+  list-style: none;
+  padding: 0;
+}
+
+.issue-list li {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent-orange);
+  background: rgba(255, 145, 0, 0.05);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.issue-list li::before {
+  content: '⚠ ';
+  color: var(--accent-orange);
+}
+
+.sim-response {
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: var(--font-body);
+}
+
+@media (max-width: 900px) {
+  .pg-container { grid-template-columns: 1fr; }
+  .analysis-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单">&#9776;</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索" aria-label="搜索">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<div class="search-panel" id="searchPanel">
+  <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容...">
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">学习章节</div>
+  </div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">01</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">02</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">03</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">04</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">05</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">06</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">07</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">08</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">09</span> Agent框架生态</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 伦理与责任</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">工具</div>
+  </div>
+  <a href="prompt-playground.html" class="nav-link active" data-chapter="tool-prompt"><span class="nav-icon">&#128221;</span> Prompt 演练场</a>
+  <a href="tool-designer.html" class="nav-link" data-chapter="tool-designer"><span class="nav-icon">&#128736;</span> 工具设计器</a>
+  <a href="agent-builder.html" class="nav-link" data-chapter="tool-builder"><span class="nav-icon">&#129302;</span> Agent 构建器</a>
+  <a href="cost-calculator.html" class="nav-link" data-chapter="tool-cost"><span class="nav-icon">&#128200;</span> 成本计算器</a>
+  <a href="memory-viz.html" class="nav-link" data-chapter="tool-memory"><span class="nav-icon">&#129504;</span> 记忆可视化</a>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>学习进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <div style="margin-bottom:32px;">
+    <h1>&#128221; Prompt 工程演练场</h1>
+    <p style="color:var(--text-muted);font-size:15px;">交互式编写、分析和优化你的 System Prompt — 理解什么样的提示词能让 Agent 更可靠地工作</p>
+  </div>
+
+  <div class="template-chips">
+    <span style="font-size:12px;color:var(--text-muted);margin-right:8px;align-self:center;">快速模板:</span>
+    <button class="template-chip active" data-template="assistant">&#129309; 智能助手</button>
+    <button class="template-chip" data-template="reviewer">&#128187; 代码审查</button>
+    <button class="template-chip" data-template="analyst">&#128202; 数据分析</button>
+    <button class="template-chip" data-template="writer">&#9997; 创意写作</button>
+    <button class="template-chip" data-template="empty">&#128465; 清空</button>
+  </div>
+
+  <div class="pg-container">
+    <!-- Left Column -->
+    <div>
+      <div class="pg-panel">
+        <h3>&#9881; System Prompt（系统提示词）</h3>
+        <div class="pg-label">
+          <span>定义 Agent 的角色、能力和行为规则</span>
+          <span style="font-size:12px;color:var(--text-muted);" id="sysTokenCount">估算: 0 tokens</span>
+        </div>
+        <textarea class="pg-textarea large" id="systemPrompt" placeholder="例如：你是一个专业的数据分析师，擅长使用 Python 和 SQL 处理数据..."></textarea>
+      </div>
+
+      <div class="pg-panel" style="margin-top:20px;">
+        <h3>&#128172; User Input（用户输入）</h3>
+        <div class="pg-label">
+          <span>模拟用户向 Agent 发出的请求</span>
+          <span style="font-size:12px;color:var(--text-muted);" id="userTokenCount">估算: 0 tokens</span>
+        </div>
+        <textarea class="pg-textarea" id="userInput" placeholder="例如：请帮我分析这份销售数据，找出增长最快的产品线..."></textarea>
+      </div>
+
+      <div class="pg-btn-row">
+        <button class="btn btn-primary" id="simulateBtn">&#9654; 模拟 Agent 响应</button>
+        <button class="btn" id="analyzeBtn">&#128270; 分析提示词质量</button>
+        <button class="btn" id="clearBtn">&#128465; 清空全部</button>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+      <div class="pg-panel" style="margin-bottom:20px;">
+        <h3>&#128640; Agent 模拟响应</h3>
+        <div class="sim-response" id="simResponse" style="min-height:160px;color:var(--text-muted);font-style:italic;">
+          点击「模拟 Agent 响应」按钮查看效果...
+        </div>
+      </div>
+
+      <div class="pg-panel" style="margin-bottom:20px;">
+        <h3>&#128300; Token 用量估算</h3>
+        <div class="token-display">
+          <div class="token-badge">系统提示: <strong id="sysTokens">0</strong> tokens</div>
+          <div class="token-badge">用户输入: <strong id="usrTokens">0</strong> tokens</div>
+          <div class="token-badge">总计: <strong id="totalTokens">0</strong> tokens</div>
+          <div class="token-badge">上下文占用: <strong id="ctxPercent">0%</strong></div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0;">估算方法：中文 ~1.5 tokens/字，英文 ~1.3 tokens/词，标点和格式 ~0.3 tokens/字符</p>
+      </div>
+    </div>
+
+    <!-- Full Width: Analysis -->
+    <div class="pg-full">
+      <div class="pg-panel" id="analysisPanel" style="display:none;">
+        <h3>&#128269; 提示词质量分析</h3>
+        <div class="analysis-grid" id="analysisGrid"></div>
+        <div style="margin-top:16px;" id="issueSection"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="sim-status-dot"></span>
+      <span style="font-weight:700;">Agent 模拟器</span>
+    </div>
+    <button class="btn btn-sm" id="simCloseBtn" style="border:none;color:var(--text-muted);background:transparent;cursor:pointer;">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">&#128075; 你好！我是模拟的 AI Agent。试试问我一些问题吧！</div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSendBtn">发送</button>
+  </div>
+</div>
+
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:100px;right:32px;z-index:85;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan));border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 8px 32px rgba(0,230,118,0.4);">&#128211;</button>
+
+<div class="notes-panel" id="notesPanel" style="position:fixed;bottom:170px;right:32px;width:380px;max-height:500px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:84;transform:scale(0);opacity:0;transform-origin:bottom right;transition:all var(--ease-spring);overflow:hidden;display:flex;flex-direction:column;">
+  <div class="notes-header" style="padding:14px 18px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;font-weight:700;">
+    <span>&#128211; 我的笔记</span>
+    <button class="btn btn-sm" id="notesCloseBtn" style="border:none;background:transparent;color:var(--text-muted);cursor:pointer;">&#10005;</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px;" id="notesList"></div>
+  <div style="padding:12px;border-top:1px solid var(--border-color);">
+    <textarea id="noteInput" placeholder="在这里写笔记..." style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;resize:vertical;min-height:60px;outline:none;"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;">
+        <option value="prompt">Prompt 演练场</option>
+        <option value="designer">工具设计器</option>
+        <option value="builder">Agent 构建器</option>
+        <option value="cost">成本计算器</option>
+        <option value="memory">记忆可视化</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // Template prompts
+  const templates = {
+    assistant: {
+      system: '你是一个乐于助人的AI助手，名叫"小智"。你的职责是：\n1. 用友好、热情的语气回答用户问题\n2. 对于不确定的问题，诚实地表示不确定，并建议用户查阅相关资料\n3. 尽量提供具体、可操作的步骤而非抽象建议\n4. 回复使用清晰的结构：先给出直接答案，再补充细节\n5. 必要时主动提问以澄清用户意图\n\n重要限制：\n- 不提供医疗、法律等专业建议\n- 每次回复控制在 500 字以内',
+      user: '我最近睡眠质量很差，有什么改善建议吗？'
+    },
+    reviewer: {
+      system: '你是一位资深代码审查专家，拥有10年以上的全栈开发经验。你的任务是：\n\n1. 审查用户提交的代码，从以下维度进行评估：\n   - 代码质量和可读性\n   - 性能优化空间\n   - 安全漏洞\n   - 最佳实践遵循度\n   - 错误处理完整性\n\n2. 对发现的问题按严重程度分级：\n   🔴 严重（必须修复）| 🟡 中等（建议修复）| 🟢 轻微（可选优化）\n\n3. 每次审查要点包括：\n   - 问题描述和位置\n   - 为什么这是问题\n   - 具体的修复建议（含代码示例）\n\n注意：保持客观、建设性的语气，不要贬低开发者的能力。',
+      user: '请审查以下 Python 函数：\n\ndef get_user(id):\n    query = "SELECT * FROM users WHERE id = " + id\n    result = db.execute(query)\n    return result'
+    },
+    analyst: {
+      system: '你是一个专业的数据分析师，精通 Python、SQL 和主流数据分析工具。\n\n能力范围：\n- 数据清洗和预处理\n- 探索性数据分析(EDA)和统计检验\n- 数据可视化（matplotlib, seaborn, plotly）\n- 机器学习和预测建模\n- 生成结构化分析报告\n\n工作流程：\n1. 理解数据结构和业务上下文\n2. 提出分析假设和关键问题\n3. 选择适当的分析方法\n4. 执行分析并输出可读的结果\n5. 给出数据驱动的建议\n\n关键原则：\n- 始终检查数据质量后再分析\n- 对统计结论注明置信度/显著性\n- 相关性不等于因果性\n- 使用图表辅助说明，比纯文字更直观',
+      user: '我有一个电商平台的月度销售 CSV 文件，包含字段：日期、商品类别、销售额、订单数、退货率。请帮我规划分析思路。'
+    },
+    writer: {
+      system: '你是一位资深的创意写作教练和编辑，曾帮助数百位作者提升写作水平。\n\n你的专长：\n- 文章结构优化（开头钩子、逻辑递进、结尾升华）\n- 语言表达的准确性、生动性和节奏感\n- 情感共鸣和读者心理把握\n- 不同文体风格适配（学术/商业/文学/自媒体）\n\n工作方式：\n1. 先理解用户的写作目标和目标读者\n2. 对原文进行结构层面的分析\n3. 提供具体的修改建议（不是笼统的"写得更好一点"）\n4. 必要时直接改写段落作为范例\n\n风格指南：\n- 简洁有力优于堆砌辞藻\n- 具体细节优于抽象概念\n- 主动语态优于被动语态',
+      user: '请帮我润色这段产品介绍文案：\n\n"我们的软件很好用，有很多功能，可以帮助企业提高效率，降低成本。很多客户都选择了我们，大家反馈都不错。"'
+    },
+    empty: {
+      system: '',
+      user: ''
+    }
+  };
+
+  // DOM refs
+  const systemPrompt = document.getElementById('systemPrompt');
+  const userInput = document.getElementById('userInput');
+  const simResponse = document.getElementById('simResponse');
+  const analysisPanel = document.getElementById('analysisPanel');
+  const analysisGrid = document.getElementById('analysisGrid');
+  const issueSection = document.getElementById('issueSection');
+
+  // Token estimation
+  function estimateTokens(text) {
+    let tokens = 0;
+    for (const char of text) {
+      if (/[一-鿿㐀-䶿]/.test(char)) {
+        tokens += 1.5; // Chinese char
+      } else if (/[a-zA-Z]/.test(char)) {
+        tokens += 0.33; // English letters (part of words)
+      } else if (/\s/.test(char)) {
+        tokens += 0.25;
+      } else {
+        tokens += 0.3; // Punctuation
+      }
+    }
+    // Refine: English words ~1.3 tokens
+    const engWords = text.match(/[a-zA-Z]+/g);
+    if (engWords) {
+      tokens -= engWords.reduce((sum, w) => sum + w.length * 0.33, 0);
+      tokens += engWords.length * 1.3;
+    }
+    return Math.round(tokens);
+  }
+
+  function updateTokenCounts() {
+    const sysT = estimateTokens(systemPrompt.value);
+    const usrT = estimateTokens(userInput.value);
+    const total = sysT + usrT;
+    const ctxPercent = Math.round((total / 128000) * 100);
+
+    document.getElementById('sysTokenCount').textContent = '估算: ' + sysT + ' tokens';
+    document.getElementById('userTokenCount').textContent = '估算: ' + usrT + ' tokens';
+    document.getElementById('sysTokens').textContent = sysT;
+    document.getElementById('usrTokens').textContent = usrT;
+    document.getElementById('totalTokens').textContent = total;
+    document.getElementById('ctxPercent').textContent = ctxPercent + '%';
+  }
+
+  systemPrompt.addEventListener('input', updateTokenCounts);
+  userInput.addEventListener('input', updateTokenCounts);
+
+  // Template switching
+  document.querySelectorAll('.template-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.template-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      const tpl = templates[this.dataset.template];
+      if (tpl) {
+        systemPrompt.value = tpl.system;
+        userInput.value = tpl.user;
+        updateTokenCounts();
+        if (analysisPanel.style.display !== 'none') runAnalysis();
+      }
+    });
+  });
+
+  // Clear
+  document.getElementById('clearBtn').addEventListener('click', function() {
+    systemPrompt.value = '';
+    userInput.value = '';
+    simResponse.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">点击「模拟 Agent 响应」按钮查看效果...</span>';
+    analysisPanel.style.display = 'none';
+    updateTokenCounts();
+  });
+
+  // Analyze
+  document.getElementById('analyzeBtn').addEventListener('click', runAnalysis);
+
+  function runAnalysis() {
+    const sysText = systemPrompt.value.trim();
+    analysisPanel.style.display = 'block';
+
+    const checks = [];
+
+    // 1. Role definition
+    const hasRole = /你是[一一个位名].*?(?:助手|专家|工程师|分析师|开发者|教练)/.test(sysText) ||
+                    /你(?:的)?角色是/.test(sysText) ||
+                    /act as|you are a/i.test(sysText);
+    checks.push({
+      name: '角色定义',
+      status: hasRole ? 'pass' : 'missing',
+      detail: hasRole ? '已明确 Agent 的角色和身份' : '缺少清晰的「你是XXX」开头的角色描述',
+      icon: '&#127917;'
+    });
+
+    // 2. Constraints
+    const hasConstraints = /(?:不[得要能可]|限制|禁止|约束|注意|重要|关键|原则)/.test(sysText) ||
+                           /(?:never|do not|must not|limitation|constraint|important)/i.test(sysText);
+    checks.push({
+      name: '约束条件',
+      status: hasConstraints ? 'pass' : 'fail',
+      detail: hasConstraints ? '提示词包含明确的行为约束' : '缺少行为边界约束，Agent 可能产生不期望的行为',
+      icon: '&#128274;'
+    });
+
+    // 3. Tool instructions
+    const hasTools = /(?:工具|tool|function|API|调用|执行|查询|搜索|读取|写入)/.test(sysText) ||
+                     /(?:use|call|invoke|execute|search|query|read|write)/i.test(sysText);
+    checks.push({
+      name: '工具使用说明',
+      status: hasTools ? 'pass' : 'missing',
+      detail: hasTools ? '包含了工具调用相关的指引' : '未描述 Agent 可以使用的工具或能力',
+      icon: '&#128736;'
+    });
+
+    // 4. Output format
+    const hasOutput = /(?:格式|输出|回复|返回|格式化为|以.*?形式|用.*?组织|结构化)/.test(sysText) ||
+                      /(?:format|output|response|JSON|markdown|table|bullet)/i.test(sysText);
+    checks.push({
+      name: '输出格式',
+      status: hasOutput ? 'pass' : 'fail',
+      detail: hasOutput ? '对输出格式有明确要求' : '没有指定输出格式，回复可能不结构化',
+      icon: '&#128203;'
+    });
+
+    // 5. Tone/Style
+    const hasTone = /(?:语气|风格|口吻|态度|方式|友好|专业|正式|幽默|简洁)/.test(sysText) ||
+                    /(?:tone|style|friendly|professional|concise|formal)/i.test(sysText);
+    checks.push({
+      name: '语气风格',
+      status: hasTone ? 'pass' : 'missing',
+      detail: hasTone ? '明确了期望的语气和风格' : '未指定回复的语气或风格偏好',
+      icon: '&#128172;'
+    });
+
+    // 6. Examples (few-shot)
+    const hasExamples = /(?:例如|比如|示例|例子|示范|sample|example)/.test(sysText);
+    checks.push({
+      name: 'Few-shot 示例',
+      status: hasExamples ? 'pass' : 'missing',
+      detail: hasExamples ? '提供了示例帮助模型理解期望行为' : '缺少 few-shot 示例，建议添加',
+      icon: '&#128214;'
+    });
+
+    // Render analysis
+    analysisGrid.innerHTML = checks.map(c => `
+      <div class="analysis-item ${c.status}">
+        <div class="analysis-label">${c.icon} ${c.name}</div>
+        <div class="analysis-text">${c.detail}</div>
+      </div>
+    `).join('');
+
+    // Issues
+    let issues = [];
+    if (!hasRole) issues.push('缺少角色定义：Agent 不知道自己是谁，行为可能不聚焦');
+    if (!hasConstraints) issues.push('缺少约束限制：没有明确的行为边界，可能导致 Agent 过度自由发挥');
+    if (!hasTools) issues.push('未描述工具能力：Agent 可能不知道可以调用外部工具完成任务');
+    if (sysText.length > 2000) issues.push('提示词过长（' + sysText.length + '字）：过长的系统提示可能降低模型对关键指令的注意力');
+    if (sysText.length < 50 && sysText.length > 0) issues.push('提示词过短（' + sysText.length + '字）：可能不足以清晰定义 Agent 的行为规范');
+    if (/你也[可不].*?你自己/.test(sysText)) issues.push('存在自指矛盾：提示词中可能存在冲突的指令');
+
+    // Check for contradiction
+    const hasBeConcise = /简洁|简短|精简|brief|concise/.test(sysText);
+    const hasDetailed = /详细|详尽|全面|完整|comprehensive|detailed|thorough/.test(sysText);
+    if (hasBeConcise && hasDetailed) issues.push('可能存在矛盾：同时要求「简洁」和「详细」，可能让模型困惑');
+
+    if (issues.length === 0) {
+      issueSection.innerHTML = '<div class="alert alert-success"><div class="alert-title">&#10003; 提示词质量良好</div>没有发现明显问题。继续保持！</div>';
+    } else {
+      issueSection.innerHTML = '<div class="alert alert-warning"><div class="alert-title">&#9888; 发现 ' + issues.length + ' 个潜在问题</div><ul class="issue-list">' + issues.map(i => '<li>' + i + '</li>').join('') + '</ul></div>';
+    }
+
+    AgentLearn.toast('提示词分析完成', 'info');
+  }
+
+  // Simulate
+  document.getElementById('simulateBtn').addEventListener('click', function() {
+    const sysText = systemPrompt.value.trim();
+    const usrText = userInput.value.trim();
+
+    if (!usrText) {
+      AgentLearn.toast('请先输入用户问题', 'error');
+      return;
+    }
+
+    simResponse.innerHTML = '<span style="color:var(--accent-cyan);">&#9881; 正在模拟 Agent 思考过程...</span>';
+
+    setTimeout(() => {
+      let response = '';
+      const hasRole = /你是[一一个位名]/.test(sysText);
+
+      if (hasRole) {
+        const roleMatch = sysText.match(/你是[一一个位名](.*?)[，。,\.\n]?/);
+        if (roleMatch) {
+          response += '作为' + roleMatch[1] + '，';
+        }
+      }
+
+      // Simulate reasoning
+      response += '我收到你的请求。让我分析一下：\n\n';
+      response += '&#129504; **思考过程：**\n';
+      response += '1. 理解用户意图：' + usrText.substring(0, 20) + '...相关的问题\n';
+      response += '2. 确定需要的能力：';
+
+      if (/代码|编程|code|程序/.test(usrText)) {
+        response += '代码生成和审查能力\n';
+        response += '3. 准备调用代码执行工具来验证方案\n';
+      } else if (/数据|分析|统计/.test(usrText)) {
+        response += '数据分析和统计推理能力\n';
+        response += '3. 获取数据结构信息，选择合适分析方法\n';
+      } else {
+        response += '通用知识和逻辑推理能力\n';
+        response += '3. 从知识库中检索相关信息\n';
+      }
+
+      response += '\n&#9889; **执行行动：**\n';
+      response += '- 分析任务复杂度：' + (usrText.length > 50 ? '中等复杂' : '简单') + '\n';
+      response += '- 是否需要工具调用：' + (/代码|数据|搜索|查询/.test(usrText) ? '是' : '否') + '\n';
+
+      response += '\n&#128172; **回复：**\n';
+      response += '好的，针对你提出的问题，我已经进行了分析。';
+
+      if (/睡眠|失眠/.test(usrText)) {
+        response += '\n\n改善睡眠质量可以从以下几个方面入手：\n\n1. **建立规律作息**：每天固定时间起床和入睡\n2. **优化睡眠环境**：保持房间黑暗、安静、凉爽\n3. **睡前放松**：避免屏幕蓝光，可尝试冥想\n4. **注意饮食**：避免睡前摄入咖啡因和大量食物\n5. **适度运动**：白天适量运动有助夜间睡眠\n\n建议先尝试改善作息规律，如果持续一个月无明显改善，建议咨询专业医生。';
+      } else if (/代码|code|函数/.test(usrText)) {
+        response += '\n\n审查了你的 `get_user` 函数，发现以下问题：\n\n&#128308; **严重：SQL 注入风险** — 直接拼接字符串到 SQL 查询极其危险\n\n修复建议：使用参数化查询\n```python\ndef get_user(user_id):\n    query = "SELECT * FROM users WHERE id = ?"\n    result = db.execute(query, (user_id,))\n    return result\n```\n\n&#128993; **中等：缺少错误处理** — 数据库操作可能失败\n&#128994; **轻微：返回 raw result** — 建议封装为 dict 或 User 对象';
+      } else if (/分析|数据|报表/.test(usrText)) {
+        response += '\n\n电商数据分析建议按以下步骤进行：\n\n1. **数据质量检查**：检查缺失值、异常值\n2. **整体趋势分析**：销售额和订单数的时间序列\n3. **品类分析**：各品类销售额占比和增长率\n4. **退货率分析**：关联销售额分析退货原因\n5. **交叉分析**：销售额 vs 退货率的相关性\n\n&#128202; 建议使用 Python pandas + matplotlib 进行可视化分析。';
+      } else if (/文案|润色|写作|修改/.test(usrText)) {
+        response += '\n\n原文问题分析：\n1. 「很好用」过于笼统，缺乏说服力\n2. 「很多功能」不具体，没有差异化\n3. 「大家反馈都不错」缺乏可信度\n\n润色后：\n\n「上线3个月，帮助200+企业平均提效37%。我们重新思考了协作工具该有的样子——从智能排程到一键生成报表，你不用再在多个系统间切换。客户说：\'终于有个工具能读懂我的工作习惯了。\' 免费试用14天，看看效率提升的实感。」';
+      } else if (hasRole) {
+        response += '\n\n根据我的角色设定，我会尽力提供最准确、最有帮助的回复。对于你提出的具体问题，我建议从以下几个方面来考虑：[基于知识库的专业回答]';
+      } else {
+        response += '\n\n你好！感谢你的提问。不过注意到我的 System Prompt 中还没有明确的角色定义。建议先在系统提示词中定义清楚我的角色和能力范围，这样我可以更好地帮助你。';
+      }
+
+      simResponse.innerHTML = response;
+      AgentLearn.toast('Agent 模拟响应已生成', 'success');
+    }, 800);
+  });
+
+  // Mobile menu, sidebar overlay
+  document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  });
+
+  // Sim panel toggle
+  let simOpen = false;
+  document.getElementById('simToggle').addEventListener('click', function() {
+    simOpen = !simOpen;
+    const panel = document.getElementById('simPanel');
+    if (simOpen) {
+      panel.classList.add('active');
+    } else {
+      panel.classList.remove('active');
+    }
+  });
+  document.getElementById('simCloseBtn').addEventListener('click', function() {
+    simOpen = false;
+    document.getElementById('simPanel').classList.remove('active');
+  });
+
+  // Notes panel toggle
+  let notesOpen = false;
+  const notesPanel = document.getElementById('notesPanel');
+  document.getElementById('notesToggle').addEventListener('click', function() {
+    notesOpen = !notesOpen;
+    notesPanel.style.transform = notesOpen ? 'scale(1)' : 'scale(0)';
+    notesPanel.style.opacity = notesOpen ? '1' : '0';
+  });
+  document.getElementById('notesCloseBtn').addEventListener('click', function() {
+    notesOpen = false;
+    notesPanel.style.transform = 'scale(0)';
+    notesPanel.style.opacity = '0';
+  });
+
+  // Notes save
+  document.getElementById('notesSaveBtn').addEventListener('click', function() {
+    const text = document.getElementById('noteInput').value.trim();
+    const chapter = document.getElementById('noteChapter').value;
+    if (!text) return;
+    const notes = AgentLearn.Store.get('notes', []);
+    notes.push({ chapter, text, time: Date.now() });
+    AgentLearn.Store.set('notes', notes);
+    document.getElementById('noteInput').value = '';
+    renderNotes();
+    AgentLearn.toast('笔记已保存', 'success');
+  });
+
+  function renderNotes() {
+    const notes = AgentLearn.Store.get('notes', []);
+    const list = document.getElementById('notesList');
+    if (notes.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">暂无笔记</div>';
+      return;
+    }
+    list.innerHTML = notes.slice(-20).reverse().map(n => `
+      <div style="padding:10px;margin-bottom:6px;background:var(--bg-tertiary);border-radius:6px;font-size:12px;">
+        <div style="color:var(--accent-cyan);font-weight:600;margin-bottom:4px;">${n.chapter}</div>
+        <div style="color:var(--text-secondary);">${AgentLearn.escapeHtml(n.text).substring(0, 100)}</div>
+        <div style="color:var(--text-muted);font-size:10px;margin-top:4px;">${AgentLearn.formatDate(n.time)}</div>
+      </div>
+    `).join('');
+  }
+
+  // Reset
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    if (confirm('确定要重置所有进度吗？此操作不可恢复。')) {
+      AgentLearn.Progress && AgentLearn.Progress.resetAll();
+    }
+  });
+
+  // Init: load default template
+  systemPrompt.value = templates.assistant.system;
+  userInput.value = templates.assistant.user;
+  updateTokenCounts();
+  renderNotes();
+
+  // Sim send
+  document.getElementById('simSendBtn').addEventListener('click', function() {
+    const input = document.getElementById('simInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    const msgs = document.getElementById('simMessages');
+    msgs.innerHTML += '<div class="sim-msg user">' + AgentLearn.escapeHtml(msg) + '</div>';
+    input.value = '';
+    setTimeout(() => {
+      msgs.innerHTML += '<div class="sim-msg thinking">&#129504; 思考中...</div>';
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 300);
+    setTimeout(() => {
+      const thinkingEls = msgs.querySelectorAll('.sim-msg.thinking');
+      thinkingEls.forEach(el => el.remove());
+      msgs.innerHTML += '<div class="sim-msg agent">你好！我已收到你的消息。作为 AI Agent，我正在分析你的需求并考虑最佳响应方式。</div>';
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1500);
+  });
+
+  document.getElementById('simInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('simSendBtn').click();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

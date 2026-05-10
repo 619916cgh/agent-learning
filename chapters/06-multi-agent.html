@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6章：多Agent系统 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 40px 60px;
+  max-width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+.chapter {
+  margin-bottom: 80px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: chapterEntrance 0.6s ease forwards;
+}
+@keyframes chapterEntrance {
+  to { opacity: 1; transform: translateY(0); }
+}
+.chapter-header { margin-bottom: 32px; position: relative; }
+.chapter-number {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.chapter-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.chapter-subtitle { font-size: 16px; color: var(--text-secondary); margin-top: 8px; }
+.content-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: all var(--ease-base);
+  position: relative;
+  overflow: hidden;
+}
+.content-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), transparent);
+  opacity: 0;
+  transition: opacity var(--ease-base);
+}
+.content-card:hover::before { opacity: 1; }
+.content-card:hover {
+  border-color: var(--border-glow-cyan);
+  box-shadow: var(--shadow-glow-cyan);
+  transform: translateY(-2px);
+}
+.content-card h3 { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
+.content-card p { color: var(--text-secondary); margin-bottom: 12px; }
+.content-card ul, .content-card ol { padding-left: 20px; color: var(--text-secondary); margin-bottom: 12px; }
+.content-card li { margin-bottom: 6px; }
+.highlight-box {
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin: 20px 0;
+  border-left: 4px solid var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+  font-size: 15px;
+}
+.highlight-box.tip { border-left-color: var(--accent-green); background: rgba(0, 230, 118, 0.05); }
+.highlight-box.warning { border-left-color: var(--accent-red); background: rgba(255, 61, 90, 0.05); }
+.highlight-box.purple { border-left-color: var(--accent-purple); background: rgba(180, 74, 238, 0.05); }
+.highlight-box.orange { border-left-color: var(--accent-orange); background: rgba(255, 145, 0, 0.05); }
+.highlight-label { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; color: var(--accent-cyan); }
+.highlight-box.tip .highlight-label { color: var(--accent-green); }
+.highlight-box.warning .highlight-label { color: var(--accent-red); }
+.highlight-box.purple .highlight-label { color: var(--accent-purple); }
+.highlight-box.orange .highlight-label { color: var(--accent-orange); }
+.page-nav { display: flex; justify-content: space-between; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+.page-nav-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer; font-size: 14px; font-family: var(--font-body);
+  text-decoration: none;
+  transition: all var(--ease-fast);
+}
+.page-nav-btn:hover { border-color: var(--accent-cyan); background: rgba(0, 229, 255, 0.05); }
+.page-nav-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.mobile-menu-btn { display: none; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); width: 38px; height: 38px; border-radius: var(--radius-sm); cursor: pointer; font-size: 20px; align-items: center; justify-content: center; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 49; }
+.top-bar-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); width: 38px; height: 38px; border-radius: var(--radius-sm); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all var(--ease-fast); position: relative; }
+.top-bar-btn:hover { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(0,229,255,0.2); transform: translateY(-1px); }
+.glossary-term { color: var(--accent-cyan); cursor: help; border-bottom: 1px dashed var(--accent-cyan); position: relative; }
+.glossary-tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--bg-tertiary); border: 1px solid var(--accent-cyan); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); width: 260px; pointer-events: none; opacity: 0; transition: opacity var(--ease-fast); z-index: 10; box-shadow: var(--shadow-lg); line-height: 1.5; }
+.glossary-term:hover .glossary-tooltip { opacity: 1; }
+@media (max-width: 1024px) { .main-content { margin-left: 0; max-width: 100%; padding: 24px 20px; } .mobile-menu-btn { display: flex; } .sidebar-overlay.open { display: block; } .chapter-title { font-size: 26px; } }
+@media (max-width: 640px) { .main-content { padding: 16px 12px; } .chapter-title { font-size: 22px; } .content-card { padding: 20px; } }
+</style>
+</head>
+<body data-theme="dark">
+
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">&#9776;</button>
+    <a href="../index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <div class="logo-icon">A</div>
+      <span class="logo-text">AI Agent 学习指南</span>
+    </a>
+  </div>
+  <div class="top-bar-right">
+    <button class="top-bar-btn" id="searchBtn" title="搜索 (Ctrl+K)" aria-label="搜索">&#128269;</button>
+    <button class="top-bar-btn" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="top-bar-btn" id="resetBtn" title="重置进度" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<div class="search-panel" id="searchPanel">
+  <div style="max-width:600px;margin:0 auto;position:relative;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (按 Esc 关闭)">
+    <button id="searchClose" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:8px;">&#10005;</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="06-multi-agent.html" class="nav-link active" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示工程</a>
+  <a href="09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent框架生态</a>
+  <a href="10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <section class="chapter" data-chapter="6">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 6 章</div>
+      <h2 class="chapter-title">多Agent系统</h2>
+      <p class="chapter-subtitle">探索多个AI Agent如何协作、通信和编排——从顺序管道到去中心化Swarm，构建群体智能</p>
+    </header>
+
+    <!-- Card 1: Why Multi-Agent -->
+    <div class="content-card">
+      <h3>1. 为什么需要多Agent系统？</h3>
+      <p>单个Agent虽然强大，但面对<strong>复杂、大规模、跨领域</strong>的任务时，单Agent架构逐渐暴露其瓶颈。多Agent系统(Multi-Agent System, MAS)通过<strong>专业化分工与协作</strong>，突破了单一Agent的能力边界：</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">维度</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">单Agent</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">多Agent系统</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">任务复杂度</td>
+            <td style="padding:10px;color:var(--text-secondary);">受限于单一prompt的承载能力</td>
+            <td style="padding:10px;color:var(--text-secondary);">任务自然分解，每个Agent聚焦子任务</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">专业深度</td>
+            <td style="padding:10px;color:var(--text-secondary);">"通才"——广度有余，深度不足</td>
+            <td style="padding:10px;color:var(--text-secondary);">每个Agent可成为特定领域的"专才"</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">鲁棒性</td>
+            <td style="padding:10px;color:var(--text-secondary);">单点故障，出错即整体失败</td>
+            <td style="padding:10px;color:var(--text-secondary);">某个Agent失败可不影响整体，可重试</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">可扩展性</td>
+            <td style="padding:10px;color:var(--text-secondary);">垂直扩展困难</td>
+            <td style="padding:10px;color:var(--text-secondary);">水平扩展——添加新Agent即可增强能力</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:600;">视角多样性</td>
+            <td style="padding:10px;color:var(--text-secondary);">单一视角，可能有盲点</td>
+            <td style="padding:10px;color:var(--text-secondary);">多Agent从不同角度审视问题，减少盲点</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>核心驱动力——任务分解(Task Decomposition)：</strong>多Agent系统的理论基础是"分而治之"。一个"构建电商网站"的任务可以自然分解为：前端Agent(UI设计+代码) + 后端Agent(API+数据库) + 测试Agent(质量保障) + 文档Agent(编写文档)。每个Agent只需要在自己的专业领域内做到最好。</p>
+
+      <div class="highlight-box">
+        <div class="highlight-label">核心洞察</div>
+        <p>多Agent系统的价值不仅在于"做更多的事"，更在于<strong>"以更高的质量做更复杂的事"</strong>。一个由专业Agent组成的团队，其输出质量往往远超一个"万能"Agent。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Communication Protocols -->
+    <div class="content-card">
+      <h3>2. Agent间通信协议：如何"对话"？</h3>
+      <p>多个Agent要协同工作，首先需要解决<strong>通信问题</strong>。Agent之间的通信协议决定了信息如何流动、被谁访问、何时可用。以下是三种主流通信模式：</p>
+
+      <h4 style="color:var(--accent-cyan);margin:20px 0 10px;">2.1 共享内存 (Shared Memory)</h4>
+      <p>所有Agent读写同一个<strong>全局上下文</strong>。这是最简单也是最常用的模式：一个全局的消息列表或键值存储，Agent A写入结果，Agent B随后读取。优点是实现简单、延迟低；缺点是随着Agent数量增加，上下文会急剧膨胀，且缺乏访问控制——任何Agent都能看到所有信息。LangChain中的<code>ConversationBufferMemory</code>本质上就是共享内存模式。</p>
+
+      <h4 style="color:var(--accent-purple);margin:20px 0 10px;">2.2 消息传递 (Message Passing)</h4>
+      <p>Agent之间通过<strong>显式的消息发送和接收</strong>来通信——类似Actor模型。每个Agent有独立的收件箱(Inbox)，消息路由器(Message Router)负责将消息投递到目标Agent。优点是可实现点对点通信、支持异步处理、可追踪消息链路；缺点是增加了系统复杂度和通信延迟。<span class="glossary-term">消息传递<span class="glossary-tooltip">源自Actor模型(1973年由Carl Hewitt提出)，每个Actor是一个独立的计算实体，通过异步消息通信。这种模式被Erlang/Elixir发扬光大，在分布式系统中广泛应用。</span></span>是构建大规模多Agent系统的基础通信范式。</p>
+
+      <h4 style="color:var(--accent-green);margin:20px 0 10px;">2.3 黑板架构 (Blackboard Architecture)</h4>
+      <p>一个<strong>公共的数据空间</strong>(Blackboard)，Agent可以：(1) 查看黑板上已有的信息；(2) 写入新的发现或中间结果；(3) 当黑板上的信息满足特定条件时被唤醒。黑板模式特别适合<strong>数据驱动的协作</strong>——多个Agent各自贡献不同维度的分析，逐渐拼凑出完整的解决方案。例如在智能诊断系统中：症状采集Agent写入症状、检验Agent写入化验结果、影像Agent写入影像分析，诊断Agent综合所有信息给出判断。</p>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">选择建议</div>
+        <p>小型系统(2-5个Agent)首选<strong>共享内存</strong>；中等规模(5-20个Agent)推荐<strong>消息传递</strong>；需要多轮信息聚合的场景选择<strong>黑板架构</strong>。实际系统中经常混合使用多种通信模式。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Topology Patterns -->
+    <div class="content-card">
+      <h3>3. 拓扑模式：Agent如何组织？</h3>
+      <p>拓扑结构决定了多Agent系统中<strong>权力、信息流和依赖关系</strong>的分布。不同的拓扑适用于不同的问题结构：</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">拓扑模式</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">结构</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">控制方式</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">典型场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:700;color:var(--accent-cyan);">顺序管道</td>
+            <td style="padding:10px;color:var(--text-secondary);">A &#8594; B &#8594; C &#8594; D，单向流水线</td>
+            <td style="padding:10px;color:var(--text-secondary);">数据驱动，前一个输出=后一个输入</td>
+            <td style="padding:10px;color:var(--text-secondary);">CI/CD流水线、文档生成(研究&#8594;撰写&#8594;审校&#8594;翻译)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:700;color:var(--accent-cyan);">星型/Hub</td>
+            <td style="padding:10px;color:var(--text-secondary);">一个中心Agent连接多个外围Agent</td>
+            <td style="padding:10px;color:var(--text-secondary);">中心Agent路由和调度</td>
+            <td style="padding:10px;color:var(--text-secondary);">客服系统(路由Agent+各领域专家)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:700;color:var(--accent-cyan);">网状(Mesh)</td>
+            <td style="padding:10px;color:var(--text-secondary);">每个Agent都可以与任何其他Agent通信</td>
+            <td style="padding:10px;color:var(--text-secondary);">完全去中心化，协商决策</td>
+            <td style="padding:10px;color:var(--text-secondary);">学术辩论、方案评审、头脑风暴</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:700;color:var(--accent-cyan);">层级(Hierarchical)</td>
+            <td style="padding:10px;color:var(--text-secondary);">树形结构，上级Agent管理下级Agent</td>
+            <td style="padding:10px;color:var(--text-secondary);">指令自上而下，结果自下而上</td>
+            <td style="padding:10px;color:var(--text-secondary);">大型项目管理、企业级自动化</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:700;color:var(--accent-cyan);">Swarm/群体</td>
+            <td style="padding:10px;color:var(--text-secondary);">动态无结构，Agent按需加入和退出</td>
+            <td style="padding:10px;color:var(--text-secondary);">基于Handoff的自主调度</td>
+            <td style="padding:10px;color:var(--text-secondary);">开放域对话、动态问题处理</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>组合拓扑——真实世界的混合架构：</strong>实际生产系统很少使用单一拓扑。例如一个代码助手平台可能同时使用：(1) 层级拓扑管理项目(项目经理Agent &#8594; 前端/后端Agent)；(2) 顺序管道在每个子团队内部(设计Agent &#8594; 编码Agent &#8594; 审查Agent)；(3) 星型拓扑处理用户请求(路由Agent分发请求到对应的项目团队)。</p>
+
+      <div class="highlight-box purple">
+        <div class="highlight-label">设计原则</div>
+        <p>选择拓扑不是越复杂越好，而是<strong>越匹配问题结构越好</strong>。如果问题是流水线型的(输出-输入-输出)，就用管道；如果问题需要多方论证和协商，就用网状或Swarm。</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Role Design -->
+    <div class="content-card">
+      <h3>4. Agent角色设计：如何打造高效的专业Agent？</h3>
+      <p>在多Agent系统中，每个Agent的<strong>角色定义</strong>直接决定了系统的整体效能。一个设计精良的Agent角色需要覆盖以下五个维度：</p>
+
+      <p><strong>角色设计的五个核心要素：</strong></p>
+      <ul>
+        <li><strong>身份 (Identity)</strong>：Agent的"我是谁"——包括名称、专业领域、资历描述。例如："你是一位拥有15年经验的资深后端架构师，专注于分布式系统和微服务设计。" 清晰的身份定位为Agent的行为提供了<strong>稳定的参照系</strong>。</li>
+        <li><strong>职责 (Responsibility)</strong>：Agent的"我要做什么"——明确的任务范围，包含必须做什么和不应该做什么。职责边界不清是多Agent系统最常见的问题根源。</li>
+        <li><strong>能力 (Capability)</strong>：Agent的"我能用什么工具"——可调用的工具集、可访问的数据源、拥有的权限。例如CoderAgent可以调用<code>read_file</code>、<code>write_file</code>、<code>execute_code</code>；而ReviewerAgent只有<code>read_file</code>和<code>add_comment</code>。</li>
+        <li><strong>约束 (Constraint)</strong>：Agent的"我不能做什么"——行为边界和规则。例如："不要修改未与你讨论的代码"、"不要执行会修改生产环境的命令"。</li>
+        <li><strong>协作协议 (Collaboration Protocol)</strong>：Agent的"我如何与他人配合"——何时将任务handoff给谁、如何请求帮助、如何汇报结果。这是多Agent系统运转的<strong>润滑剂</strong>。</li>
+      </ul>
+
+      <p><strong>反例——糟糕的角色设计：</strong></p>
+      <div class="highlight-box warning">
+        <div class="highlight-label">避免这些错误</div>
+        <ul>
+          <li><strong>职责重叠</strong>：两个Agent都能做同一件事，导致重复劳动或互相等待。</li>
+          <li><strong>能力不匹配</strong>：给CoderAgent配置了只有Reviewer才需要的工具，增加了安全风险。</li>
+          <li><strong>角色过于宽泛</strong>：一个Agent被定义为"Helper"——没有明确的专业领域，在实际执行中表现不稳定。</li>
+          <li><strong>缺乏协作协议</strong>：Agent不知道何时该把任务交给别人，导致任务卡住或产生错误结果。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Card 5: Task Allocation -->
+    <div class="content-card">
+      <h3>5. 任务分配策略：谁来做这件事？</h3>
+      <p>当一个任务进入多Agent系统，第一个要解决的问题就是<strong>"由谁来执行"</strong>。任务分配策略直接影响系统的效率和负载均衡：</p>
+
+      <h4 style="color:var(--accent-cyan);margin:20px 0 10px;">5.1 静态分配 (Static Allocation)</h4>
+      <p>通过<strong>预定义的规则</strong>将任务分配给特定Agent。例如："所有前端相关的任务都交给FrontendAgent"。规则可以是基于关键词匹配、任务类型标签、或用户显式指定。优点是简单、可预测、调试方便；缺点是缺乏灵活性——当FrontendAgent过载或失败时，系统无法自动调整。</p>
+
+      <h4 style="color:var(--accent-purple);margin:20px 0 10px;">5.2 动态分配 (Dynamic Allocation)</h4>
+      <p>根据<strong>Agent的当前状态</strong>实时决定任务归属。调度器维护每个Agent的状态信息（空闲/忙碌、已完成任务数、平均处理时间、成功率等），选择最优Agent。常见策略包括：轮询(Round-Robin)、最少连接(Least Connection)、加权轮询(Weighted Round-Robin)。动态分配提高了资源利用率，但调度器本身成为关键路径和潜在瓶颈。</p>
+
+      <h4 style="color:var(--accent-orange);margin:20px 0 10px;">5.3 拍卖式分配 (Auction-Based)</h4>
+      <p>受经济学启发——任务发布后，各个Agent根据自身能力和当前负载<strong>"出价"</strong>(Bid)，调度器选择"性价比"最高的出价。每个Agent的出价可以包含：预估完成时间、置信度评分、所需资源。这种方法能<strong>最大化整体系统效用</strong>，但在Agent数量多时通信开销较大。在多Agent强化学习(MARL)中，拍卖机制常被用于实现去中心化的任务分配。</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">策略</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">延迟</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">负载均衡</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">实现复杂度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">静态分配</td>
+            <td style="padding:10px;color:var(--text-secondary);">最低</td>
+            <td style="padding:10px;color:var(--text-secondary);">差</td>
+            <td style="padding:10px;color:var(--text-secondary);">低</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">动态分配</td>
+            <td style="padding:10px;color:var(--text-secondary);">中等</td>
+            <td style="padding:10px;color:var(--text-secondary);">较好</td>
+            <td style="padding:10px;color:var(--text-secondary);">中等</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:600;">拍卖式</td>
+            <td style="padding:10px;color:var(--text-secondary);">较高</td>
+            <td style="padding:10px;color:var(--text-secondary);">最优</td>
+            <td style="padding:10px;color:var(--text-secondary);">高</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Card 6: Conflict Resolution -->
+    <div class="content-card">
+      <h3>6. 冲突解决：当Agent意见不一致时</h3>
+      <p>多个Agent意味着<strong>多种观点</strong>。当Agent对同一问题给出不同答案时，系统如何裁决？冲突解决机制是多Agent系统可靠性的关键保障：</p>
+
+      <h4 style="color:var(--accent-cyan);margin:20px 0 10px;">6.1 投票机制 (Voting)</h4>
+      <p>最简单的冲突解决方式——少数服从多数。N个Agent(通常为奇数)各自独立给出答案，得票最多的答案胜出。投票适用于<strong>有明确对错的决策</strong>(如判断代码是否有bug)。变体包括：加权投票(资深Agent的票权重更高)、否决投票(安全Agent拥有一票否决权)、共识投票(需要超过某一阈值才算通过)。</p>
+
+      <h4 style="color:var(--accent-purple);margin:20px 0 10px;">6.2 辩论机制 (Debate)</h4>
+      <p>两个持有不同观点的Agent进行<strong>多轮辩论</strong>：Agent A阐述观点与论据 &#8594; Agent B反驳并提出己方观点 &#8594; Agent A回应反驳 &#8594; 重复若干轮 &#8594; 裁判Agent(或人类)做出最终裁决。辩论机制的优势在于：它不仅能找出"哪个答案更好"，还能<strong>暴露每个答案背后的推理逻辑</strong>，产生更全面的分析。</p>
+
+      <h4 style="color:var(--accent-green);margin:20px 0 10px;">6.3 仲裁机制 (Arbitration)</h4>
+      <p>引入一个<strong>专门的仲裁Agent</strong>(或人类仲裁者)，听取各方意见后做出最终裁决。仲裁Agent通常拥有更高的权限和更全面的视角。关键设计：仲裁者自身如何保证公正？实践中常用方法有——仲裁者使用不同的底层模型(避免与参辩Agent同质化)、仲裁者看到所有辩论记录但不参与辩论、仲裁决策附带理由。</p>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">实践建议</div>
+        <p>对于<strong>安全相关的冲突</strong>（如安全Agent认为某操作危险而执行Agent认为安全），应始终偏向更保守的一侧——"宁可误报，不可漏报"。对于<strong>创意相关的冲突</strong>（如两个Agent给出不同的设计方案），可以将两个方案都呈现给用户，由用户最终决定。</p>
+      </div>
+    </div>
+
+    <!-- Card 7: Swarm Deep Dive -->
+    <div class="content-card">
+      <h3>7. Swarm架构深度解析：Handoff机制</h3>
+      <p><span class="glossary-term">Swarm架构<span class="glossary-tooltip">由OpenAI在2024年提出，是一种轻量级的多Agent编排模式。其核心是Handoff(交接)机制——Agent在执行过程中，可以将对话控制权和上下文无缝转移给另一个更合适的Agent。Swarm强调去中心化、动态路由和最小框架开销。</span></span>是目前最受关注的多Agent编排模式。与传统的层级架构不同，Swarm中的Agent是<strong>平等且自主的</strong>——没有中央调度器，Agent通过Handoff机制自行决定"现在该由谁来处理"。</p>
+
+      <p><strong>Handoff机制的工作原理：</strong></p>
+      <ol>
+        <li><strong>意图识别</strong>：当前Agent分析用户请求，判断是否需要Handoff。例如，通用Agent发现用户开始深入讨论数据库问题，意识到需要转给DBAgent。</li>
+        <li><strong>目标选择</strong>：Agent从已知Agent列表中选择最适合的下一个Agent。选择依据包括：Agent的角色描述、当前对话的上下文、用户在对话中表达的需求。</li>
+        <li><strong>上下文传递</strong>：将完整的对话历史、中间状态、已完成的步骤等信息打包传递给目标Agent。良好的上下文传递是Handoff成功的关键——信息遗漏会导致目标Agent"重新开始"，浪费时间和token。</li>
+        <li><strong>控制转移</strong>：目标Agent接管对话，从传递的上下文继续推理和执行。原Agent退出当前会话。</li>
+        <li><strong>返回Handoff（可选）</strong>：目标Agent完成任务后，可以将控制权交回原Agent，实现"借调"模式。</li>
+      </ol>
+
+      <p><strong>Handoff的三种模式：</strong></p>
+      <ul>
+        <li><strong>完全交接 (Full Handoff)</strong>：原Agent完全退出，目标Agent从头接管。适合任务性质发生根本变化的场景。</li>
+        <li><strong>借调 (Secondment)</strong>：原Agent暂时将任务委托给目标Agent，完成后返回。适合"帮我查一下某个专业信息"的场景。</li>
+        <li><strong>并行Handoff</strong>：原Agent将任务同时委托给多个专业Agent，汇总结果后继续处理。适合需要多维度信息的场景。</li>
+      </ul>
+
+      <div class="highlight-box purple">
+        <div class="highlight-label">Swarm vs 传统编排</div>
+        <p>Swarm的核心哲学是<strong>"去中心化智能"</strong>——每个Agent只需关注自己的专业领域和何时应该Handoff，系统的整体智能从Agent之间的交互中涌现出来。与需要精心设计调度逻辑的层级架构相比，Swarm更适合<strong>动态、开放、难以预先规划</strong>的任务场景。</p>
+      </div>
+    </div>
+
+    <!-- Card 8: Code Example -->
+    <div class="content-card">
+      <h3>8. 完整代码示例：多Agent编排器</h3>
+      <p>下面是一个<strong>可运行的多Agent编排系统</strong>，实现了Agent注册中心、消息路由器、和Handoff机制：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 多Agent编排器完整实现</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Callable, Optional
+<span class="token-kw">import</span> uuid, json
+
+<span class="token-kw">class</span> <span class="token-cls">HandoffType</span>(Enum):
+    FULL = <span class="token-str">"full"</span>           <span class="token-cm"># 完全交接</span>
+    SECONDMENT = <span class="token-str">"secondment"</span>  <span class="token-cm"># 借调（完成后返回）</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">AgentInfo</span>:
+    name: <span class="token-cls">str</span>
+    role: <span class="token-cls">str</span>
+    capabilities: <span class="token-cls">list</span>
+    handler: <span class="token-cls">Callable</span>
+    status: <span class="token-cls">str</span> = <span class="token-str">"idle"</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">HandoffRequest</span>:
+    from_agent: <span class="token-cls">str</span>
+    to_agent: <span class="token-cls">str</span>
+    handoff_type: HandoffType
+    context: <span class="token-cls">dict</span>
+    return_agent: <span class="token-cls">str</span> = <span class="token-kw">None</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">Message</span>:
+    id: <span class="token-cls">str</span>
+    sender: <span class="token-cls">str</span>
+    receiver: <span class="token-cls">str</span>
+    content: <span class="token-cls">Any</span>
+    msg_type: <span class="token-cls">str</span>  <span class="token-cm"># "task","result","handoff","query"</span>
+
+<span class="token-kw">class</span> <span class="token-cls">AgentRegistry</span>:
+    <span class="token-str">"""Agent注册中心——管理所有可用的Agent"""</span>
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(self):
+        self._agents: <span class="token-cls">dict</span> = {}
+
+    <span class="token-kw">def</span> <span class="token-fn">register</span>(self, info: AgentInfo):
+        self._agents[info.name] = info
+
+    <span class="token-kw">def</span> <span class="token-fn">find_by_capability</span>(self, capability: <span class="token-cls">str</span>) -> <span class="token-cls">list</span>:
+        <span class="token-kw">return</span> [a <span class="token-kw">for</span> a <span class="token-kw">in</span> self._agents.values()
+                <span class="token-kw">if</span> capability <span class="token-kw">in</span> a.capabilities]
+
+    <span class="token-kw">def</span> <span class="token-fn">get</span>(self, name: <span class="token-cls">str</span>) -> AgentInfo:
+        <span class="token-kw">return</span> self._agents.get(name)
+
+<span class="token-kw">class</span> <span class="token-cls">MessageRouter</span>:
+    <span class="token-str">"""消息路由器——Agent间的通信中枢"""</span>
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(self, registry: AgentRegistry):
+        self.registry = registry
+        self.inboxes: <span class="token-cls">dict</span> = {}
+        self.message_log: <span class="token-cls">list</span> = []
+
+    <span class="token-kw">def</span> <span class="token-fn">send</span>(self, msg: Message):
+        self.message_log.append(msg)
+        inbox = self.inboxes.setdefault(msg.receiver, [])
+        inbox.append(msg)
+
+    <span class="token-kw">def</span> <span class="token-fn">receive</span>(self, agent_name: <span class="token-cls">str</span>) -> <span class="token-cls">list</span>:
+        msgs = self.inboxes.get(agent_name, [])
+        self.inboxes[agent_name] = []
+        <span class="token-kw">return</span> msgs
+
+<span class="token-kw">class</span> <span class="token-cls">Orchestrator</span>:
+    <span class="token-str">"""编排器——多Agent系统的总指挥"""</span>
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(self):
+        self.registry = AgentRegistry()
+        self.router = MessageRouter(self.registry)
+        self.shared_context = {}  <span class="token-cm"># 共享黑板</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">execute_pipeline</span>(self, agent_chain: <span class="token-cls">list</span>, task: <span class="token-cls">Any</span>):
+        <span class="token-str">"""顺序管道执行——A的输出作为B的输入"""</span>
+        current = task
+        <span class="token-kw">for</span> agent_name <span class="token-kw">in</span> agent_chain:
+            agent = self.registry.get(agent_name)
+            <span class="token-kw">if</span> <span class="token-kw">not</span> agent:
+                <span class="token-kw">raise</span> <span class="token-cls">ValueError</span>(<span class="token-str">f"Unknown agent: {agent_name}"</span>)
+            agent.status = <span class="token-str">"busy"</span>
+            current = agent.handler(current, self.shared_context)
+            agent.status = <span class="token-str">"idle"</span>
+            self.shared_context[<span class="token-str">f"{agent_name}_result"</span>] = current
+        <span class="token-kw">return</span> current
+
+    <span class="token-kw">def</span> <span class="token-fn">select_agent</span>(self, requirement: <span class="token-cls">str</span>) -> AgentInfo:
+        <span class="token-str">"""根据需求动态选择最佳Agent"""</span>
+        candidates = self.registry.find_by_capability(requirement)
+        <span class="token-cm"># 优先选择空闲Agent，同状态选择第一个</span>
+        idle = [c <span class="token-kw">for</span> c <span class="token-kw">in</span> candidates <span class="token-kw">if</span> c.status == <span class="token-str">"idle"</span>]
+        <span class="token-kw">return</span> (idle <span class="token-kw">or</span> candidates)[<span class="token-num">0</span>] <span class="token-kw">if</span> candidates <span class="token-kw">else</span> <span class="token-kw">None</span>
+
+<span class="token-cm"># ============ 使用示例 ============</span>
+orchestrator = Orchestrator()
+
+<span class="token-cm"># 注册三个专业Agent</span>
+orchestrator.registry.register(AgentInfo(
+    <span class="token-str">"researcher"</span>, <span class="token-str">"研究员"</span>,
+    [<span class="token-str">"research"</span>, <span class="token-str">"search"</span>],
+    <span class="token-kw">lambda</span> task, ctx: {<span class="token-str">"findings"</span>: <span class="token-str">"研究完成"</span>}
+))
+orchestrator.registry.register(AgentInfo(
+    <span class="token-str">"coder"</span>, <span class="token-str">"程序员"</span>,
+    [<span class="token-str">"coding"</span>, <span class="token-str">"debugging"</span>],
+    <span class="token-kw">lambda</span> task, ctx: {<span class="token-str">"code"</span>: <span class="token-str">"实现完成"</span>}
+))
+orchestrator.registry.register(AgentInfo(
+    <span class="token-str">"reviewer"</span>, <span class="token-str">"审查员"</span>,
+    [<span class="token-str">"review"</span>, <span class="token-str">"testing"</span>],
+    <span class="token-kw">lambda</span> task, ctx: {<span class="token-str">"review"</span>: <span class="token-str">"审查通过"</span>}
+))
+
+<span class="token-cm"># 执行流水线：研究 -> 编码 -> 审查</span>
+result = orchestrator.execute_pipeline(
+    [<span class="token-str">"researcher"</span>, <span class="token-str">"coder"</span>, <span class="token-str">"reviewer"</span>],
+    {<span class="token-str">"task"</span>: <span class="token-str">"实现用户认证模块"</span>}
+)
+<span class="token-kw">print</span>(<span class="token-str">f"最终结果: {json.dumps(result, ensure_ascii=False)}"</span>)</code></pre>
+      </div>
+
+      <p><strong>代码设计要点：</strong></p>
+      <ul>
+        <li><strong>AgentRegistry</strong>：Agent注册中心是系统的"电话簿"——所有Agent在此注册其名称、角色、能力列表和处理函数。这使得系统可以动态发现和选择Agent，而不是硬编码Agent列表。</li>
+        <li><strong>MessageRouter</strong>：消息路由器实现了收件箱模式——每个Agent有独立的消息队列，路由器负责投递和分发。消息日志提供完整的通信审计追踪。</li>
+        <li><strong>Orchestrator.execute_pipeline</strong>：流水线执行引擎，将Agent链式串联——上一个Agent的输出自动成为下一个Agent的输入。同时维护shared_context作为共享黑板。</li>
+        <li><strong>select_agent</strong>：动态Agent选择——根据能力需求找到匹配的Agent，优先选择空闲的。这是实现动态任务分配的基础。</li>
+        <li><strong>shared_context</strong>：共享上下文字典扮演了黑板架构的角色，Agent可以在此读写中间结果。</li>
+      </ul>
+    </div>
+
+    <!-- Card 9: Practical Tips -->
+    <div class="content-card">
+      <h3>9. 多Agent系统的实战经验与避坑指南</h3>
+
+      <p><strong>架构决策清单：</strong></p>
+      <ul>
+        <li><strong>Agent粒度</strong>：一个Agent应该负责"一个可独立描述的专业领域"。太细(一个Agent只做一件事)导致通信开销过大；太粗(一个Agent做所有事)退化回单Agent。</li>
+        <li><strong>Agent数量</strong>：对于大多数任务，3-7个Agent是最佳区间。超过10个Agent时，协调成本开始超过分工收益。可以通过"合并相似角色"和"引入子编排器"来控制Agent数量。</li>
+        <li><strong>通信频次</strong>：Agent之间不应每步都通信。设计原则是"只在有新的有价值信息时才通信"——避免空转和上下文膨胀。</li>
+        <li><strong>失败隔离</strong>：一个Agent的失败不应导致整个系统崩溃。设计原则：(1) 每个Agent有独立的错误处理；(2) 编排器有超时和重试策略；(3) 关键路径上的Agent应有热备。</li>
+      </ul>
+
+      <p><strong>常见陷阱：</strong></p>
+      <ul>
+        <li><strong>上下文雪崩</strong>：每个Agent往共享内存添加信息，上下文迅速膨胀到超出窗口限制。解决方法：上下文压缩——每个Agent只传递<strong>摘要</strong>而非完整输出，或使用滑动窗口保留最近N条记录。</li>
+        <li><strong>握手死锁</strong>：Agent A等待Agent B的结果，Agent B等待Agent A的确认。解决方法：设置超时、引入死锁检测、对于非关键依赖使用异步通信。</li>
+        <li><strong>回音室效应</strong>：多个Agent使用相同的模型和相似的系统prompt，导致它们给出相似的回答，丧失多视角优势。解决方法：为不同Agent使用不同的模型参数(temperature, top_p)或在prompt中注入不同的"人格"倾向。</li>
+        <li><strong>无限Handoff</strong>：在Swarm架构中，Agent A Handoff给B，B又Handoff给C，C又Handoff回A。解决方法：设置最大Handoff次数、追踪Handoff链、检测循环。</li>
+      </ul>
+
+      <div class="highlight-box orange">
+        <div class="highlight-label">黄金法则</div>
+        <p><strong>"不要因为能用多Agent就使用多Agent。"</strong> 如果一个单Agent能高效完成的任务，引入多Agent只会增加复杂度和成本。多Agent系统的最佳应用场景是：任务<strong>天然可分解</strong>、需要<strong>多种专业视角</strong>、或单Agent输出<strong>质量和可靠性不足</strong>的情况。</p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="6">
+      <div class="quiz-title"><span style="font-size:28px;">&#128221;</span> 章节测验</div>
+      <div class="quiz-desc">测试你对多Agent系统的全面理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. Swarm架构与其他多Agent架构最本质的区别是什么？</div>
+        <button class="quiz-option" data-answer="0">A. Swarm不支持并行执行</button>
+        <button class="quiz-option" data-answer="1">B. Swarm是去中心化的，Agent通过Handoff自主交接任务</button>
+        <button class="quiz-option" data-answer="2">C. Swarm比层级架构有更强的中央控制</button>
+        <button class="quiz-option" data-answer="3">D. Swarm只能用于客服场景</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 在设计Agent角色时，以下哪个做法是正确的？</div>
+        <button class="quiz-option" data-answer="0">A. 给所有Agent配置完全相同的工具集以防万一</button>
+        <button class="quiz-option" data-answer="1">B. 定义清晰的职责边界和协作协议，避免职责重叠</button>
+        <button class="quiz-option" data-answer="2">C. 让一个"万能"Agent处理所有任务</button>
+        <button class="quiz-option" data-answer="3">D. 不给Agent任何工具，让它们只靠LLM推理</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 多Agent系统中"上下文雪崩"指的是什么？</div>
+        <button class="quiz-option" data-answer="0">A. Agent处理数据的速度超过硬件极限</button>
+        <button class="quiz-option" data-answer="1">B. 多个Agent使用的硬件内存溢出</button>
+        <button class="quiz-option" data-answer="2">C. Agent间不断累积信息导致上下文超出LLM窗口限制</button>
+        <button class="quiz-option" data-answer="3">D. Agent的日志文件过大导致磁盘满</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a href="05-reasoning-planning.html" class="page-nav-btn">
+        <span>&#8592; 上一章</span>
+        <span class="page-nav-label">第5章：推理与规划</span>
+      </a>
+      <a href="07-safety-reliability.html" class="page-nav-btn">
+        <span>下一章 &#8594;</span>
+        <span class="page-nav-label">第7章：安全与可靠性</span>
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;">
+      <span class="sim-status-dot"></span> Agent 模拟器
+    </div>
+    <button id="simClose" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">&#128075; 你好！我是一个模拟的AI Agent。试试问我一些问题，观察我是如何<strong>思考&#8594;行动&#8594;观察</strong>的！</div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="sim-send-btn" id="simSend" style="padding:10px 16px;background:var(--accent-cyan);border:none;border-radius:8px;color:#080c14;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap;">发送</button>
+  </div>
+</div>
+
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header">
+    <span>&#128214; 我的笔记</span>
+    <button id="notesClose" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">&#10005;</button>
+  </div>
+  <div class="notes-list" id="notesList"></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6" selected>第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：提示工程</option>
+        <option value="9">第9章：评估测试</option>
+        <option value="10">第10章：部署运维</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

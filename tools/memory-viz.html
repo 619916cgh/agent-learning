@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>记忆系统可视化 — AI Agent 学习平台</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+.mv-panels { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 16px; }
+.mv-panel {
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column;
+  min-height: 480px;
+}
+
+.mv-panel h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+
+.mv-st-bubble {
+  padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 8px;
+  font-size: 12px; line-height: 1.5; animation: slideInLeft 0.3s ease;
+  transition: all 0.5s ease;
+}
+.mv-st-bubble.user { background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-left: 3px solid var(--accent-cyan); }
+.mv-st-bubble.agent { background: rgba(180,74,238,0.08); border: 1px solid rgba(180,74,238,0.2); border-left: 3px solid var(--accent-purple); }
+.mv-st-bubble.tool { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.2); border-left: 3px solid var(--accent-green); font-family: var(--font-mono); }
+.mv-st-bubble.fading { opacity: 0.3; transform: translateY(-10px); }
+.mv-st-bubble.gone { opacity: 0; transform: translateY(-20px); }
+
+.mv-working-kv {
+  padding: 8px 12px; margin-bottom: 6px; border-radius: var(--radius-sm);
+  background: var(--bg-tertiary); display: flex; justify-content: space-between;
+  font-size: 12px; border-left: 2px solid var(--accent-cyan);
+}
+.mv-working-kv .wk { font-weight: 600; color: var(--accent-cyan); }
+.mv-working-kv .wv { color: var(--text-secondary); text-align: right; flex: 1; margin-left: 12px; word-break: break-all; }
+
+.mv-lt-card {
+  padding: 12px; margin-bottom: 8px; border-radius: var(--radius-md);
+  background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  font-size: 12px; animation: fadeIn 0.3s ease; cursor: pointer;
+  transition: all var(--ease-fast);
+}
+.mv-lt-card:hover { border-color: var(--accent-purple); box-shadow: 0 0 12px var(--border-glow-purple); }
+.mv-lt-card .lt-tag {
+  display: inline-block; padding: 2px 8px; border-radius: var(--radius-full);
+  font-size: 10px; font-weight: 600; margin-bottom: 4px;
+}
+.mv-lt-card .lt-tag.fact { background: rgba(0,229,255,0.1); color: var(--accent-cyan); }
+.mv-lt-card .lt-tag.pref { background: rgba(180,74,238,0.1); color: var(--accent-purple); }
+.mv-lt-card .lt-tag.know { background: rgba(0,230,118,0.1); color: var(--accent-green); }
+
+.mv-search-bar {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.mv-search-bar input {
+  flex: 1; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-size: 12px; outline: none;
+  transition: border-color var(--ease-fast);
+}
+.mv-search-bar input:focus { border-color: var(--accent-purple); }
+.mv-search-bar button {
+  padding: 8px 14px; background: var(--accent-purple); color: #fff; border: none;
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 600;
+}
+
+.mv-input-area {
+  margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-color);
+  display: flex; gap: 8px;
+}
+.mv-input-area input {
+  flex: 1; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-size: 13px; outline: none;
+}
+.mv-input-area button {
+  padding: 8px 16px; background: var(--accent-cyan); color: #000; border: none;
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 700;
+}
+
+.mv-system-log {
+  background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+  padding: 14px; margin-top: 20px;
+}
+.mv-log-entry { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 4px; padding: 2px 0; }
+.mv-log-entry .log-time { color: var(--accent-cyan); }
+.mv-log-entry .log-action { color: var(--accent-green); }
+.mv-log-entry .log-warn { color: var(--accent-orange); }
+
+@media (max-width: 1000px) {
+  .mv-panels { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单">&#9776;</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置">&#128260;</button>
+  </div>
+</header>
+
+<div class="search-panel" id="searchPanel">
+  <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容...">
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section"><div class="sidebar-section-title">学习章节</div></div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link"><span class="nav-icon">01</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link"><span class="nav-icon">02</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link"><span class="nav-icon">03</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link"><span class="nav-icon">04</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link"><span class="nav-icon">05</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link"><span class="nav-icon">06</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link"><span class="nav-icon">07</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link"><span class="nav-icon">08</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link"><span class="nav-icon">09</span> Agent框架生态</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link"><span class="nav-icon">12</span> 伦理与责任</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+  <div class="sidebar-section"><div class="sidebar-section-title">工具</div></div>
+  <a href="prompt-playground.html" class="nav-link"><span class="nav-icon">&#128221;</span> Prompt 演练场</a>
+  <a href="tool-designer.html" class="nav-link"><span class="nav-icon">&#128736;</span> 工具设计器</a>
+  <a href="agent-builder.html" class="nav-link"><span class="nav-icon">&#129302;</span> Agent 构建器</a>
+  <a href="cost-calculator.html" class="nav-link"><span class="nav-icon">&#128200;</span> 成本计算器</a>
+  <a href="memory-viz.html" class="nav-link active"><span class="nav-icon">&#129504;</span> 记忆可视化</a>
+  <div class="progress-card"><div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div><div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div></div>
+</aside>
+
+<main class="main-content">
+
+  <div style="margin-bottom:20px;">
+    <h1>&#129504; Agent 记忆系统可视化</h1>
+    <p style="color:var(--text-muted);font-size:15px;">交互式观察 Agent 的三层记忆系统如何协同工作 — 短期记忆、工作记忆和长期记忆的流转过程</p>
+  </div>
+
+  <!-- Primary Sim Input -->
+  <div style="display:flex;gap:12px;margin-bottom:20px;align-items:center;">
+    <input type="text" id="mainSimInput" placeholder="输入一条消息模拟对话（例如：我叫小明，我想了解今天的天气）" style="flex:1;padding:12px 16px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);font-size:14px;outline:none;transition:border-color var(--ease-fast);">
+    <button class="btn btn-primary" id="sendMsgBtn">&#9654; 发送消息</button>
+    <button class="btn" id="resetSimBtn">&#128260; 重置模拟</button>
+  </div>
+  <div style="margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;">
+    <button class="btn btn-sm" data-quick="weather">&#127782; 问天气</button>
+    <button class="btn btn-sm" data-quick="code">&#128187; 写代码</button>
+    <button class="btn btn-sm" data-quick="data">&#128202; 分析数据</button>
+    <button class="btn btn-sm" data-quick="info">&#8505; 自我介绍</button>
+    <button class="btn btn-sm" data-quick="pref">&#9889; 设置偏好</button>
+    <span style="font-size:11px;color:var(--text-muted);align-self:center;">快捷场景 (观察记忆流转)</span>
+  </div>
+
+  <!-- Three Panel Memory Visualizer -->
+  <div class="mv-panels">
+    <!-- Short-term Memory -->
+    <div class="mv-panel">
+      <h3>&#9200; 短期记忆 (Short-term)</h3>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">滑动窗口: <strong id="stWindowInfo">0/8</strong></p>
+      <div id="stMessages" style="flex:1;overflow-y:auto;padding-right:4px;min-height:200px;">
+        <div style="color:var(--text-muted);text-align:center;padding:30px;font-size:12px;">发送消息后，短期记忆<br>会在此显示对话气泡</div>
+      </div>
+    </div>
+
+    <!-- Working Memory -->
+    <div class="mv-panel">
+      <h3>&#9881; 工作记忆 (Working)</h3>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">当前任务状态</p>
+      <div id="wmState" style="flex:1;overflow-y:auto;padding-right:4px;min-height:200px;">
+        <div style="color:var(--text-muted);text-align:center;padding:30px;font-size:12px;">工作记忆显示 Agent 的<br>当前任务和推理状态</div>
+      </div>
+    </div>
+
+    <!-- Long-term Memory -->
+    <div class="mv-panel">
+      <h3>&#128218; 长期记忆 (Long-term)</h3>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">持久化存储 & 语义检索</p>
+      <div class="mv-search-bar">
+        <input type="text" id="ltSearchInput" placeholder="搜索长期记忆...">
+        <button id="ltSearchBtn">搜索</button>
+      </div>
+      <div id="ltResults" style="flex:1;overflow-y:auto;padding-right:4px;min-height:200px;">
+        <div style="color:var(--text-muted);text-align:center;padding:20px;font-size:12px;">「搜索」或「召回」操作<br>在此显示长期记忆结果</div>
+      </div>
+      <button class="btn btn-sm" id="recallBtn" style="margin-top:8px;width:100%;">&#128260; 自动召回相关记忆到上下文</button>
+    </div>
+  </div>
+
+  <!-- System Log -->
+  <div class="mv-system-log">
+    <h4 style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">&#128259; 记忆系统事件日志</h4>
+    <div id="mvLogs">
+      <div class="mv-log-entry"><span class="log-time">[系统]</span> 记忆系统已就绪，等待对话开始...</div>
+    </div>
+  </div>
+
+</main>
+
+<button class="sim-toggle" id="simToggle" title="Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header"><div style="display:flex;align-items:center;gap:8px;"><span class="sim-status-dot"></span><span>Agent 模拟器</span></div><button class="btn btn-sm" id="simCloseBtn" style="border:none;background:transparent;color:var(--text-muted);cursor:pointer;">&#10005;</button></div>
+  <div class="sim-messages" id="simMessages"><div class="sim-msg agent">&#128075; 你好！试试问我一些问题吧！</div></div>
+  <div class="sim-input-area"><textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea><button class="btn btn-primary btn-sm" id="simSendBtn">发送</button></div>
+</div>
+
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:100px;right:32px;z-index:85;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan));border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 8px 32px rgba(0,230,118,0.4);">&#128211;</button>
+<div class="notes-panel" id="notesPanel" style="position:fixed;bottom:170px;right:32px;width:380px;max-height:500px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:84;transform:scale(0);opacity:0;transform-origin:bottom right;transition:all var(--ease-spring);overflow:hidden;display:flex;flex-direction:column;">
+  <div style="padding:14px 18px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;font-weight:700;"><span>&#128211; 我的笔记</span><button class="btn btn-sm" id="notesCloseBtn" style="border:none;background:transparent;color:var(--text-muted);cursor:pointer;">&#10005;</button></div>
+  <div style="flex:1;overflow-y:auto;padding:12px;" id="notesList"></div>
+  <div style="padding:12px;border-top:1px solid var(--border-color);"><textarea id="noteInput" placeholder="在这里写笔记..." style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;resize:vertical;min-height:60px;outline:none;"></textarea><div style="display:flex;gap:8px;margin-top:8px;"><select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:12px;"><option value="memory">记忆可视化</option></select><button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button></div></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  const ST_WINDOW_SIZE = 8;
+  const stMessages = []; // { role, content, id }
+  let msgId = 0;
+
+  // Long-term memory store (simulated)
+  const ltStore = [
+    { id: 'lt1', tag: 'fact', content: '用户名叫小明，是一名软件工程师，主要使用 Python', keywords: '用户 小明 工程师 Python' },
+    { id: 'lt2', tag: 'pref', content: '用户偏好简洁的代码风格，不喜欢过长的注释', keywords: '偏好 简洁 代码风格 注释' },
+    { id: 'lt3', tag: 'know', content: 'REST API 设计最佳实践：使用资源命名、HTTP方法语义化、分页返回', keywords: 'REST API 设计 最佳实践 HTTP' },
+    { id: 'lt4', tag: 'fact', content: '用户所在城市是北京，时区为 UTC+8', keywords: '北京 时区 城市' },
+    { id: 'lt5', tag: 'pref', content: '用户希望回复使用中文，技术术语可保留英文', keywords: '中文 回复 语言 偏好' },
+    { id: 'lt6', tag: 'know', content: 'Python 3.12 引入新的 f-string 语法和类型提示改进', keywords: 'Python 3.12 f-string 类型提示' },
+    { id: 'lt7', tag: 'fact', content: '用户上次讨论过数据分析项目，使用 pandas 和 matplotlib', keywords: '数据分析 pandas matplotlib 项目' },
+    { id: 'lt8', tag: 'pref', content: '用户对天气信息特别关注，经常查询天气', keywords: '天气 关注 查询' },
+    { id: 'lt9', tag: 'know', content: 'Claude API 最佳实践：使用 prompt caching 优化长对话的成本', keywords: 'Claude API prompt caching 成本' },
+    { id: 'lt10', tag: 'fact', content: '用户对 AI Agent 技术非常感兴趣，正在学习如何构建 Agent', keywords: 'AI Agent 学习 构建 技术' }
+  ];
+
+  let workingMemory = {
+    current_task: '空闲',
+    intent: '无',
+    entities: [],
+    last_action: '等待输入'
+  };
+
+  let turnCount = 0;
+
+  function addLog(time, action, msg) {
+    const cls = action === 'warn' ? 'log-warn' : 'log-action';
+    const logs = document.getElementById('mvLogs');
+    const entry = document.createElement('div');
+    entry.className = 'mv-log-entry';
+    entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="${cls}">${msg}</span>`;
+    logs.insertBefore(entry, logs.firstChild);
+    // Keep at most 30 log entries
+    while (logs.children.length > 30) logs.lastChild.remove();
+  }
+
+  function pushSTMessage(role, content) {
+    stMessages.push({ role, content, id: ++msgId });
+    // Apply sliding window
+    while (stMessages.length > ST_WINDOW_SIZE) {
+      stMessages.shift();
+    }
+    renderSTMessages();
+    updateWorkingMemory(role, content);
+    autoIndexLTM(role, content);
+  }
+
+  function renderSTMessages() {
+    const container = document.getElementById('stMessages');
+    if (stMessages.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:30px;font-size:12px;">发送消息后，短期记忆<br>会在此显示对话气泡</div>';
+      return;
+    }
+    container.innerHTML = stMessages.map((m, i) => {
+      const age = stMessages.length - 1 - i;
+      let fadeClass = '';
+      if (age >= 6) fadeClass = ' gone';
+      else if (age >= 4) fadeClass = ' fading';
+      return `<div class="mv-st-bubble ${m.role}${fadeClass}" style="animation-delay:${i*0.05}s">${AgentLearn.escapeHtml(m.content)}</div>`;
+    }).join('');
+    document.getElementById('stWindowInfo').textContent = stMessages.length + '/' + ST_WINDOW_SIZE;
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function updateWorkingMemory(userMsg, agentResponse) {
+    const now = new Date().toLocaleTimeString('zh-CN');
+
+    // Update task/intent based on content
+    if (/天气/.test(userMsg)) {
+      workingMemory = { current_task: '天气查询', intent: '获取实时天气信息', entities: extractEntities(userMsg), last_action: '调用 get_weather 工具' };
+    } else if (/代码|编程|写|code/.test(userMsg)) {
+      workingMemory = { current_task: '代码生成/审查', intent: '根据需求编写或审查代码', entities: extractEntities(userMsg), last_action: '调用 code_executor 工具' };
+    } else if (/数据|分析|统计|报表/.test(userMsg)) {
+      workingMemory = { current_task: '数据分析', intent: '数据处理和统计分析', entities: extractEntities(userMsg), last_action: '调用数据分析工具' };
+    } else if (/(我是|我叫|我是谁)/.test(userMsg)) {
+      workingMemory = { current_task: '用户信息管理', intent: '记录和更新用户信息', entities: extractEntities(userMsg), last_action: '更新用户档案' };
+    } else if (/偏好|风格|喜欢|设置/.test(userMsg)) {
+      workingMemory = { current_task: '偏好设置', intent: '记录用户偏好', entities: extractEntities(userMsg), last_action: '更新用户偏好' };
+    } else {
+      workingMemory = { current_task: '通用对话', intent: '理解和回应用户', entities: extractEntities(userMsg), last_action: '生成回复' };
+    }
+
+    renderWorkingMemory();
+    addLog(now, 'action', '工作记忆已更新: ' + workingMemory.current_task);
+  }
+
+  function extractEntities(msg) {
+    const entities = [];
+    if (/北京|上海|深圳|杭州|成都/.test(msg)) {
+      const m = msg.match(/(北京|上海|深圳|杭州|成都)/);
+      if (m) entities.push('location:' + m[1]);
+    }
+    if (/Python|JavaScript|Go|Java|Rust/.test(msg)) {
+      const m = msg.match(/(Python|JavaScript|Go|Java|Rust)/);
+      if (m) entities.push('language:' + m[1]);
+    }
+    if (/小明|小红/.test(msg)) {
+      const m = msg.match(/(小明|小红)/);
+      if (m) entities.push('person:' + m[1]);
+    }
+    return entities;
+  }
+
+  function renderWorkingMemory() {
+    const container = document.getElementById('wmState');
+    container.innerHTML = Object.entries(workingMemory).map(([k, v]) =>
+      `<div class="mv-working-kv">
+        <span class="wk">${k}</span>
+        <span class="wv">${Array.isArray(v) ? (v.join(', ') || '(空)') : v}</span>
+      </div>`
+    ).join('');
+  }
+
+  function autoIndexLTM(userMsg, agentResponse) {
+    // Simulate: extract important facts and add to LTM
+    if (/(?:我是|我叫)([^\s,，。]+)/.test(userMsg)) {
+      const m = userMsg.match(/(?:我是|我叫)([^\s,，。]+)/);
+      const name = m[1];
+      const existing = ltStore.find(e => e.content.includes('用户名叫'));
+      if (!existing) {
+        ltStore.push({ id: 'lt' + Date.now(), tag: 'fact', content: '用户名叫' + name, keywords: '用户 ' + name });
+        addLog(new Date().toLocaleTimeString('zh-CN'), 'action', '&#128218; 重要信息已存入长期记忆: 用户名叫' + name);
+      }
+    }
+    if (/(?:我在|我住在|城市是|所在地)([^\s,，。]+)/.test(userMsg)) {
+      const m = userMsg.match(/(?:我在|我住在|城市是|所在地)([^\s,，。]+)/);
+      const city = m[1];
+      addLog(new Date().toLocaleTimeString('zh-CN'), 'action', '&#128218; 地理位置信息已索引: ' + city);
+    }
+  }
+
+  function searchLT(query) {
+    const q = query.toLowerCase();
+    const results = ltStore.filter(item =>
+      item.keywords.toLowerCase().includes(q) ||
+      item.content.toLowerCase().includes(q)
+    );
+    return results;
+  }
+
+  function renderLTResults(results, query) {
+    const container = document.getElementById('ltResults');
+    if (!results || results.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;font-size:12px;">未找到相关记忆<br>「' + AgentLearn.escapeHtml(query) + '」</div>';
+      return;
+    }
+    container.innerHTML = results.map(r => `
+      <div class="mv-lt-card" onclick="injectToContext('${r.id}')">
+        <span class="lt-tag ${r.tag}">${r.tag === 'fact' ? '事实' : r.tag === 'pref' ? '偏好' : '知识'}</span>
+        <div style="color:var(--text-secondary);">${r.content}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">相似度: ${Math.floor(70 + Math.random()*25)}% | 点击注入到上下文</div>
+      </div>
+    `).join('');
+  }
+
+  window.injectToContext = function(ltId) {
+    const item = ltStore.find(e => e.id === ltId);
+    if (!item) return;
+    pushSTMessage('tool', '[长期记忆召回] ' + item.content);
+    addLog(new Date().toLocaleTimeString('zh-CN'), 'action', '&#128260; 长期记忆已召回并注入短期记忆: ' + item.content.substring(0, 40) + '...');
+    AgentLearn.toast('记忆已注入到上下文', 'info');
+  };
+
+  // Simulate agent response
+  function getAgentResponse(userMsg) {
+    if (/天气/.test(userMsg)) {
+      return '正在查询天气... [调用 get_weather 工具]: 获取到北京今天晴，22°C，湿度45%。根据天气信息，今天是个好天气，适合出行。';
+    } else if (/代码|编程/.test(userMsg)) {
+      return '让我看看这个需求... [调用 code_executor]: 我建议使用 Python 的 requests 库来实现这个功能。代码已准备好，包含错误处理和日志记录。';
+    } else if (/数据|分析/.test(userMsg)) {
+      return '开始数据分析... [调用数据分析工具]: 数据已加载，共1250条记录。我注意到销售额在Q3有明显增长，建议进一步按产品线细分分析。';
+    } else if (/(我是|我叫)/.test(userMsg)) {
+      return '很高兴认识你！我已经记下了你的信息。后续对话中我会记住这些。有什么我可以帮你的吗？';
+    } else if (/偏好|风格|喜欢/.test(userMsg)) {
+      return '好的，我已经记录下你的偏好。之后的回复会按照你喜欢的风格来调整。';
+    } else if (/介绍|你是|你能/.test(userMsg)) {
+      return '你好！我是 AI Agent，配备了记忆系统。我能记住我们的对话(短期)，当前任务状态(工作)，以及长期的知识和偏好(长期)。';
+    } else {
+      return '收到你的消息。让我思考一下最佳回应方式... 根据我的理解，你关心的是「' + userMsg.substring(0, 15) + '...」。我会尽力提供有帮助的回复。';
+    }
+  }
+
+  // Send message
+  function sendMessage(msg) {
+    if (!msg.trim()) return;
+    turnCount++;
+    const now = new Date().toLocaleTimeString('zh-CN');
+
+    // User message
+    pushSTMessage('user', msg);
+    addLog(now, 'action', '用户消息进入短期记忆 [轮次 ' + turnCount + ']');
+
+    // Check if short-term is near full
+    if (stMessages.length >= ST_WINDOW_SIZE - 1) {
+      addLog(now, 'warn', '短期记忆窗口即将填满 (' + stMessages.length + '/' + ST_WINDOW_SIZE + ')，最旧消息将被移出');
+    }
+
+    // Simulate agent processing
+    setTimeout(() => {
+      const response = getAgentResponse(msg);
+      pushSTMessage('agent', response);
+      addLog(new Date().toLocaleTimeString('zh-CN'), 'action', 'Agent 生成回复，已添加到短期记忆');
+    }, 600);
+
+    document.getElementById('mainSimInput').value = '';
+    document.getElementById('mainSimInput').focus();
+  }
+
+  // Event bindings
+  document.getElementById('sendMsgBtn').addEventListener('click', () => {
+    sendMessage(document.getElementById('mainSimInput').value);
+  });
+
+  document.getElementById('mainSimInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage(this.value);
+    }
+  });
+
+  // Quick scenarios
+  document.querySelectorAll('[data-quick]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const scenarios = {
+        weather: '今天北京天气怎么样？我想计划出门',
+        code: '帮我写一个 Python 函数，用于读取 CSV 文件并计算平均值',
+        data: '帮我分析一下这个季度的销售数据，看看哪个产品线增长最快',
+        info: '你好，我叫小明，我是一名软件工程师，主要用 Python',
+        pref: '我比较喜欢简洁的代码风格，注释不用太多，直接给代码就好'
+      };
+      const msg = scenarios[this.dataset.quick];
+      if (msg) sendMessage(msg);
+    });
+  });
+
+  // LT search
+  document.getElementById('ltSearchBtn').addEventListener('click', function() {
+    const query = document.getElementById('ltSearchInput').value.trim();
+    if (!query) return;
+    const results = searchLT(query);
+    renderLTResults(results, query);
+    addLog(new Date().toLocaleTimeString('zh-CN'), 'action', '长期记忆搜索: "' + query + '" 找到 ' + results.length + ' 条结果');
+  });
+
+  document.getElementById('ltSearchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('ltSearchBtn').click();
+    }
+  });
+
+  // Recall button
+  document.getElementById('recallBtn').addEventListener('click', function() {
+    const query = workingMemory.current_task + ' ' + workingMemory.intent;
+    const results = searchLT(query);
+    renderLTResults(results, query);
+    if (results.length > 0) {
+      const top = results[0];
+      pushSTMessage('tool', '[自动召回] ' + top.content);
+      addLog(new Date().toLocaleTimeString('zh-CN'), 'action', '自动召回: 基于当前任务「' + workingMemory.current_task + '」检索到 ' + results.length + ' 条相关记忆');
+      AgentLearn.toast('已自动召回 ' + results.length + ' 条相关记忆', 'info');
+    } else {
+      AgentLearn.toast('未找到相关记忆', 'info');
+    }
+  });
+
+  // Reset
+  document.getElementById('resetSimBtn').addEventListener('click', function() {
+    stMessages.length = 0;
+    msgId = 0;
+    turnCount = 0;
+    workingMemory = { current_task: '空闲', intent: '无', entities: [], last_action: '等待输入' };
+    document.getElementById('stMessages').innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:30px;font-size:12px;">发送消息后，短期记忆<br>会在此显示对话气泡</div>';
+    document.getElementById('stWindowInfo').textContent = '0/' + ST_WINDOW_SIZE;
+    renderWorkingMemory();
+    document.getElementById('ltResults').innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;font-size:12px;">「搜索」或「召回」操作<br>在此显示长期记忆结果</div>';
+    document.getElementById('ltSearchInput').value = '';
+    document.getElementById('mvLogs').innerHTML = '<div class="mv-log-entry"><span class="log-time">[系统]</span> 记忆系统已重置，等待新对话...</div>';
+    document.getElementById('mainSimInput').value = '';
+    AgentLearn.toast('记忆系统已重置', 'info');
+  });
+
+  // Mobile menu
+  document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  });
+
+  // Sim panel
+  let simOpen = false;
+  document.getElementById('simToggle').addEventListener('click', function() {
+    simOpen = !simOpen;
+    document.getElementById('simPanel').classList.toggle('active', simOpen);
+  });
+  document.getElementById('simCloseBtn').addEventListener('click', function() {
+    simOpen = false;
+    document.getElementById('simPanel').classList.remove('active');
+  });
+
+  // Notes
+  let notesOpen = false;
+  const notesPanel = document.getElementById('notesPanel');
+  document.getElementById('notesToggle').addEventListener('click', function() {
+    notesOpen = !notesOpen;
+    notesPanel.style.transform = notesOpen ? 'scale(1)' : 'scale(0)';
+    notesPanel.style.opacity = notesOpen ? '1' : '0';
+  });
+  document.getElementById('notesCloseBtn').addEventListener('click', function() {
+    notesOpen = false;
+    notesPanel.style.transform = 'scale(0)';
+    notesPanel.style.opacity = '0';
+  });
+  document.getElementById('notesSaveBtn').addEventListener('click', function() {
+    const text = document.getElementById('noteInput').value.trim();
+    const chapter = document.getElementById('noteChapter').value;
+    if (!text) return;
+    const notes = AgentLearn.Store.get('notes', []);
+    notes.push({ chapter, text, time: Date.now() });
+    AgentLearn.Store.set('notes', notes);
+    document.getElementById('noteInput').value = '';
+    renderNotes();
+    AgentLearn.toast('笔记已保存', 'success');
+  });
+  function renderNotes() {
+    const notes = AgentLearn.Store.get('notes', []);
+    const list = document.getElementById('notesList');
+    if (notes.length === 0) { list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">暂无笔记</div>'; return; }
+    list.innerHTML = notes.slice(-20).reverse().map(n => '<div style="padding:10px;margin-bottom:6px;background:var(--bg-tertiary);border-radius:6px;font-size:12px;"><div style="color:var(--accent-cyan);font-weight:600;">'+n.chapter+'</div><div style="color:var(--text-secondary);">'+AgentLearn.escapeHtml(n.text).substring(0,100)+'</div></div>').join('');
+  }
+
+  // Reset button
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    if (confirm('确定要重置所有进度吗？')) { AgentLearn.Progress && AgentLearn.Progress.resetAll(); }
+  });
+
+  // Sim send
+  document.getElementById('simSendBtn').addEventListener('click', function() {
+    const input = document.getElementById('simInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    const msgs = document.getElementById('simMessages');
+    msgs.innerHTML += '<div class="sim-msg user">' + AgentLearn.escapeHtml(msg) + '</div>';
+    input.value = '';
+    setTimeout(() => { msgs.innerHTML += '<div class="sim-msg thinking">&#129504; 记忆检索中...</div>'; msgs.scrollTop = msgs.scrollHeight; }, 300);
+    setTimeout(() => { msgs.querySelectorAll('.sim-msg.thinking').forEach(el => el.remove()); msgs.innerHTML += '<div class="sim-msg agent">正在查询记忆系统来回答你的问题。</div>'; msgs.scrollTop = msgs.scrollHeight; }, 1500);
+  });
+  document.getElementById('simInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('simSendBtn').click(); } });
+
+  // Init
+  renderWorkingMemory();
+  renderNotes();
+  document.getElementById('mainSimInput').focus();
+})();
+</script>
+</body>
+</html>

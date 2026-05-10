@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5章：推理与规划 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+/* ============================================
+   Chapter-Specific Layout Styles
+   (补全 CSS 文件中缺失的章节布局样式)
+   ============================================ */
+
+/* -- Main Content Area -- */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 40px 60px;
+  max-width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* -- Chapter Entry Animation -- */
+.chapter {
+  margin-bottom: 80px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: chapterEntrance 0.6s ease forwards;
+}
+
+@keyframes chapterEntrance {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* -- Chapter Header -- */
+.chapter-header {
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.chapter-number {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.chapter-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.chapter-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* -- Content Cards -- */
+.content-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: all var(--ease-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.content-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), transparent);
+  opacity: 0;
+  transition: opacity var(--ease-base);
+}
+
+.content-card:hover::before { opacity: 1; }
+
+.content-card:hover {
+  border-color: var(--border-glow-cyan);
+  box-shadow: var(--shadow-glow-cyan);
+  transform: translateY(-2px);
+}
+
+.content-card h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.content-card p {
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.content-card ul, .content-card ol {
+  padding-left: 20px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.content-card li { margin-bottom: 6px; }
+
+/* -- Highlight Boxes -- */
+.highlight-box {
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin: 20px 0;
+  border-left: 4px solid var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+  font-size: 15px;
+}
+
+.highlight-box.tip {
+  border-left-color: var(--accent-green);
+  background: rgba(0, 230, 118, 0.05);
+}
+
+.highlight-box.warning {
+  border-left-color: var(--accent-red);
+  background: rgba(255, 61, 90, 0.05);
+}
+
+.highlight-box.purple {
+  border-left-color: var(--accent-purple);
+  background: rgba(180, 74, 238, 0.05);
+}
+
+.highlight-label {
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  color: var(--accent-cyan);
+}
+
+.highlight-box.tip .highlight-label { color: var(--accent-green); }
+.highlight-box.warning .highlight-label { color: var(--accent-red); }
+.highlight-box.purple .highlight-label { color: var(--accent-purple); }
+
+/* -- Page Navigation -- */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.page-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: var(--font-body);
+  text-decoration: none;
+  transition: all var(--ease-fast);
+}
+
+.page-nav-btn:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.page-nav-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* -- Mobile Menu Button -- */
+.mobile-menu-btn {
+  display: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* -- Sidebar Overlay -- */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 49;
+}
+
+/* -- Top Bar Button (fallback for header) -- */
+.top-bar-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--ease-fast);
+  position: relative;
+}
+
+.top-bar-btn:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* -- Glossary -- */
+.glossary-term {
+  color: var(--accent-cyan);
+  cursor: help;
+  border-bottom: 1px dashed var(--accent-cyan);
+  position: relative;
+}
+
+.glossary-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-cyan);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+  width: 260px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--ease-fast);
+  z-index: 10;
+  box-shadow: var(--shadow-lg);
+  line-height: 1.5;
+}
+
+.glossary-term:hover .glossary-tooltip { opacity: 1; }
+
+/* -- Responsive -- */
+@media (max-width: 1024px) {
+  .main-content { margin-left: 0; max-width: 100%; padding: 24px 20px; }
+  .mobile-menu-btn { display: flex; }
+  .sidebar-overlay.open { display: block; }
+  .chapter-title { font-size: 26px; }
+}
+
+@media (max-width: 640px) {
+  .main-content { padding: 16px 12px; }
+  .chapter-title { font-size: 22px; }
+  .content-card { padding: 20px; }
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ============================================
+     Top Header Bar
+     ============================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">&#9776;</button>
+    <a href="../index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <div class="logo-icon">A</div>
+      <span class="logo-text">AI Agent 学习指南</span>
+    </a>
+  </div>
+  <div class="top-bar-right">
+    <button class="top-bar-btn" id="searchBtn" title="搜索 (Ctrl+K)" aria-label="搜索">&#128269;</button>
+    <button class="top-bar-btn" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="top-bar-btn" id="resetBtn" title="重置进度" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<!-- ============================================
+     Search Panel
+     ============================================ -->
+<div class="search-panel" id="searchPanel">
+  <div style="max-width:600px;margin:0 auto;position:relative;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (按 Esc 关闭)">
+    <button id="searchClose" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:8px;">&#10005;</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- ============================================
+     Sidebar Overlay (Mobile)
+     ============================================ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================
+     Sidebar Navigation
+     ============================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+
+  <a href="01-what-is-agent.html" class="nav-link" data-chapter="1">
+    <span class="nav-icon">1</span> 什么是AI Agent
+  </a>
+  <a href="02-core-architecture.html" class="nav-link" data-chapter="2">
+    <span class="nav-icon">2</span> 核心架构
+  </a>
+  <a href="03-tool-calling.html" class="nav-link" data-chapter="3">
+    <span class="nav-icon">3</span> 工具调用机制
+  </a>
+  <a href="04-memory-management.html" class="nav-link" data-chapter="4">
+    <span class="nav-icon">4</span> 记忆与状态管理
+  </a>
+  <a href="05-reasoning-planning.html" class="nav-link active" data-chapter="5">
+    <span class="nav-icon">5</span> 推理与规划
+  </a>
+  <a href="06-multi-agent.html" class="nav-link" data-chapter="6">
+    <span class="nav-icon">6</span> 多Agent系统
+  </a>
+  <a href="07-safety-reliability.html" class="nav-link" data-chapter="7">
+    <span class="nav-icon">7</span> 安全与可靠性
+  </a>
+  <a href="08-prompt-engineering.html" class="nav-link" data-chapter="8">
+    <span class="nav-icon">8</span> 提示工程
+  </a>
+
+
+  <a href="09-agent-frameworks.html" class="nav-link" data-chapter="9">
+    <span class="nav-icon">9</span> Agent框架生态
+  </a>
+  <a href="10-evaluation-testing.html" class="nav-link" data-chapter="10">
+    <span class="nav-icon">10</span> 评估与测试
+  </a>
+  <a href="11-deployment-ops.html" class="nav-link" data-chapter="11">
+    <span class="nav-icon">11</span> 部署与运维
+  </a>
+  <a href="12-future-trends.html" class="nav-link" data-chapter="12">
+    <span class="nav-icon">12</span> 未来趋势
+  </a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>学习进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================
+     Main Content — Chapter 5
+     ============================================ -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="5">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 5 章</div>
+      <h2 class="chapter-title">推理与规划</h2>
+      <p class="chapter-subtitle">深入掌握AI Agent的多种推理策略——从ReAct循环到思维树，学会为不同任务选择最佳思考方式</p>
+    </header>
+
+    <!-- === Card 1: ReAct Pattern Core === -->
+    <div class="content-card">
+      <h3>1. ReAct模式：思想与行动的交响</h3>
+      <p><span class="glossary-term">ReAct (Reasoning + Acting)<span class="glossary-tooltip">由Yao et al.在2023年提出，ReAct将推理(Thought)和行动(Action)交替进行。模型在每一步先输出推理轨迹，再决定执行什么工具操作，最后观察结果。这个循环使Agent具备可解释的多步推理能力。</span></span>是目前最经典也是应用最广泛的Agent推理范式。它的核心思想极其优雅：<strong>让模型在思考中行动，在行动中思考</strong>。不同于传统的"一次性回答"模式，ReAct将问题求解展开为一个逐步推进的过程：</p>
+      <ul>
+        <li><strong>Thought (思考)</strong>：模型分析当前状态和已有信息，判断下一步应该做什么。思考是纯内部推理，不产生外部副作用。例如："用户想查询北京的天气，我需要调用 weather API。"</li>
+        <li><strong>Action (行动)</strong>：模型根据思考结论，选择并调用具体工具。行动输出是结构化的函数调用，包含工具名称和参数。例如：<code>get_weather(city="Beijing")</code>。</li>
+        <li><strong>Observation (观察)</strong>：工具执行完毕后，Agent收到外部环境的反馈。这个观察结果被追加到上下文中，作为下一轮思考的依据。例如：<code>{"temp": 22, "condition": "晴"}</code>。</li>
+      </ul>
+      <p>这三步循环形成了一个<strong>自我纠错的闭环</strong>：如果行动结果不符合预期，Agent可以在下一轮思考中调整策略，重新选择工具或修改参数。这就是ReAct模式相比单轮推理的巨大优势——<strong>通过反复感知环境来修正推理路径</strong>。</p>
+      <div class="highlight-box">
+        <div class="highlight-label">核心洞察</div>
+        <p>ReAct的本质是将LLM的<strong>推理能力</strong>与外部工具的<strong>执行能力</strong>通过"观察-反馈"回路耦合在一起。思考没有工具执行就会变成空中楼阁，工具执行没有思考指导就会变成盲目试错。</p>
+      </div>
+    </div>
+
+    <!-- === Card 2: ReAct Detailed Trace === -->
+    <div class="content-card">
+      <h3>2. ReAct执行轨迹：逐步剖析一个完整案例</h3>
+      <p>仅理解概念是不够的——让我们通过一个真实任务的完整执行轨迹，窥探ReAct在每一步究竟发生了什么。</p>
+      <p><strong>任务：</strong>"帮我查一下北京和上海明天的天气，如果北京下雨就提醒我带伞，并帮我规划一个适合天气的户外活动。"</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px 12px;text-align:left;color:var(--accent-cyan);width:60px;">步骤</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--accent-cyan);width:80px;">阶段</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--accent-cyan);">内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">1</td>
+            <td style="padding:10px 12px;font-weight:600;">Thought</td>
+            <td style="padding:10px 12px;color:var(--text-secondary);">用户需要两个城市的天气信息。我需要先并行获取两地的天气数据，然后再基于结果做判断。先查北京。</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">1</td>
+            <td style="padding:10px 12px;font-weight:600;">Action</td>
+            <td style="padding:10px 12px;color:var(--accent-secondary);"><code>get_weather(city="北京", date="tomorrow")</code></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">1</td>
+            <td style="padding:10px 12px;font-weight:600;">Observation</td>
+            <td style="padding:10px 12px;color:var(--accent-green);">{ city: "北京", temp: 18, condition: "小雨", humidity: 85% }</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">2</td>
+            <td style="padding:10px 12px;font-weight:600;">Thought</td>
+            <td style="padding:10px 12px;color:var(--text-secondary);">北京明天有小雨。现在查询上海的天气，然后综合判断。</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">2</td>
+            <td style="padding:10px 12px;font-weight:600;">Action</td>
+            <td style="padding:10px 12px;color:var(--accent-secondary);"><code>get_weather(city="上海", date="tomorrow")</code></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">2</td>
+            <td style="padding:10px 12px;font-weight:600;">Observation</td>
+            <td style="padding:10px 12px;color:var(--accent-green);">{ city: "上海", temp: 25, condition: "多云", humidity: 55% }</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">3</td>
+            <td style="padding:10px 12px;font-weight:600;">Thought</td>
+            <td style="padding:10px 12px;color:var(--text-secondary);">北京下雨（需要带伞），上海多云（适合户外活动）。我已有足够信息回答用户的问题了。北京建议带伞并选择室内活动，上海可以推荐户外活动如公园散步。</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;font-weight:700;color:var(--accent-cyan);">3</td>
+            <td style="padding:10px 12px;font-weight:600;">Final</td>
+            <td style="padding:10px 12px;color:var(--text-secondary);">最终回答：北京明天有小雨(18°C)，记得带伞！建议安排室内活动如博物馆参观。上海明天多云(25°C)，适合户外活动，推荐世纪公园散步或滨江骑行。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>注意这个轨迹中几个关键点：(1) Agent<strong>没有一次性查询两个城市</strong>，而是在第一轮观察后再决定第二步——这不是低效，而是<strong>条件依赖</strong>的体现；(2) 思考步骤包含了推理过程，使得Agent的行为<strong>可解释、可调试</strong>；(3) 最终回答综合考虑了两个数据源，展现了<strong>多步信息融合</strong>的能力。</p>
+    </div>
+
+    <!-- === Card 3: Chain of Thought === -->
+    <div class="content-card">
+      <h3>3. Chain-of-Thought：让模型"大声思考"</h3>
+      <p><span class="glossary-term">思维链 (Chain-of-Thought, CoT)<span class="glossary-tooltip">由Wei et al.(2022)提出，通过让模型生成中间推理步骤来提升复杂问题的解决能力。CoT不需要模型训练，仅通过prompt设计即可触发。其核心假设是：将复杂问题分解为中间步骤，每个步骤都更简单可解。</span></span>是ReAct的推理基础——没有CoT，ReAct中的"Thought"就失去了内涵。CoT有三种主要形式：</p>
+
+      <h4 style="color:var(--accent-cyan);margin:20px 0 10px;">3.1 Zero-shot CoT</h4>
+      <p>最简单的形式：在prompt末尾加上一句<strong>"Let's think step by step"</strong>（让我们一步一步思考）。这神奇地触发模型展开推理过程。研究表明，仅这一句话就能在数学推理任务上提升10-30%的准确率。其原理是：这句话改变了模型的<strong>解码路径</strong>，使其更倾向于生成结构化、分步骤的输出。</p>
+
+      <h4 style="color:var(--accent-purple);margin:20px 0 10px;">3.2 Few-shot CoT</h4>
+      <p>提供2-5个带有完整推理过程的示例，模型会模仿这种推理模式。关键设计原则：(1) 示例要覆盖不同的推理类型；(2) 每个步骤的粒度要适中——太细碎则冗余，太跳跃则不可跟随；(3) 示例中要包含<strong>错误修正</strong>的场景，教会模型"犯错后如何自我纠正"。</p>
+
+      <h4 style="color:var(--accent-green);margin:20px 0 10px;">3.3 Automatic CoT (Auto-CoT)</h4>
+      <p>手动编写Few-shot示例费时费力。Auto-CoT自动化地：(1) 将问题聚类为不同类型；(2) 从每个聚类中选择代表性样本；(3) 使用Zero-shot CoT为这些样本自动生成推理链；(4) 将生成的推理链作为Few-shot示例。这种方法<strong>将人工构建成本降至零</strong>，同时保持接近手动Few-shot的性能。</p>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">实战技巧</div>
+        <p>在Agent系统的System Prompt中嵌入CoT指令（如"在每次做决策前，先分析当前状态、已有信息和可能的行动方案"）比每次在user message中写"think step by step"更稳定可靠。</p>
+      </div>
+    </div>
+
+    <!-- === Card 4: Plan-and-Execute === -->
+    <div class="content-card">
+      <h3>4. Plan-and-Execute：先谋后动</h3>
+      <p>当任务涉及<strong>十几个甚至几十个步骤</strong>时，ReAct的"边走边看"策略就会暴露问题：容易在局部迷失方向，缺乏全局视野。Plan-and-Execute模式将规划和执行解耦，形成两阶段架构：</p>
+
+      <p><strong>阶段一：规划 (Planning)</strong></p>
+      <ul>
+        <li><strong>任务分析</strong>：理解用户意图、确定成功标准和约束条件</li>
+        <li><strong>步骤拆解</strong>：将任务递归分解为子任务，构建依赖关系图(DAG)</li>
+        <li><strong>资源预估</strong>：每个步骤需要哪些工具、权限和数据</li>
+        <li><strong>计划输出</strong>：生成结构化的执行计划，包含步骤顺序、预期输入输出和验证条件</li>
+      </ul>
+
+      <p><strong>阶段二：执行 (Execution)</strong></p>
+      <ul>
+        <li><strong>顺序执行</strong>：按照计划的拓扑顺序逐步执行每一步</li>
+        <li><strong>中间验证</strong>：每步执行后检查输出是否符合预期，不符合则触发重新规划</li>
+        <li><strong>动态调整</strong>：当环境变化或新信息出现时，更新剩余计划</li>
+        <li><strong>结果汇总</strong>：收集所有步骤的输出，生成最终结果</li>
+      </ul>
+
+      <p><strong>Replanning触发条件</strong>——何时需要重新规划？</p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">触发条件</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">说明</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">策略</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">工具执行失败</td>
+            <td style="padding:10px;color:var(--text-secondary);">API返回错误、超时或权限拒绝</td>
+            <td style="padding:10px;color:var(--text-secondary);">重试3次后降级处理或更换工具</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">结果意外</td>
+            <td style="padding:10px;color:var(--text-secondary);">输出格式/内容与预期严重不符</td>
+            <td style="padding:10px;color:var(--text-secondary);">检查假设是否正确，调整参数</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">依赖断裂</td>
+            <td style="padding:10px;color:var(--text-secondary);">某步骤的输出无法满足后续步骤的输入要求</td>
+            <td style="padding:10px;color:var(--text-secondary);">插入补充步骤或修改下游计划</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:600;">目标变更</td>
+            <td style="padding:10px;color:var(--text-secondary);">用户在中途提出新需求或修改目标</td>
+            <td style="padding:10px;color:var(--text-secondary);">全面重新规划，保留已完成步骤的结果</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- === Card 5: Tree of Thoughts === -->
+    <div class="content-card">
+      <h3>5. Tree of Thoughts：在可能性森林中寻路</h3>
+      <p><span class="glossary-term">思维树 (Tree of Thoughts, ToT)<span class="glossary-tooltip">由Yao et al.(2023)提出，将推理过程建模为树形结构。在每个推理节点，模型生成多个候选的"下一步思考"，然后通过评估函数筛选最有希望的路径继续探索。ToT支持BFS和DFS两种搜索策略，在需要探索性推理的任务上显著优于链式推理。</span></span>将线性推理升级为<strong>树形探索</strong>。如果说CoT是一条思维的"直线"，ToT就是一棵枝繁叶茂的"思维树"——在每个推理节点，模型同时探索多条可能的路径，评估后剪枝，保留最有希望的分支继续深入。</p>
+      <p><strong>ToT的四个核心操作：</strong></p>
+      <ul>
+        <li><strong>分解 (Decomposition)</strong>：将问题拆解为中间步骤。对于"24点游戏"(用4个数字通过加减乘除得到24)，每一步就是选两个数做运算。</li>
+        <li><strong>生成 (Generation)</strong>：在每个节点，LLM生成k个候选的下一步（通常是5-10个）。</li>
+        <li><strong>评估 (Evaluation)</strong>：对每个候选进行打分。有两种方法：(a) 让LLM直接评估"这个状态离目标有多远"；(b) 模拟前瞻——从该节点向前模拟几步看能否成功。</li>
+        <li><strong>搜索 (Search)</strong>：使用BFS或DFS遍历树结构，保留得分最高的b个分支（beam size，通常为3-5）。</li>
+      </ul>
+
+      <p><strong>BFS vs DFS 搜索策略对比：</strong></p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">维度</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">BFS (广度优先)</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">DFS (深度优先)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">探索模式</td>
+            <td style="padding:10px;color:var(--text-secondary);">逐层展开，每层保留top-b个节点</td>
+            <td style="padding:10px;color:var(--text-secondary);">沿一条路径深入到底，再回溯</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">LLM调用量</td>
+            <td style="padding:10px;color:var(--text-secondary);">高（每层k*b次生成+b次评估）</td>
+            <td style="padding:10px;color:var(--text-secondary);">较低（只深入当前最佳路径）</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">适用的任务</td>
+            <td style="padding:10px;color:var(--text-secondary);">全局最优重要、并行度高的任务</td>
+            <td style="padding:10px;color:var(--text-secondary);">路径深度大、有明确目标状态的任务</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:600;">风险</td>
+            <td style="padding:10px;color:var(--text-secondary);">API成本高，token消耗大</td>
+            <td style="padding:10px;color:var(--text-secondary);">可能陷入局部最优，错过更好的全局解</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>剪枝策略：</strong>剪枝是ToT效率的关键。常见策略包括：(1) <strong>阈值剪枝</strong>：得分低于某一阈值的分支直接丢弃；(2) <strong>相对剪枝</strong>：只保留得分前b名的分支（beam search）；(3) <strong>置信度剪枝</strong>：当某个分支的评估置信度很低时提前终止；(4) <strong>前瞻剪枝</strong>：快速模拟一到两步，如果模拟结果差则剪枝。</p>
+
+      <div class="highlight-box purple">
+        <div class="highlight-label">适用场景</div>
+        <p>ToT特别适合<strong>需要探索和规划的推理任务</strong>：数学证明、逻辑谜题、创意写作（评估多个故事发展方向）、代码生成（探索不同的架构方案）。对于简单的检索或计算任务，ToT的额外开销是不必要的。</p>
+      </div>
+    </div>
+
+    <!-- === Card 6: Self-Reflection === -->
+    <div class="content-card">
+      <h3>6. Self-Reflection：让Agent学会自省</h3>
+      <p>人类专家之所以高效，很大程度归功于<strong>元认知能力</strong>——能审视自己的思考过程并加以改进。Self-Reflection赋予Agent类似的能力：在输出最终答案之前，先对自己的推理进行批判性审查。</p>
+
+      <p><strong>反思的核心机制：</strong></p>
+      <ul>
+        <li><strong>Critique Generation (生成批评)</strong>：LLM对自己的初始输出进行审查，找出逻辑漏洞、事实错误、遗漏信息和不一致之处。关键在于设计一个专注于"找茬"的critique prompt。</li>
+        <li><strong>Error Analysis (错误分析)</strong>：将错误分类——是知识错误（模型不知道）？推理错误（逻辑跳跃）？还是格式错误（输出不符合要求）？不同类别需要不同的修正策略。</li>
+        <li><strong>Iterative Improvement (迭代改进)</strong>：基于批评和错误分析结果，重新生成修正后的答案。这个过程可以迭代2-3轮，每轮都会提升输出质量。</li>
+      </ul>
+
+      <p><strong>Self-Reflection的实际效果：</strong>研究表明，在不需要外部工具或额外训练数据的情况下，仅通过Self-Reflection就能将Agent在复杂推理任务上的准确率提升<strong>10-30%</strong>。值得注意的是，反思的质量取决于反思prompt的设计——一个好的反思prompt需要明确指出"从哪些角度审视答案"（事实准确性、逻辑一致性、完整性、清晰度等）。</p>
+
+      <div class="highlight-box warning">
+        <div class="highlight-label">注意事项</div>
+        <p>Self-Reflection也有<strong>局限性</strong>：(1) 如果模型的初始输出有根本性错误，反思可能也发现不了——这是"盲点"问题；(2) 反思可能引入新的错误——"过度修正"问题；(3) 每轮反思增加一次LLM调用，成本翻倍。建议为反思设置置信度阈值，只对低置信度的输出进行反思。</p>
+      </div>
+    </div>
+
+    <!-- === Card 7: Self-Consistency === -->
+    <div class="content-card">
+      <h3>7. Self-Consistency：从多角度验证</h3>
+      <p><span class="glossary-term">Self-Consistency (自一致性)<span class="glossary-tooltip">由Wang et al.(2023)提出，核心思想是：对于同一个问题，让LLM独立生成多条推理路径（通过调整temperature引入随机性），然后通过投票选择最一致的答案。这种方法用"统计共识"弥补了单条推理的不确定性。</span></span>的直觉来自一个简单的观察：如果一个人从多个不同的角度思考同一个问题都得出相同的结论，那么这个结论很可能就是正确的。应用到LLM上：</p>
+
+      <ol>
+        <li><strong>多样本生成</strong>：使用非零temperature（通常0.5-0.8），让模型对同一问题独立生成N条推理路径（N通常取5-20）。较高的temperature确保了推理路径的多样性。</li>
+        <li><strong>答案提取</strong>：从每条推理路径中提取最终答案。对于选择题，就是选项字母；对于开放式问题，需要通过解析提取核心主张。</li>
+        <li><strong>投票聚合</strong>：对提取出的答案进行多数投票。得票最多的答案作为最终输出。</li>
+        <li><strong>加权变体</strong>：更高级的做法是加权投票——根据每条推理链的连贯性、长度、是否引用证据等因素赋予不同权重。</li>
+      </ol>
+
+      <p><strong>Self-Consistency vs Self-Reflection 对比：</strong></p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">维度</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">Self-Consistency</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">Self-Reflection</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">核心机制</td>
+            <td style="padding:10px;color:var(--text-secondary);">多次采样+投票</td>
+            <td style="padding:10px;color:var(--text-secondary);">自我批评+修正</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">LLM调用次数</td>
+            <td style="padding:10px;color:var(--text-secondary);">N次（并行）</td>
+            <td style="padding:10px;color:var(--text-secondary);">2-3次（串行）</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">适合的任务</td>
+            <td style="padding:10px;color:var(--text-secondary);">有明确答案的选择题、数学题</td>
+            <td style="padding:10px;color:var(--text-secondary);">开放生成、写作、代码</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:600;">最大优势</td>
+            <td style="padding:10px;color:var(--text-secondary);">利用统计降低单次采样的随机错误</td>
+            <td style="padding:10px;color:var(--text-secondary);">引入元认知，能发现深层逻辑问题</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>值得注意的是，Self-Consistency和Self-Reflection<strong>可以叠加使用</strong>：先用Self-Consistency生成并投票选出最佳答案，再对这个答案进行Self-Reflection修正。这种组合在多个benchmark上创造了SOTA结果。</p>
+    </div>
+
+    <!-- === Card 8: Decision Framework === -->
+    <div class="content-card">
+      <h3>8. 推理策略选择框架：何时用什么？</h3>
+      <p>面对不同的任务，如何选择最合适的推理策略？以下是一个<strong>系统化的决策框架</strong>——按照任务特征匹配最佳策略：</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--accent-cyan);">
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">任务特征</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">推荐策略</th>
+            <th style="padding:10px;text-align:left;color:var(--accent-cyan);">理由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">需要外部工具交互</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">ReAct</td>
+            <td style="padding:10px;color:var(--text-secondary);">Thought-Action-Observation循环天然适合工具调用</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">纯推理、无工具调用</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">Chain-of-Thought</td>
+            <td style="padding:10px;color:var(--text-secondary);">简单高效，token消耗低</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">多步骤、步骤多(>10)</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">Plan-and-Execute</td>
+            <td style="padding:10px;color:var(--text-secondary);">先全局规划再执行，避免迷失</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">需要探索多种方案</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">Tree of Thoughts</td>
+            <td style="padding:10px;color:var(--text-secondary);">树形搜索探索多条路径，找到最优解</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">准确率要求高、容错低</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">Self-Consistency</td>
+            <td style="padding:10px;color:var(--text-secondary);">多次采样投票，降低随机错误概率</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">输出质量可迭代提升</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">Self-Reflection</td>
+            <td style="padding:10px;color:var(--text-secondary);">自我批评+修正，逐步优化</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-color);">
+            <td style="padding:10px;font-weight:600;">实时交互、动态环境</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">ReAct + Replanning</td>
+            <td style="padding:10px;color:var(--text-secondary);">ReAct响应环境变化，失败时触发重规划</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;font-weight:600;">预算有限、延迟敏感</td>
+            <td style="padding:10px;color:var(--accent-cyan);font-weight:600;">Direct / Zero-shot CoT</td>
+            <td style="padding:10px;color:var(--text-secondary);">最小化LLM调用，单次推理完成</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>组合策略：</strong>实际生产中很少只用一种策略。例如，一个代码Agent的系统prompt可能同时包含：(1) Plan-and-Execute用于高层任务分解；(2) ReAct用于单个子任务的工具调用；(3) Self-Reflection用于最终代码的审查修正。关键在于<strong>根据任务阶段动态切换策略</strong>。</p>
+
+      <div class="highlight-box tip">
+        <div class="highlight-label">决策口诀</div>
+        <p><strong>"工具交互用ReAct，纯推理用CoT；步骤多用Plan，方案多用Tree；要准确用Consistency，要优化用Reflection；简单任务别折腾，直接回答最高效。"</strong></p>
+      </div>
+    </div>
+
+    <!-- === Card 9: Code Example === -->
+    <div class="content-card">
+      <h3>9. 完整代码示例：带详细日志的ReAct循环</h3>
+      <p>下面是一个<strong>生产级别的ReAct Agent实现</strong>，包含了完整的日志记录、错误处理、重试机制和token统计：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 完整的ReAct Agent实现</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> json, time, logging
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Callable
+
+logging.basicConfig(level=logging.INFO, format=<span class="token-str">"%(asctime)s [%(levelname)s] %(message)s"</span>)
+logger = logging.getLogger(<span class="token-str">"ReActAgent"</span>)
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ToolCall</span>:
+    name: <span class="token-cls">str</span>
+    args: <span class="token-cls">dict</span>
+    result: <span class="token-cls">Any</span> = <span class="token-kw">None</span>
+    error: <span class="token-cls">str</span> = <span class="token-kw">None</span>
+    duration_ms: <span class="token-cls">float</span> = <span class="token-num">0</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ReActStep</span>:
+    step_num: <span class="token-cls">int</span>
+    thought: <span class="token-cls">str</span>
+    tool_call: <span class="token-cls">ToolCall</span> = <span class="token-kw">None</span>
+    observation: <span class="token-cls">str</span> = <span class="token-str">""</span>
+    is_final: <span class="token-cls">bool</span> = <span class="token-kw">False</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ReActAgent</span>:
+    llm: <span class="token-cls">Callable</span>                          <span class="token-cm"># LLM调用函数</span>
+    tools: <span class="token-cls">dict</span>                              <span class="token-cm"># 工具名 -> 工具函数</span>
+    max_steps: <span class="token-cls">int</span> = <span class="token-num">15</span>
+    max_retries: <span class="token-cls">int</span> = <span class="token-num">3</span>
+    verbose: <span class="token-cls">bool</span> = <span class="token-kw">True</span>
+    trace: <span class="token-cls">list</span> = field(default_factory=<span class="token-cls">list</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">run</span>(self, task: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+        <span class="token-str">"""主执行循环——ReAct的核心"""</span>
+        messages = [{<span class="token-str">"role"</span>: <span class="token-str">"user"</span>, <span class="token-str">"content"</span>: task}]
+        total_tokens = <span class="token-num">0</span>
+
+        <span class="token-kw">for</span> step_num <span class="token-kw">in</span> range(<span class="token-num">1</span>, self.max_steps + <span class="token-num">1</span>):
+            self._log(<span class="token-str">f"========== Step {step_num} =========="</span>, <span class="token-str">"HEADER"</span>)
+
+            <span class="token-cm"># === THOUGHT: 模型推理 ===</span>
+            response = self.llm(messages, tools=self.tools)
+            total_tokens += response.usage.total_tokens
+            thought = response.content
+            self._log(<span class="token-str">f"💭 THOUGHT: {thought}"</span>, <span class="token-str">"THINK"</span>)
+
+            <span class="token-cm"># 检查是否已得出最终答案</span>
+            <span class="token-kw">if</span> response.tool_calls <span class="token-kw">is</span> <span class="token-kw">None</span>:
+                self.trace.append(ReActStep(step_num, thought, is_final=<span class="token-kw">True</span>))
+                self._log(<span class="token-str">f"✅ 任务完成 (tokens: {total_tokens})"</span>, <span class="token-str">"DONE"</span>)
+                <span class="token-kw">return</span> thought
+
+            <span class="token-cm"># === ACTION: 执行工具调用 ===</span>
+            <span class="token-kw">for</span> tc <span class="token-kw">in</span> response.tool_calls:
+                tool_call = ToolCall(name=tc.name, args=tc.args)
+
+                <span class="token-cm"># 带重试的工具执行</span>
+                <span class="token-kw">for</span> attempt <span class="token-kw">in</span> range(self.max_retries):
+                    <span class="token-kw">try</span>:
+                        self._log(<span class="token-str">f"🔧 ACTION: {tc.name}({json.dumps(tc.args)})"</span>, <span class="token-str">"ACTION"</span>)
+                        t0 = time.perf_counter()
+                        result = self.tools[tc.name](**tc.args)
+                        tool_call.duration_ms = (time.perf_counter() - t0) * <span class="token-num">1000</span>
+                        tool_call.result = result
+                        <span class="token-kw">break</span>
+                    <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+                        tool_call.error = str(e)
+                        self._log(<span class="token-str">f"⚠️ 重试 {attempt+1}/{self.max_retries}: {e}"</span>, <span class="token-str">"WARN"</span>)
+                        <span class="token-kw">if</span> attempt == self.max_retries - <span class="token-num">1</span>:
+                            tool_call.result = {<span class="token-str">"error"</span>: str(e)}
+
+                <span class="token-cm"># === OBSERVATION: 观察结果 ===</span>
+                obs_text = json.dumps(tool_call.result, ensure_ascii=<span class="token-kw">False</span>)
+                self._log(<span class="token-str">f"👁️ OBSERVATION: {obs_text[:200]}"</span>, <span class="token-str">"OBSERVE"</span>)
+                self._log(<span class="token-str">f"⏱️ 耗时: {tool_call.duration_ms:.1f}ms"</span>, <span class="token-str">"DEBUG"</span>)
+
+                <span class="token-cm"># 将工具结果反馈到消息历史</span>
+                messages.append({<span class="token-str">"role"</span>: <span class="token-str">"tool"</span>, <span class="token-str">"content"</span>: obs_text})
+
+                <span class="token-kw">class</span> <span class="token-cls">_Step</span>:
+                    step_num=step_num; thought=thought; tool_call=tool_call; observation=obs_text
+                self.trace.append(_Step)
+
+        self._log(<span class="token-str">"⛔ 达到最大步数限制"</span>, <span class="token-str">"ERROR"</span>)
+        <span class="token-kw">return</span> <span class="token-str">"任务超时：无法在最大步数内完成。"</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">_log</span>(self, msg: <span class="token-cls">str</span>, tag: <span class="token-cls">str</span>):
+        <span class="token-kw">if</span> self.verbose:
+            logger.info(<span class="token-str">f"[{tag}] {msg}"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">print_trace</span>(self):
+        <span class="token-str">"""打印完整的执行轨迹——用于调试和分析"""</span>
+        <span class="token-kw">for</span> step <span class="token-kw">in</span> self.trace:
+            <span class="token-kw">print</span>(<span class="token-str">f"\n--- 步骤 {step.step_num} ---"</span>)
+            <span class="token-kw">print</span>(<span class="token-str">f"  💭 {step.thought}"</span>)
+            <span class="token-kw">if</span> step.tool_call:
+                <span class="token-kw">print</span>(<span class="token-str">f"  🔧 {step.tool_call.name}({step.tool_call.args})"</span>)
+                <span class="token-kw">print</span>(<span class="token-str">f"  👁️ {step.observation[:100]}"</span>)
+                <span class="token-kw">if</span> step.tool_call.error:
+                    <span class="token-kw">print</span>(<span class="token-str">f"  ⚠️ 错误: {step.tool_call.error}"</span>)</code></pre>
+      </div>
+
+      <p><strong>代码要点解读：</strong></p>
+      <ul>
+        <li><strong>Trace记录</strong>：每一步的思考、行动和观察都被完整记录在<code>self.trace</code>中。这在调试Agent行为时无价——你能精确定位Agent在哪个步骤做出了错误决策。</li>
+        <li><strong>重试机制</strong>：工具调用可能因网络问题临时失败。3次重试策略（带指数退避更佳）大大提高了系统的鲁棒性。</li>
+        <li><strong>Token统计</strong>：追踪每次LLM调用的token消耗，为成本优化提供数据支撑。</li>
+        <li><strong>分层日志</strong>：使用不同TAG区分Thought、Action、Observation，日志输出清晰可读。</li>
+        <li><strong>最终判断</strong>：当LLM不再返回tool_calls时，意味着它认为任务已完成——这是ReAct的"停止条件"。</li>
+      </ul>
+    </div>
+
+    <!-- === Card 10: Practical Tips === -->
+    <div class="content-card">
+      <h3>10. 推理策略的实战技巧与常见陷阱</h3>
+      <p>基于大量Agent实践经验，以下是一些关键教训：</p>
+
+      <p><strong>技巧：</strong></p>
+      <ul>
+        <li><strong>早停机制</strong>：ReAct循环中设置"思考收敛检测"——如果连续2轮的Thought内容高度相似（可用embedding余弦相似度检测），说明Agent陷入循环，应强制终止或注入新信息。</li>
+        <li><strong>思考预算</strong>：为不同类型的任务设置不同的<code>max_steps</code>。简单查询3步，中等任务7步，复杂任务15步。动态调整比固定上限更高效。</li>
+        <li><strong>工具描述即文档</strong>：每个工具的description不是写给开发者看的，而是写给<strong>LLM看的</strong>。要像写微缩版API文档一样精心撰写，包含"何时使用"、"输入约束"、"输出格式"。</li>
+        <li><strong>渐进式复杂度</strong>：先用最简单的策略（Direct/Zero-shot CoT）尝试，失败后再升级到ReAct，再失败升级到Plan-Execute，最后才用ToT。不要上来就用最复杂的策略。</li>
+      </ul>
+
+      <p><strong>常见陷阱：</strong></p>
+      <ul>
+        <li><strong>无限循环</strong>：Agent在Thought-Action-Observation中反复做同样的事。解决方法是设置步数上限 + 内容新鲜度检测。</li>
+        <li><strong>过早终止</strong>：Agent在第1-2步就认为任务完成了，实际还差得远。解决方法是在system prompt中明确"做完X、Y、Z之后再给最终答案"。</li>
+        <li><strong>规划过度</strong>：Plan-and-Execute中，Agent花了5步去规划一个3步就能完成的任务。解决方法是限制规划阶段的步数和token预算。</li>
+        <li><strong>工具幻觉</strong>：Agent调用了不存在的工具或传了错误参数。解决方法是严格的Schema验证 + 工具调用前的参数检查。</li>
+      </ul>
+
+      <div class="highlight-box warning">
+        <div class="highlight-label">关键教训</div>
+        <p>推理策略是<strong>手段而非目的</strong>。用户关心的是任务是否完成、结果是否准确，而非Agent用了多高级的推理策略。选择策略的唯一标准是：<strong>在满足质量要求的前提下，最小化延迟和成本</strong>。</p>
+      </div>
+    </div>
+
+    <!-- === Quiz Section === -->
+    <div class="quiz-section" data-quiz="5">
+      <div class="quiz-title"><span style="font-size:28px;">&#128221;</span> 章节测验</div>
+      <div class="quiz-desc">测试你对推理与规划策略的深入理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. ReAct模式中的三个核心步骤是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 读取(Read) 分析(Analyze) 写入(Write)</button>
+        <button class="quiz-option" data-answer="1">B. 思考(Thought) 行动(Action) 观察(Observation)</button>
+        <button class="quiz-option" data-answer="2">C. 输入(Input) 处理(Process) 输出(Output)</button>
+        <button class="quiz-option" data-answer="3">D. 感知(Sense) 记忆(Memorize) 生成(Generate)</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 以下哪种任务最适合使用Tree of Thoughts推理策略？</div>
+        <button class="quiz-option" data-answer="0">A. 查询今天的天气</button>
+        <button class="quiz-option" data-answer="1">B. 简单的文本翻译</button>
+        <button class="quiz-option" data-answer="2">C. 需要探索多种方案的逻辑谜题或数学证明</button>
+        <button class="quiz-option" data-answer="3">D. 发送一封电子邮件</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. Self-Consistency（自一致性）方法的核心思想是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 使用一个超大模型一次给出答案</button>
+        <button class="quiz-option" data-answer="1">B. 让模型反复修改同一个答案直到完美</button>
+        <button class="quiz-option" data-answer="2">C. 生成多条推理路径并通过投票选择最一致的答案</button>
+        <button class="quiz-option" data-answer="3">D. 只使用temperature=0来确保确定性输出</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- === Page Navigation === -->
+    <nav class="page-nav">
+      <a href="04-memory-management.html" class="page-nav-btn">
+        <span>&#8592; 上一章</span>
+        <span class="page-nav-label">第4章：记忆与状态管理</span>
+      </a>
+      <a href="06-multi-agent.html" class="page-nav-btn">
+        <span>下一章 &#8594;</span>
+        <span class="page-nav-label">第6章：多Agent系统</span>
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- ============================================
+     Agent Simulator Panel
+     ============================================ -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;">
+      <span class="sim-status-dot"></span> Agent 模拟器
+    </div>
+    <button id="simClose" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      &#128075; 你好！我是一个模拟的AI Agent。试试问我一些问题，观察我是如何<strong>思考&#8594;行动&#8594;观察</strong>的！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="sim-send-btn" id="simSend" style="padding:10px 16px;background:var(--accent-cyan);border:none;border-radius:8px;color:#080c14;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap;">发送</button>
+  </div>
+</div>
+
+<!-- ============================================
+     Notes Panel
+     ============================================ -->
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header">
+    <span>&#128214; 我的笔记</span>
+    <button id="notesClose" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:4px;">&#10005;</button>
+  </div>
+  <div class="notes-list" id="notesList"></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5" selected>第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：提示工程</option>
+        <option value="9">第9章：评估测试</option>
+        <option value="10">第10章：部署运维</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     Toast Container
+     ============================================ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================
+     JavaScript
+     ============================================ -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

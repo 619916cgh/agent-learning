@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工具 Schema 设计器 — AI Agent 学习平台</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+.td-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.td-full { grid-column: 1 / -1; }
+
+.td-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.td-panel h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--ease-fast);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--border-glow-cyan);
+}
+
+.form-group textarea { min-height: 70px; resize: vertical; }
+.form-row { display: flex; gap: 8px; align-items: flex-end; }
+
+.param-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.param-card .param-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.param-card .param-number {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.param-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.param-grid .span-2 { grid-column: span 2; }
+
+.param-remove-btn {
+  background: transparent;
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--ease-fast);
+}
+
+.param-remove-btn:hover {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.enum-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.enum-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: var(--accent-cyan);
+}
+
+.enum-tag button {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  line-height: 1;
+}
+
+.json-preview {
+  background: #0a0e17;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 550px;
+  overflow-y: auto;
+}
+
+.example-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.example-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all var(--ease-fast);
+}
+
+.example-chip:hover {
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+}
+
+.validation-item {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  font-size: 13px;
+  border-left: 3px solid;
+}
+
+.validation-item.ok { border-color: var(--accent-green); background: rgba(0,230,118,0.05); color: var(--accent-green); }
+.validation-item.warn { border-color: var(--accent-orange); background: rgba(255,145,0,0.05); color: var(--accent-orange); }
+.validation-item.err { border-color: var(--accent-red); background: rgba(255,61,90,0.05); color: var(--accent-red); }
+
+@media (max-width: 900px) {
+  .td-container { grid-template-columns: 1fr; }
+  .param-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单">&#9776;</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索" aria-label="搜索">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<div class="search-panel" id="searchPanel">
+  <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容...">
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section"><div class="sidebar-section-title">学习章节</div></div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">01</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">02</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">03</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">04</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">05</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">06</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">07</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">08</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">09</span> Agent框架生态</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 伦理与责任</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+  <div class="sidebar-section"><div class="sidebar-section-title">工具</div></div>
+  <a href="prompt-playground.html" class="nav-link"><span class="nav-icon">&#128221;</span> Prompt 演练场</a>
+  <a href="tool-designer.html" class="nav-link active"><span class="nav-icon">&#128736;</span> 工具设计器</a>
+  <a href="agent-builder.html" class="nav-link"><span class="nav-icon">&#129302;</span> Agent 构建器</a>
+  <a href="cost-calculator.html" class="nav-link"><span class="nav-icon">&#128200;</span> 成本计算器</a>
+  <a href="memory-viz.html" class="nav-link"><span class="nav-icon">&#129504;</span> 记忆可视化</a>
+  <div class="progress-card">
+    <div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <div style="margin-bottom:32px;">
+    <h1>&#128736; 工具 Schema 设计器</h1>
+    <p style="color:var(--text-muted);font-size:15px;">可视化设计 Agent 工具的 JSON Schema — 理解 Function Calling 的参数定义规范</p>
+  </div>
+
+  <div class="example-chips">
+    <span style="font-size:12px;color:var(--text-muted);margin-right:8px;align-self:center;">加载示例:</span>
+    <button class="example-chip" data-example="weather">&#127782; 天气查询</button>
+    <button class="example-chip" data-example="search">&#128269; 数据库搜索</button>
+    <button class="example-chip" data-example="email">&#128231; 发送邮件</button>
+    <button class="example-chip" data-example="empty">&#128465; 新建空白</button>
+  </div>
+
+  <div class="td-container">
+    <!-- Left: Form -->
+    <div>
+      <div class="td-panel">
+        <h3>&#128295; 工具定义</h3>
+        <div class="form-group">
+          <label>工具名称 (Tool Name)</label>
+          <input type="text" id="toolName" placeholder="例如: get_weather, search_documents" value="get_weather">
+        </div>
+        <div class="form-group">
+          <label>工具描述 (Description)</label>
+          <textarea id="toolDescription" placeholder="描述这个工具的功能、何时使用以及预期效果...">获取指定城市的实时天气信息，包括温度、湿度、风速和天气状况。当用户询问天气相关问题时使用此工具。</textarea>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h4 style="font-size:14px;margin:0;color:var(--text-primary);">&#128194; 参数列表</h4>
+          <button class="btn btn-sm" id="addParamBtn" style="color:var(--accent-cyan);border-color:var(--accent-cyan);">+ 添加参数</button>
+        </div>
+
+        <div id="paramsContainer"></div>
+      </div>
+    </div>
+
+    <!-- Right: Preview + Validation -->
+    <div>
+      <div class="td-panel" style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>&#128203; JSON Schema 预览</h3>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm" id="copyJsonBtn">&#128203; 复制</button>
+            <button class="btn btn-sm" id="exportJsonBtn">&#128229; 导出</button>
+          </div>
+        </div>
+        <div class="json-preview" id="jsonPreview">{}</div>
+      </div>
+
+      <div class="td-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3>&#9989; Schema 质量检查</h3>
+          <button class="btn btn-sm btn-primary" id="validateBtn">验证 Schema</button>
+        </div>
+        <div id="validationResults" style="color:var(--text-muted);font-size:13px;">点击「验证 Schema」查看质量检查结果...</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div style="display:flex;align-items:center;gap:8px;"><span class="sim-status-dot"></span><span style="font-weight:700;">Agent 模拟器</span></div>
+    <button class="btn btn-sm" id="simCloseBtn" style="border:none;color:var(--text-muted);background:transparent;cursor:pointer;">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages"><div class="sim-msg agent">&#128075; 你好！试试问我一些问题吧！</div></div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSendBtn">发送</button>
+  </div>
+</div>
+
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:100px;right:32px;z-index:85;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan));border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 8px 32px rgba(0,230,118,0.4);">&#128211;</button>
+<div class="notes-panel" id="notesPanel" style="position:fixed;bottom:170px;right:32px;width:380px;max-height:500px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:84;transform:scale(0);opacity:0;transform-origin:bottom right;transition:all var(--ease-spring);overflow:hidden;display:flex;flex-direction:column;">
+  <div class="notes-header" style="padding:14px 18px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;font-weight:700;"><span>&#128211; 我的笔记</span><button class="btn btn-sm" id="notesCloseBtn" style="border:none;background:transparent;color:var(--text-muted);cursor:pointer;">&#10005;</button></div>
+  <div style="flex:1;overflow-y:auto;padding:12px;" id="notesList"></div>
+  <div style="padding:12px;border-top:1px solid var(--border-color);">
+    <textarea id="noteInput" placeholder="在这里写笔记..." style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;resize:vertical;min-height:60px;outline:none;"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:12px;"><option value="designer">工具设计器</option><option value="prompt">Prompt 演练场</option><option value="builder">Agent 构建器</option></select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  const toolName = document.getElementById('toolName');
+  const toolDescription = document.getElementById('toolDescription');
+  const paramsContainer = document.getElementById('paramsContainer');
+  const jsonPreview = document.getElementById('jsonPreview');
+  const validationResults = document.getElementById('validationResults');
+
+  let paramCounter = 2;
+
+  const examples = {
+    weather: {
+      name: 'get_weather',
+      desc: '获取指定城市的实时天气信息，包括温度、湿度、风速和天气状况。当用户询问天气相关问题时使用此工具。',
+      params: [
+        { name: 'city', type: 'string', desc: '城市名称，如"北京"、"上海"、或"New York"', required: true, enumVals: [] },
+        { name: 'units', type: 'string', desc: '温度单位，支持 celsius(摄氏度) 或 fahrenheit(华氏度)', required: false, enumVals: ['celsius', 'fahrenheit'] }
+      ]
+    },
+    search: {
+      name: 'search_database',
+      desc: '在数据库中执行全文搜索查询。支持通过关键词、日期范围和分类筛选来查找文档。适用于需要从大量文档中检索特定信息的场景。',
+      params: [
+        { name: 'query', type: 'string', desc: '搜索关键词或查询字符串，支持AND/OR逻辑运算符', required: true, enumVals: [] },
+        { name: 'max_results', type: 'number', desc: '返回的最大结果数量，默认10条，上限100条', required: false, enumVals: [] },
+        { name: 'category', type: 'string', desc: '按文档分类筛选', required: false, enumVals: ['技术文档', '产品手册', '会议记录', '专利文献', '研究报告'] },
+        { name: 'date_from', type: 'string', desc: '搜索起始日期，格式YYYY-MM-DD', required: false, enumVals: [] }
+      ]
+    },
+    email: {
+      name: 'send_email',
+      desc: '发送电子邮件到指定收件人。支持纯文本和HTML格式，可以添加抄送、密送和附件。发送前会验证收件人邮箱格式。',
+      params: [
+        { name: 'to', type: 'string', desc: '收件人邮箱地址，多个地址用逗号分隔', required: true, enumVals: [] },
+        { name: 'subject', type: 'string', desc: '邮件主题，应简洁明了', required: true, enumVals: [] },
+        { name: 'body', type: 'string', desc: '邮件正文内容，支持纯文本和基本HTML标签', required: true, enumVals: [] },
+        { name: 'cc', type: 'string', desc: '抄送邮箱地址，多个地址用逗号分隔', required: false, enumVals: [] },
+        { name: 'priority', type: 'string', desc: '邮件优先级', required: false, enumVals: ['high', 'normal', 'low'] }
+      ]
+    },
+    empty: {
+      name: '',
+      desc: '',
+      params: []
+    }
+  };
+
+  function loadExample(key) {
+    const ex = examples[key];
+    toolName.value = ex.name;
+    toolDescription.value = ex.desc;
+    paramCounter = 0;
+    paramsContainer.innerHTML = '';
+    ex.params.forEach(p => addParam(p));
+    updateJson();
+  }
+
+  function createParamCard(data, index) {
+    const card = document.createElement('div');
+    card.className = 'param-card';
+    card.dataset.index = index;
+
+    const typeOpts = ['string','number','boolean','object','array','enum'].map(t =>
+      `<option value="${t}" ${data.type===t?'selected':''}>${t}</option>`
+    ).join('');
+
+    const requiredChecked = data.required !== false ? 'checked' : '';
+
+    card.innerHTML = `
+      <div class="param-header">
+        <span class="param-number">参数 #${index + 1}</span>
+        <button class="param-remove-btn" data-action="remove">&#10005;</button>
+      </div>
+      <div class="param-grid">
+        <div class="form-group">
+          <label>参数名</label>
+          <input type="text" class="param-name" value="${AgentLearn.escapeHtml(data.name||'')}" placeholder="如 city">
+        </div>
+        <div class="form-group">
+          <label>类型</label>
+          <select class="param-type">${typeOpts}</select>
+        </div>
+        <div class="form-group span-2">
+          <label>描述</label>
+          <input type="text" class="param-desc" value="${AgentLearn.escapeHtml(data.desc||'')}" placeholder="描述参数的用途和格式">
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" class="param-required" ${requiredChecked} style="width:auto;"> 必填</label>
+        </div>
+        <div class="form-group enum-group" style="display:${data.type==='enum'?'block':'none'};">
+          <label>枚举值 <button class="btn btn-sm" data-action="addEnum" style="font-size:10px;padding:2px 8px;">+ 添加</button></label>
+          <div class="enum-values"></div>
+        </div>
+      </div>
+    `;
+
+    // Bind remove
+    card.querySelector('[data-action="remove"]').addEventListener('click', () => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      card.style.transition = 'all 0.2s ease';
+      setTimeout(() => {
+        card.remove();
+        reindexParams();
+        updateJson();
+      }, 200);
+    });
+
+    // Bind type change
+    card.querySelector('.param-type').addEventListener('change', function() {
+      const enumGroup = card.querySelector('.enum-group');
+      enumGroup.style.display = this.value === 'enum' ? 'block' : 'none';
+      updateJson();
+    });
+
+    // Bind input changes
+    card.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('input', updateJson);
+      input.addEventListener('change', updateJson);
+    });
+
+    // Add enum value handler
+    card.querySelector('[data-action="addEnum"]').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = '输入枚举值';
+      input.style.cssText = 'width:100%;margin-top:4px;padding:4px 8px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);font-size:11px;';
+      input.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          const val = input.value.trim();
+          if (val) {
+            addEnumTag(card, val);
+            input.value = '';
+            updateJson();
+          }
+        }
+      });
+      const enumVals = card.querySelector('.enum-values');
+      enumVals.appendChild(input);
+      input.focus();
+    });
+
+    // Pre-populate enum values
+    if (data.enumVals && data.enumVals.length) {
+      const enumVals = card.querySelector('.enum-values');
+      data.enumVals.forEach(v => addEnumTag(card, v));
+    }
+
+    return card;
+  }
+
+  function addEnumTag(card, val) {
+    const enumVals = card.querySelector('.enum-values');
+    // Remove temp input if exists
+    const tempInput = enumVals.querySelector('input[type="text"]');
+    if (tempInput) tempInput.remove();
+
+    const tag = document.createElement('span');
+    tag.className = 'enum-tag';
+    tag.innerHTML = val + ' <button>&times;</button>';
+    tag.querySelector('button').addEventListener('click', () => {
+      tag.remove();
+      updateJson();
+    });
+    enumVals.appendChild(tag);
+  }
+
+  function addParam(data) {
+    const index = paramCounter++;
+    const card = createParamCard(data || { name:'', type:'string', desc:'', required:false, enumVals:[] }, index);
+    paramsContainer.appendChild(card);
+    updateJson();
+  }
+
+  function reindexParams() {
+    const cards = paramsContainer.querySelectorAll('.param-card');
+    cards.forEach((card, i) => {
+      card.dataset.index = i;
+      card.querySelector('.param-number').textContent = '参数 #' + (i+1);
+    });
+    paramCounter = cards.length;
+  }
+
+  function getSchema() {
+    const name = toolName.value.trim() || 'unnamed_tool';
+    const desc = toolDescription.value.trim() || '';
+    const params = [];
+    const cards = paramsContainer.querySelectorAll('.param-card');
+
+    cards.forEach(card => {
+      const nameEl = card.querySelector('.param-name');
+      const typeEl = card.querySelector('.param-type');
+      const descEl = card.querySelector('.param-desc');
+      const requiredEl = card.querySelector('.param-required');
+
+      const pName = nameEl ? nameEl.value.trim() : '';
+      const pType = typeEl ? typeEl.value : 'string';
+      const pDesc = descEl ? descEl.value.trim() : '';
+      const pRequired = requiredEl ? requiredEl.checked : false;
+
+      if (!pName) return;
+
+      const param = {
+        name: pName,
+        type: pType,
+        description: pDesc,
+        required: pRequired
+      };
+
+      if (pType === 'enum') {
+        const enumTags = card.querySelectorAll('.enum-tag');
+        param.enum = Array.from(enumTags).map(t => t.textContent.replace(/\s*×\s*$/, '').trim()).filter(Boolean);
+      }
+
+      params.push(param);
+    });
+
+    return {
+      name: name,
+      description: desc,
+      parameters: {
+        type: 'object',
+        properties: params.reduce((acc, p) => {
+          acc[p.name] = buildPropertySchema(p);
+          return acc;
+        }, {}),
+        required: params.filter(p => p.required).map(p => p.name)
+      }
+    };
+  }
+
+  function buildPropertySchema(param) {
+    const schema = {
+      type: param.type === 'enum' ? 'string' : param.type,
+      description: param.description
+    };
+    if (param.type === 'enum' && param.enum) {
+      schema.enum = param.enum;
+    }
+    return schema;
+  }
+
+  function updateJson() {
+    const schema = getSchema();
+    jsonPreview.textContent = JSON.stringify(schema, null, 2);
+  }
+
+  // Validate
+  document.getElementById('validateBtn').addEventListener('click', function() {
+    const schema = getSchema();
+    const results = [];
+    const cards = paramsContainer.querySelectorAll('.param-card');
+
+    // Check tool name
+    if (!toolName.value.trim()) {
+      results.push({ cls: 'err', msg: '&#10060; 工具名称不能为空' });
+    } else if (!/^[a-z_][a-z0-9_]*$/i.test(toolName.value.trim())) {
+      results.push({ cls: 'warn', msg: '&#9888; 工具名称建议使用 snake_case 英文命名（如 get_weather）' });
+    } else {
+      results.push({ cls: 'ok', msg: '&#9989; 工具名称格式正确' });
+    }
+
+    // Check description
+    if (!toolDescription.value.trim()) {
+      results.push({ cls: 'err', msg: '&#10060; 工具描述不能为空 — LLM 依赖描述来决定何时调用此工具' });
+    } else if (toolDescription.value.trim().length < 10) {
+      results.push({ cls: 'warn', msg: '&#9888; 工具描述过短，建议不少于20字，让LLM更好理解使用场景' });
+    } else {
+      results.push({ cls: 'ok', msg: '&#9989; 工具描述长度合理（' + toolDescription.value.trim().length + '字）' });
+    }
+
+    // Check parameters
+    if (cards.length === 0) {
+      results.push({ cls: 'warn', msg: '&#9888; 工具没有任何参数 — 如果确实不需要输入，这也可以接受' });
+    } else {
+      let missingDesc = 0;
+      let missingName = 0;
+
+      cards.forEach((card, i) => {
+        const nameEl = card.querySelector('.param-name');
+        const descEl = card.querySelector('.param-desc');
+        if (!nameEl || !nameEl.value.trim()) missingName++;
+        if (!descEl || !descEl.value.trim()) missingDesc++;
+      });
+
+      if (missingName > 0) results.push({ cls: 'err', msg: '&#10060; 有 ' + missingName + ' 个参数缺少名称' });
+      if (missingDesc > 0) results.push({ cls: 'warn', msg: '&#9888; 有 ' + missingDesc + ' 个参数缺少描述 — 清晰的描述能提高工具调用的准确率' });
+      if (missingName === 0 && missingDesc === 0) {
+        results.push({ cls: 'ok', msg: '&#9989; 所有参数都有名称和描述' });
+      }
+
+      const hasRequired = schema.parameters.required.length > 0;
+      results.push({ cls: hasRequired ? 'ok' : 'warn', msg: hasRequired ? '&#9989; 已正确标记必填参数' : '&#9888; 没有必填参数？如果有必要参数请勾选「必填」' });
+    }
+
+    // Type specificity
+    const typeCounts = {};
+    cards.forEach(card => {
+      const typeEl = card.querySelector('.param-type');
+      if (typeEl) {
+        typeCounts[typeEl.value] = (typeCounts[typeEl.value] || 0) + 1;
+      }
+    });
+    if (typeCounts['object'] || typeCounts['array']) {
+      results.push({ cls: 'warn', msg: '&#9888; 使用了 object/array 类型 — 确保 LLM 模型支持生成复杂类型参数' });
+    }
+
+    validationResults.innerHTML = results.map(r =>
+      '<div class="validation-item ' + r.cls + '">' + r.msg + '</div>'
+    ).join('');
+
+    AgentLearn.toast('Schema 验证完成', 'info');
+  });
+
+  // Copy JSON
+  document.getElementById('copyJsonBtn').addEventListener('click', function() {
+    const json = JSON.stringify(getSchema(), null, 2);
+    AgentLearn.copyText(json);
+  });
+
+  // Export JSON
+  document.getElementById('exportJsonBtn').addEventListener('click', function() {
+    const schema = getSchema();
+    const json = JSON.stringify(schema, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (schema.name || 'tool') + '_schema.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    AgentLearn.toast('Schema 已导出为 JSON 文件', 'success');
+  });
+
+  // Add param
+  document.getElementById('addParamBtn').addEventListener('click', () => addParam({ name:'', type:'string', desc:'', required:false, enumVals:[] }));
+
+  // Example chips
+  document.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const key = this.dataset.example;
+      loadExample(key);
+    });
+  });
+
+  // Mobile menu
+  document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  });
+
+  // Sim panel toggle
+  let simOpen = false;
+  document.getElementById('simToggle').addEventListener('click', function() {
+    simOpen = !simOpen;
+    const panel = document.getElementById('simPanel');
+    panel.classList.toggle('active', simOpen);
+  });
+  document.getElementById('simCloseBtn').addEventListener('click', function() {
+    simOpen = false;
+    document.getElementById('simPanel').classList.remove('active');
+  });
+
+  // Notes
+  let notesOpen = false;
+  const notesPanel = document.getElementById('notesPanel');
+  document.getElementById('notesToggle').addEventListener('click', function() {
+    notesOpen = !notesOpen;
+    notesPanel.style.transform = notesOpen ? 'scale(1)' : 'scale(0)';
+    notesPanel.style.opacity = notesOpen ? '1' : '0';
+  });
+  document.getElementById('notesCloseBtn').addEventListener('click', function() {
+    notesOpen = false;
+    notesPanel.style.transform = 'scale(0)';
+    notesPanel.style.opacity = '0';
+  });
+
+  document.getElementById('notesSaveBtn').addEventListener('click', function() {
+    const text = document.getElementById('noteInput').value.trim();
+    const chapter = document.getElementById('noteChapter').value;
+    if (!text) return;
+    const notes = AgentLearn.Store.get('notes', []);
+    notes.push({ chapter, text, time: Date.now() });
+    AgentLearn.Store.set('notes', notes);
+    document.getElementById('noteInput').value = '';
+    renderNotes();
+    AgentLearn.toast('笔记已保存', 'success');
+  });
+
+  function renderNotes() {
+    const notes = AgentLearn.Store.get('notes', []);
+    const list = document.getElementById('notesList');
+    if (notes.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">暂无笔记</div>';
+      return;
+    }
+    list.innerHTML = notes.slice(-20).reverse().map(n => `
+      <div style="padding:10px;margin-bottom:6px;background:var(--bg-tertiary);border-radius:6px;font-size:12px;">
+        <div style="color:var(--accent-cyan);font-weight:600;margin-bottom:4px;">${n.chapter}</div>
+        <div style="color:var(--text-secondary);">${AgentLearn.escapeHtml(n.text).substring(0, 100)}</div>
+        <div style="color:var(--text-muted);font-size:10px;margin-top:4px;">${AgentLearn.formatDate(n.time)}</div>
+      </div>
+    `).join('');
+  }
+
+  // Reset
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    if (confirm('确定要重置所有进度吗？')) {
+      AgentLearn.Progress && AgentLearn.Progress.resetAll();
+    }
+  });
+
+  // Sim send
+  document.getElementById('simSendBtn').addEventListener('click', function() {
+    const input = document.getElementById('simInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    const msgs = document.getElementById('simMessages');
+    msgs.innerHTML += '<div class="sim-msg user">' + AgentLearn.escapeHtml(msg) + '</div>';
+    input.value = '';
+    setTimeout(() => {
+      msgs.innerHTML += '<div class="sim-msg thinking">&#129504; 思考中...</div>';
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 300);
+    setTimeout(() => {
+      msgs.querySelectorAll('.sim-msg.thinking').forEach(el => el.remove());
+      msgs.innerHTML += '<div class="sim-msg agent">收到你的消息！作为 AI Agent，我正在努力理解你的意图。</div>';
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1500);
+  });
+
+  document.getElementById('simInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('simSendBtn').click();
+    }
+  });
+
+  // Init
+  loadExample('weather');
+  renderNotes();
+})();
+</script>
+</body>
+</html>

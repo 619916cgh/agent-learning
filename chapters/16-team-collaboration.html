@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第16章 团队协作、MLOps 与面试准备 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent 开发框架</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link" data-chapter="13"><span class="nav-icon">13</span> 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14"><span class="nav-icon">14</span> 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link" data-chapter="15"><span class="nav-icon">15</span> Agent 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link active" data-chapter="16"><span class="nav-icon">16</span> 团队协作与MLOps</a>
+
+  <div class="sidebar-section-title">学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="sidebar-section-title">学习进度</div>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>整体进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="16" id="chapter16">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 16 章</div>
+      <h2 class="chapter-title">团队协作、MLOps 与面试准备</h2>
+      <p class="chapter-subtitle">从个人开发者到团队工程化：掌握团队协作模式、CI/CD 流程、评估体系，并为职业发展做好全面准备</p>
+    </header>
+
+    <!-- Card 1: Agent团队的团队角色 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">👥</div>
+        <div>
+          <div class="card-title">Agent 开发的团队角色与分工</div>
+          <div class="card-desc">构建高效 Agent 团队的完整角色图谱与协作模式</div>
+        </div>
+      </div>
+      <p>Agent 开发不同于传统的软件工程——它要求团队成员在提示词设计、模型行为理解、工具集成和产品思维之间灵活切换。理解每个角色的职责和协作方式，是构建高质量 Agent 产品的组织基础。以下是典型 Agent 团队中的核心角色及其职责：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>角色</th>
+              <th>核心职责</th>
+              <th>关键技能</th>
+              <th>与谁协作最密切</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Agent 工程师</strong></td>
+              <td>设计系统提示词、定义工具接口、编排 Agent 循环、选择模型、调优行为、调试 LLM 输出异常</td>
+              <td>提示词工程、Python/TypeScript、LLM API 使用、工具设计、模型行为调试</td>
+              <td>Agent Ops、Agent PM、领域专家</td>
+            </tr>
+            <tr>
+              <td><strong>Agent 运维 (Agent Ops)</strong></td>
+              <td>部署 Agent 到生产环境、监控性能指标、管理成本预算、处理线上故障、实施安全策略、管理 CI/CD</td>
+              <td>K8s/Docker、CI/CD、可观测性工具、成本优化、事件响应</td>
+              <td>Agent 工程师、SRE 团队</td>
+            </tr>
+            <tr>
+              <td><strong>Agent 产品经理 (Agent PM)</strong></td>
+              <td>定义 Agent 的使用场景、设定成功指标、收集用户反馈、优先级排序、管理 Agent 的行为边界和"人格"</td>
+              <td>用户研究、数据分析、LLM 能力边界理解、评估集设计、原型验证</td>
+              <td>Agent 工程师、领域专家、UX 设计师</td>
+            </tr>
+            <tr>
+              <td><strong>领域专家 (Domain Expert)</strong></td>
+              <td>提供专业领域知识、审核 Agent 输出的准确性、构建评估集、标注训练数据、定义"好的回答"的标准</td>
+              <td>特定领域的深厚知识（如法律、医疗、金融）、评估与标注能力</td>
+              <td>Agent 工程师、Agent PM</td>
+            </tr>
+            <tr>
+              <td><strong>Agent 安全工程师</strong></td>
+              <td>提示注入防护、输出内容审核、工具权限控制、数据合规审查、红队测试、威胁建模</td>
+              <td>安全工程、渗透测试、LLM 安全研究、数据隐私法规</td>
+              <td>Agent 工程师、Agent Ops、法务团队</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>典型团队协作工作流</h4>
+      <p>在一个成熟的 Agent 团队中，工作流通常如下：Agent PM 与领域专家一起定义用户故事和成功标准。Agent 工程师基于这些需求设计提示词和工具。安全工程师对设计进行威胁建模审查。Agent Ops 设置 CI/CD 管道和监控。每两周一个迭代，通过评估集量化进展。这种跨角色的紧密协作是 Agent 产品质量的根本保障。</p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">小团队如何运作</div>
+        <p>在早期创业团队中，一个人可能同时承担 2-3 个角色。Agent 工程师往往同时是 Agent Ops，Agent PM 同时是领域专家。关键是<strong>意识到每个角色承担的不同责任</strong>，而不是忽视它们。即使是单人项目，也应该在"Agent 工程师模式"和"Agent PM 模式"之间有意识地切换——先戴上 PM 的帽子定义成功标准，再戴上工程师的帽子去实现。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: 提示词版本管理 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">📋</div>
+        <div>
+          <div class="card-title">提示词版本管理 — Treat Prompts as Code</div>
+          <div class="card-desc">用 Git 管理提示词生命周期，实现团队协作、语义化版本与 A/B 测试</div>
+        </div>
+      </div>
+      <p>提示词是 Agent 的"源代码"中最关键但也最容易被忽视的部分。将提示词纳入版本管理体系是专业 Agent 团队的第一步。与代码不同，提示词的一个词的变化可能导致完全不同的行为——"请"改为"务必"可能使 Agent 从建议型变为命令型，"你应该"改为"你可以"可能使其从权威型变为建议型。</p>
+
+      <h4>提示词 Git 工作流</h4>
+      <ul>
+        <li><strong>独立文件存储</strong>：提示词存储在独立文件中（如 <code>prompts/system-prompt-v3.txt</code>），与代码一起进行版本控制。避免将提示词硬编码在 Python/JS 源码中</li>
+        <li><strong>PR 审查流程</strong>：每次修改提示词都需要 Pull Request，由至少一名同事进行 Code Review。PR 描述中必须包含：修改原因、预期行为变化、在评估集上的对比结果</li>
+        <li><strong>语义化版本控制 (Semantic Prompt Versioning)</strong>：Major 版本改变核心行为模式（如从"热情主动"改为"专业简洁"）；Minor 版本增加新功能指导或工具使用说明；Patch 版本修复措辞问题和特定场景下的错误行为</li>
+        <li><strong>回滚机制</strong>：每次提示词变更都应可独立回滚。提示词版本与代码版本解耦，通过配置中心（如 LaunchDarkly、自建配置服务）动态切换</li>
+        <li><strong>A/B 测试集成</strong>：在生产环境中同时运行两个版本的提示词，将流量按 10%/90% 或 50%/50% 分配，通过统计显著性检验后决定推广或回退</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — PromptRegistry 类：提示词版本化与 A/B 测试</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> hashlib
+<span class="token-kw">import</span> random
+<span class="token-kw">from</span> datetime <span class="token-kw">import</span> datetime
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional, Dict, List
+<span class="token-kw">import</span> difflib
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">PromptVersion</span>:
+    version: <span class="token-cls">str</span>
+    content: <span class="token-cls">str</span>
+    author: <span class="token-cls">str</span>
+    description: <span class="token-cls">str</span>
+    created_at: datetime
+    eval_score: <span class="token-cls">Optional</span>[<span class="token-cls">float</span>] = <span class="token-keyword">None</span>
+
+<span class="token-kw">class</span> <span class="token-cls">PromptRegistry</span>:
+    <span class="token-string">"""提示词注册中心 — 管理提示词的全生命周期
+
+    功能：创建新版本、回滚到历史版本、A/B 测试流量分配、
+    语义化 Diff、版本统计、基于用户哈希的一致性分组
+    """</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, prompt_name: <span class="token-cls">str</span>):
+        <span class="token-keyword">self</span>.name = prompt_name
+        <span class="token-keyword">self</span>.versions: <span class="token-cls">List</span>[<span class="token-cls">PromptVersion</span>] = []
+        <span class="token-keyword">self</span>.current_version: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-keyword">None</span>
+        <span class="token-keyword">self</span>.ab_config: <span class="token-cls">Optional</span>[<span class="token-cls">Dict</span>] = <span class="token-keyword">None</span>
+        <span class="token-keyword">self</span>.rollback_history: <span class="token-cls">List</span>[<span class="token-cls">Dict</span>] = []
+
+    <span class="token-keyword">def</span> <span class="token-function">register_version</span>(<span class="token-keyword">self</span>, version: <span class="token-cls">str</span>, content: <span class="token-cls">str</span>,
+                          author: <span class="token-cls">str</span>, description: <span class="token-cls">str</span>):
+        <span class="token-keyword">if</span> <span class="token-keyword">self</span>.<span class="token-function">get_version</span>(version):
+            <span class="token-keyword">raise</span> <span class="token-cls">ValueError</span>(<span class="token-str">f"版本 {version} 已存在"</span>)
+        pv = <span class="token-cls">PromptVersion</span>(version=version, content=content,
+                              author=author, description=description,
+                              created_at=datetime.now())
+        <span class="token-keyword">self</span>.versions.append(pv)
+        <span class="token-keyword">if</span> <span class="token-keyword">self</span>.current_version <span class="token-keyword">is</span> <span class="token-keyword">None</span>:
+            <span class="token-keyword">self</span>.current_version = version
+        <span class="token-keyword">print</span>(<span class="token-str">f"[PromptRegistry] 注册版本 {version} — {description}"</span>)
+        <span class="token-keyword">return</span> pv
+
+    <span class="token-keyword">def</span> <span class="token-function">get_version</span>(<span class="token-keyword">self</span>, version: <span class="token-cls">str</span>) -> <span class="token-cls">Optional</span>[<span class="token-cls">PromptVersion</span>]:
+        <span class="token-keyword">for</span> pv <span class="token-keyword">in</span> <span class="token-keyword">self</span>.versions:
+            <span class="token-keyword">if</span> pv.version == version:
+                <span class="token-keyword">return</span> pv
+        <span class="token-keyword">return</span> <span class="token-keyword">None</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">activate</span>(<span class="token-keyword">self</span>, version: <span class="token-cls">str</span>):
+        pv = <span class="token-keyword">self</span>.<span class="token-function">get_version</span>(version)
+        <span class="token-keyword">if</span> <span class="token-keyword">not</span> pv:
+            <span class="token-keyword">raise</span> <span class="token-cls">ValueError</span>(<span class="token-str">f"版本 {version} 不存在"</span>)
+        prev = <span class="token-keyword">self</span>.current_version
+        <span class="token-keyword">self</span>.current_version = version
+        <span class="token-keyword">self</span>.ab_config = <span class="token-keyword">None</span>
+        <span class="token-keyword">print</span>(<span class="token-str">f"[PromptRegistry] 版本激活: {prev} → {version}"</span>)
+
+    <span class="token-keyword">def</span> <span class="token-function">rollback</span>(<span class="token-keyword">self</span>, reason: <span class="token-cls">str</span> = <span class="token-str">"手动回滚"</span>) -> <span class="token-cls">Optional</span>[<span class="token-cls">str</span>]:
+        <span class="token-keyword">if</span> <span class="token-builtin">len</span>(<span class="token-keyword">self</span>.versions) < <span class="token-number">2</span>:
+            <span class="token-keyword">return</span> <span class="token-keyword">None</span>
+        idx = <span class="token-keyword">next</span>(i <span class="token-keyword">for</span> i, pv <span class="token-keyword">in</span> <span class="token-builtin">enumerate</span>(<span class="token-keyword">self</span>.versions) <span class="token-keyword">if</span> pv.version == <span class="token-keyword">self</span>.current_version)
+        target = <span class="token-keyword">self</span>.versions[idx - <span class="token-number">1</span>]
+        <span class="token-keyword">self</span>.rollback_history.append({
+            <span class="token-str">"from"</span>: <span class="token-keyword">self</span>.current_version,
+            <span class="token-str">"to"</span>: target.version,
+            <span class="token-str">"reason"</span>: reason,
+            <span class="token-str">"time"</span>: datetime.now().isoformat()
+        })
+        <span class="token-keyword">self</span>.<span class="token-function">activate</span>(target.version)
+        <span class="token-keyword">return</span> target.version
+
+    <span class="token-keyword">def</span> <span class="token-function">setup_ab_test</span>(<span class="token-keyword">self</span>, version_a: <span class="token-cls">str</span>, version_b: <span class="token-cls">str</span>,
+                         b_percentage: <span class="token-cls">float</span> = <span class="token-number">0.1</span>):
+        <span class="token-keyword">if</span> <span class="token-keyword">not</span> (<span class="token-keyword">self</span>.<span class="token-function">get_version</span>(version_a) <span class="token-keyword">and</span> <span class="token-keyword">self</span>.<span class="token-function">get_version</span>(version_b)):
+            <span class="token-keyword">raise</span> <span class="token-cls">ValueError</span>(<span class="token-str">"A/B 版本不存在"</span>)
+        <span class="token-keyword">self</span>.ab_config = {
+            <span class="token-str">"version_a"</span>: version_a, <span class="token-str">"version_b"</span>: version_b,
+            <span class="token-str">"b_percentage"</span>: b_percentage,
+            <span class="token-str">"started_at"</span>: datetime.now()
+        }
+
+    <span class="token-keyword">def</span> <span class="token-function">get_prompt_for_request</span>(<span class="token-keyword">self</span>, user_id: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+        <span class="token-string">"""根据当前版本和A/B测试配置返回提示词。使用用户哈希保证Sticky Bucketing"""</span>
+        <span class="token-keyword">if</span> <span class="token-keyword">self</span>.ab_config:
+            hash_val = <span class="token-builtin">int</span>(hashlib.md5(user_id.encode()).<span class="token-fn">hexdigest</span>(), <span class="token-number">16</span>)
+            bucket = (hash_val % <span class="token-number">10000</span>) / <span class="token-number">10000</span>
+            version = <span class="token-keyword">self</span>.ab_config[<span class="token-str">"version_b"</span>] <span class="token-keyword">if</span> bucket < <span class="token-keyword">self</span>.ab_config[<span class="token-str">"b_percentage"</span>] <span class="token-keyword">else</span> <span class="token-keyword">self</span>.ab_config[<span class="token-str">"version_a"</span>]
+        <span class="token-keyword">else</span>:
+            version = <span class="token-keyword">self</span>.current_version
+        <span class="token-keyword">return</span> <span class="token-keyword">self</span>.<span class="token-function">get_version</span>(version).content
+
+    <span class="token-keyword">def</span> <span class="token-function">diff_versions</span>(<span class="token-keyword">self</span>, v1: <span class="token-cls">str</span>, v2: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+        pv1, pv2 = <span class="token-keyword">self</span>.<span class="token-function">get_version</span>(v1), <span class="token-keyword">self</span>.<span class="token-function">get_version</span>(v2)
+        <span class="token-keyword">if</span> <span class="token-keyword">not</span> (pv1 <span class="token-keyword">and</span> pv2):
+            <span class="token-keyword">return</span> <span class="token-str">"无法比较"</span>
+        diff = difflib.<span class="token-function">unified_diff</span>(
+            pv1.content.<span class="token-fn">splitlines</span>(), pv2.content.<span class="token-fn">splitlines</span>(),
+            fromfile=v1, tofile=v2, lineterm=<span class="token-str">""</span>
+        )
+        <span class="token-keyword">return</span> <span class="token-str">"\n"</span>.<span class="token-fn">join</span>(diff)
+
+<span class="token-cm"># 使用示例</span>
+registry = <span class="token-cls">PromptRegistry</span>(<span class="token-str">"customer-support-agent"</span>)
+registry.<span class="token-fn">register_version</span>(<span class="token-str">"1.0.0"</span>, <span class="token-str">"你是一个乐于助人的客服助手..."</span>, <span class="token-str">"张三"</span>, <span class="token-str">"初始版本"</span>)
+registry.<span class="token-fn">register_version</span>(<span class="token-str">"1.1.0"</span>, <span class="token-str">"你是一个专业高效的客服助手..."</span>, <span class="token-str">"李四"</span>, <span class="token-str">"调整语气为简洁专业"</span>)
+registry.<span class="token-fn">setup_ab_test</span>(<span class="token-str">"1.0.0"</span>, <span class="token-str">"1.1.0"</span>, b_percentage=<span class="token-number">0.10</span>)</code></pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">提示词变更的风险</div>
+        <p>与传统代码不同，提示词的变更<strong>无法通过单元测试完全覆盖</strong>。同一个提示词在面对不同用户输入时可能表现出截然不同的行为。因此，提示词的发布必须经过比代码更严格的金丝雀部署和更长的观察期——建议至少观察 24 小时的线上指标（错误率、完成率、满意度）后才能全量发布。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: CI/CD for Agent -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">🔄</div>
+        <div>
+          <div class="card-title">Agent 的 CI/CD 管道 — 从提交到生产的自动化</div>
+          <div class="card-desc">提示词 Linting → 评估 → Staging 部署 → 冒烟测试 → 金丝雀 → 全量发布</div>
+        </div>
+      </div>
+      <p>Agent 的 CI/CD 需要比传统软件更丰富的检查环节，因为"正确性"对 Agent 来说是一个模糊的概念——没有"预期输出等于实际输出"的简单断言。需要构建多阶段的自动化管道：</p>
+
+      <h4>CI/CD 流水线的六个阶段</h4>
+      <ol>
+        <li><strong>Stage 1 — 提示词 Linting</strong>：检查 Token 数量是否在预算内、占位符变量是否完整、工具名称引用是否有效、是否存在硬编码的测试值或过期信息。这是一个纯静态分析阶段，成本几乎为零</li>
+        <li><strong>Stage 2 — 工具单元测试</strong>：测试工具函数的输入输出格式、异常处理逻辑、Mock 外部依赖验证 Agent 循环逻辑</li>
+        <li><strong>Stage 3 — 评估集运行</strong>：在评估集上运行 Agent，计算任务完成率、工具调用准确率、幻觉率。每个评估类别的通过率都必须在阈值以上（如 basic > 95%, edge-case > 85%, adversarial > 70%）</li>
+        <li><strong>Stage 4 — Staging 部署</strong>：部署到 Staging 环境，运行冒烟测试——一组精心挑选的真实用户场景，验证 Agent 在类生产环境中的端到端行为</li>
+        <li><strong>Stage 5 — 金丝雀部署</strong>：将 5% 生产流量导向新版本，自动监控关键指标 1-4 小时。指标包括：错误率（不超过基线 1.5x）、P95 延迟（不超过基线 1.3x）、任务完成率（不低于基线 0.9x）</li>
+        <li><strong>Stage 6 — 全量发布或自动回滚</strong>：金丝雀通过后全量发布；如任何指标超阈值，自动触发回滚到上一个稳定版本，并创建 Incident Ticket 通知值班工程师</li>
+      </ol>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">YAML — GitHub Actions: Agent CI/CD Pipeline</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-keyword">name:</span> Agent CI/CD Pipeline
+
+<span class="token-keyword">on:</span>
+  <span class="token-keyword">push:</span>
+    <span class="token-keyword">branches:</span> [main, staging]
+    <span class="token-keyword">paths:</span>
+      - <span class="token-str">'prompts/**'</span>
+      - <span class="token-str">'tools/**'</span>
+      - <span class="token-str">'agents/**'</span>
+      - <span class="token-str">'evals/**'</span>
+  <span class="token-keyword">pull_request:</span>
+    <span class="token-keyword">branches:</span> [main]
+
+<span class="token-keyword">env:</span>
+  <span class="token-keyword">ANTHROPIC_API_KEY:</span> ${{ secrets.ANTHROPIC_API_KEY }}
+
+<span class="token-keyword">jobs:</span>
+
+  <span class="token-keyword">prompt-lint:</span>
+    <span class="token-keyword">runs-on:</span> ubuntu-latest
+    <span class="token-keyword">steps:</span>
+      - <span class="token-keyword">uses:</span> actions/checkout@v4
+      - <span class="token-keyword">uses:</span> actions/setup-python@v5
+        <span class="token-keyword">with:</span> <span class="token-keyword">python-version:</span> <span class="token-str">'3.12'</span>
+      - <span class="token-keyword">name:</span> Install deps
+        <span class="token-keyword">run:</span> pip install pyyaml tiktoken
+      - <span class="token-keyword">name:</span> Lint prompts
+        <span class="token-keyword">run:</span> |
+          python scripts/lint_prompts.py \
+            --prompts-dir ./prompts \
+            --max-tokens 8000 \
+            --check-placeholders \
+            --check-tool-refs
+
+  <span class="token-keyword">run-evals:</span>
+    <span class="token-keyword">needs:</span> prompt-lint
+    <span class="token-keyword">runs-on:</span> ubuntu-latest
+    <span class="token-keyword">strategy:</span>
+      <span class="token-keyword">matrix:</span>
+        <span class="token-keyword">eval-set:</span> [basic, edge-cases, adversarial, real-user-queries]
+    <span class="token-keyword">steps:</span>
+      - <span class="token-keyword">uses:</span> actions/checkout@v4
+      - <span class="token-keyword">uses:</span> actions/setup-python@v5
+        <span class="token-keyword">with:</span> <span class="token-keyword">python-version:</span> <span class="token-str">'3.12'</span>
+      - <span class="token-keyword">name:</span> Install deps
+        <span class="token-keyword">run:</span> pip install -r requirements.txt
+      - <span class="token-keyword">name:</span> Run evals
+        <span class="token-keyword">run:</span> |
+          python scripts/run_evals.py \
+            --eval-set evals/${{ matrix.eval-set }}.jsonl \
+            --agent-config agents/current.yaml \
+            --parallel 4
+      - <span class="token-keyword">name:</span> Check thresholds
+        <span class="token-keyword">run:</span> |
+          python scripts/check_eval_thresholds.py \
+            --results-dir eval-results/${{ matrix.eval-set }} \
+            --min-completion-rate 0.85 \
+            --min-tool-accuracy 0.90 \
+            --max-hallucination-rate 0.05
+
+  <span class="token-keyword">deploy-staging:</span>
+    <span class="token-keyword">needs:</span> run-evals
+    <span class="token-keyword">if:</span> github.ref == <span class="token-str">'refs/heads/staging'</span>
+    <span class="token-keyword">runs-on:</span> ubuntu-latest
+    <span class="token-keyword">steps:</span>
+      - <span class="token-keyword">name:</span> Deploy to staging
+        <span class="token-keyword">run:</span> |
+          curl -X POST https://api.internal/deploy \
+            -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" \
+            -d '{"environment":"staging","version":"'"${GITHUB_SHA::7}"'"}'
+      - <span class="token-keyword">name:</span> Smoke test
+        <span class="token-keyword">run:</span> python scripts/smoke_test.py --test-cases tests/smoke.jsonl
+
+  <span class="token-keyword">deploy-production:</span>
+    <span class="token-keyword">needs:</span> deploy-staging
+    <span class="token-keyword">if:</span> github.ref == <span class="token-str">'refs/heads/main'</span>
+    <span class="token-keyword">runs-on:</span> ubuntu-latest
+    <span class="token-keyword">steps:</span>
+      - <span class="token-keyword">name:</span> Canary deploy (5% traffic)
+        <span class="token-keyword">run:</span> |
+          python scripts/canary_deploy.py \
+            --version "${GITHUB_SHA::7}" \
+            --traffic-percentage 5 \
+            --observation-minutes 60 \
+            --auto-rollback true
+      - <span class="token-keyword">name:</span> Full rollout (100% traffic)
+        <span class="token-keyword">run:</span> |
+          python scripts/canary_deploy.py \
+            --version "${GITHUB_SHA::7}" \
+            --traffic-percentage 100
+
+  <span class="token-keyword">notify-failure:</span>
+    <span class="token-keyword">needs:</span> [prompt-lint, run-evals, deploy-staging, deploy-production]
+    <span class="token-keyword">if:</span> failure()
+    <span class="token-keyword">runs-on:</span> ubuntu-latest
+    <span class="token-keyword">steps:</span>
+      - <span class="token-keyword">name:</span> Alert on failure
+        <span class="token-keyword">run:</span> |
+          curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+            -H "Content-Type: application/json" \
+            -d '{"text":"Agent CI/CD 流水线失败\nCommit: ${{ github.sha }}\n请查看: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+</code></pre>
+      </div>
+    </div>
+
+    <!-- Card 4: Agent设计审查清单 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon orange">✅</div>
+        <div>
+          <div class="card-title">Agent 设计审查清单 — 30+ 项全面检查</div>
+          <div class="card-desc">确保每个 Agent 在发布前通过安全、可靠性、成本和 UX 审查</div>
+        </div>
+      </div>
+      <p>以下是一个全面的 Agent 设计审查清单，覆盖五大维度共 32 项检查。在每次 Agent 发布前应对照此清单逐项检查：</p>
+
+      <h4>一、安全性 (Safety) — 9 项</h4>
+      <ol>
+        <li>系统提示词是否包含明确的注入防护指令？</li>
+        <li>是否对用户输入进行了内容审核和敏感词过滤？</li>
+        <li>工具权限是否遵循最小权限原则（每个工具只授予必要权限）？</li>
+        <li>高风险操作（删除、支付、发送邮件）是否需要用户二次确认？</li>
+        <li>Agent 输出是否经过 PII（个人身份信息）检测和脱敏？</li>
+        <li>是否设置了请求频率限制（Rate Limiting）？</li>
+        <li>代码执行是否在隔离沙箱中进行（Docker/gVisor）？</li>
+        <li>是否通过了提示注入和越狱红队测试？</li>
+        <li>是否记录并保留了完整的审计日志？</li>
+      </ol>
+
+      <h4>二、可靠性 (Reliability) — 7 项</h4>
+      <ol start="10">
+        <li>所有 LLM 调用是否有指数退避重试机制？</li>
+        <li>是否设置了合理的超时时间（工具调用 30s，LLM 调用 60s）？</li>
+        <li>是否有主模型不可用时的降级策略（Fallback Model）？</li>
+        <li>Agent 循环是否有 max_steps 硬限制？</li>
+        <li>是否检测并防止工具调用死循环？</li>
+        <li>是否对 LLM 返回的 JSON/结构化输出进行了格式校验？</li>
+        <li>会话状态丢失时是否有优雅的降级提示？</li>
+      </ol>
+
+      <h4>三、成本控制 (Cost) — 6 项</h4>
+      <ol start="17">
+        <li>是否启用了 Prompt Caching（系统提示词和工具定义前置）？</li>
+        <li>是否设置了每会话/每用户的 Token 预算上限？</li>
+        <li>是否对简单任务使用了模型分层路由（弱模型处理简单问题）？</li>
+        <li>是否实现了语义缓存以复用相似查询的响应？</li>
+        <li>上下文管理策略是否有效控制了上下文膨胀？</li>
+        <li>是否配置了每日/每月成本告警？</li>
+      </ol>
+
+      <h4>四、用户体验 (UX) — 5 项</h4>
+      <ol start="23">
+        <li>Agent 的回复是否清晰、有帮助、没有无意义的冗长输出？</li>
+        <li>在长时间操作期间是否有适当的进度提示？</li>
+        <li>错误消息是否友好、可操作（而非纯技术错误码）？</li>
+        <li>是否支持流式输出以降低体感延迟？</li>
+        <li>是否明确告知用户正在与 AI Agent 交互？</li>
+      </ol>
+
+      <h4>五、合规性 (Compliance) — 5 项</h4>
+      <ol start="28">
+        <li>用户数据存储和传输是否加密？</li>
+        <li>是否满足 GDPR / 个人信息保护法的要求？</li>
+        <li>是否设置了数据保留和自动清理策略？</li>
+        <li>Agent 的输出是否有可能违反相关法律或平台政策？</li>
+        <li>是否提供了用户投诉和人工复核通道？</li>
+      </ol>
+
+      <div class="alert alert-success">
+        <div class="alert-title">如何使用此清单</div>
+        <p>将此清单集成到你的 Pull Request 模板中。在每次提交 Agent 变更时，要求开发者逐项勾选。对于标记为"未完成"的项，必须在 PR 描述中说明原因和计划完成时间。<strong>安全类项目（第1-9项）不允许"跳过"</strong>——必须全部通过才可合并。</p>
+      </div>
+    </div>
+
+    <!-- Card 5: 评估驱动开发 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">📊</div>
+        <div>
+          <div class="card-title">评估驱动的 Agent 开发 — Eval-Driven Development (EDD)</div>
+          <div class="card-desc">先定义评估集，再构建 Agent，用数据驱动迭代改进</div>
+        </div>
+      </div>
+      <p>传统软件开发有 TDD (Test-Driven Development)，Agent 开发应该有 <strong>EDD (Eval-Driven Development)</strong>——用评估驱动 Agent 的迭代改进。在 Agent 开发中，"先写测试"的含义是：先与领域专家和产品经理一起定义"什么样的 Agent 行为是好的"，将这些标准转化为可量化的评估指标和评估用例，然后再开始构建 Agent。</p>
+
+      <h4>EDD 五步工作流</h4>
+      <ol>
+        <li><strong>定义成功标准</strong>：与产品和领域专家一起，明确"好的 Agent 行为"是什么。将模糊的描述（"Agent 应该专业"）转化为可测量的指标（"回复中不应出现口语化表达；对不确定的答案应明确告知用户"）</li>
+        <li><strong>构建评估集</strong>：收集多样化的测试用例——典型场景（80%）、边界情况（15%）、对抗性输入（5%）。每个用例包含输入和期望输出（或输出条件）。评估集应反映真实用户分布</li>
+        <li><strong>构建最小可行 Agent (MVA)</strong>：基于最简单的提示词和最少工具构建第一个版本。目标不是完美，而是在评估集上建立一个量化的基线分数</li>
+        <li><strong>迭代循环：评估 → 分析失败 → 改进 → 重新评估</strong>：每次迭代都针对具体的失败模式——工具选择错误？幻觉？回复不完整？每个失败模式都可能需要不同的修复策略</li>
+        <li><strong>达到目标 → 冻结评估集 → 持续监控 → 定期更新</strong>：在评估集上达到满意表现后，将评估集成入 CI/CD 防止回归。每季度从生产数据中采样新用例更新评估集，防止过拟合</li>
+      </ol>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — Agent 评估运行器 (Eval Harness)</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> json
+<span class="token-kw">import</span> asyncio
+<span class="token-kw">import</span> time
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> List, Dict, Optional
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">EvalCase</span>:
+    id: <span class="token-cls">str</span>
+    category: <span class="token-cls">str</span>              <span class="token-cm"># basic / edge-case / adversarial / real-user</span>
+    difficulty: <span class="token-cls">str</span>            <span class="token-cm"># easy / medium / hard</span>
+    user_input: <span class="token-cls">str</span>            <span class="token-cm"># 模拟用户输入</span>
+    expected_tools: <span class="token-cls">Optional</span>[<span class="token-cls">List</span>[<span class="token-cls">str</span>]] = <span class="token-keyword">None</span>
+    expected_keywords: <span class="token-cls">Optional</span>[<span class="token-cls">List</span>[<span class="token-cls">str</span>]] = <span class="token-keyword">None</span>
+    forbidden_keywords: <span class="token-cls">Optional</span>[<span class="token-cls">List</span>[<span class="token-cls">str</span>]] = <span class="token-keyword">None</span>  <span class="token-cm"># 幻觉检测</span>
+    max_steps: <span class="token-cls">int</span> = <span class="token-number">10</span>
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">EvalResult</span>:
+    case_id: <span class="token-cls">str</span>
+    passed: <span class="token-cls">bool</span>
+    actual_output: <span class="token-cls">str</span>
+    tool_calls_made: <span class="token-cls">List</span>[<span class="token-cls">str</span>]
+    steps_taken: <span class="token-cls">int</span>
+    tokens_used: <span class="token-cls">int</span>
+    latency_ms: <span class="token-cls">float</span>
+    failure_reason: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-keyword">None</span>
+
+<span class="token-kw">class</span> <span class="token-cls">EvalHarness</span>:
+    <span class="token-string">"""评估运行器 — 在评估集上运行 Agent 并生成量化报告"""</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, agent_factory, judge_llm=<span class="token-keyword">None</span>):
+        <span class="token-keyword">self</span>.agent_factory = agent_factory
+        <span class="token-keyword">self</span>.judge_llm = judge_llm
+        <span class="token-keyword">self</span>.results: <span class="token-cls">List</span>[<span class="token-cls">EvalResult</span>] = []
+
+    <span class="token-keyword">async</span> <span class="token-keyword">def</span> <span class="token-function">run_evals</span>(<span class="token-keyword">self</span>, eval_cases: <span class="token-cls">List</span>[<span class="token-cls">EvalCase</span>],
+                         parallel: <span class="token-cls">int</span> = <span class="token-number">4</span>) -> <span class="token-cls">List</span>[<span class="token-cls">EvalResult</span>]:
+        <span class="token-keyword">print</span>(<span class="token-str">f"开始运行 {len(eval_cases)} 个评估用例 (并行度: {parallel})"</span>)
+        start_time = time.time()
+        <span class="token-keyword">for</span> i <span class="token-keyword">in</span> <span class="token-builtin">range</span>(<span class="token-number">0</span>, <span class="token-builtin">len</span>(eval_cases), parallel):
+            batch = eval_cases[i:i + parallel]
+            tasks = [<span class="token-keyword">self</span>.<span class="token-function">_run_single_eval</span>(case) <span class="token-keyword">for</span> case <span class="token-keyword">in</span> batch]
+            batch_results = <span class="token-keyword">await</span> asyncio.<span class="token-function">gather</span>(*tasks, return_exceptions=<span class="token-keyword">True</span>)
+            <span class="token-keyword">for</span> case, result <span class="token-keyword">in</span> <span class="token-builtin">zip</span>(batch, batch_results):
+                <span class="token-keyword">if</span> <span class="token-builtin">isinstance</span>(result, <span class="token-cls">Exception</span>):
+                    result = <span class="token-cls">EvalResult</span>(case_id=case.id, passed=<span class="token-keyword">False</span>, actual_output=<span class="token-str">""</span>, tool_calls_made=[], steps_taken=<span class="token-number">0</span>, tokens_used=<span class="token-number">0</span>, latency_ms=<span class="token-number">0</span>, failure_reason=<span class="token-str">f"异常: {str(result)}"</span>)
+                <span class="token-keyword">self</span>.results.append(result)
+            <span class="token-keyword">print</span>(<span class="token-str">f"  进度: {min(i+parallel, len(eval_cases))}/{len(eval_cases)}"</span>)
+        <span class="token-keyword">print</span>(<span class="token-str">f"评估完成，总耗时 {time.time()-start_time:.1f}s"</span>)
+        <span class="token-keyword">return</span> <span class="token-keyword">self</span>.results
+
+    <span class="token-keyword">async</span> <span class="token-keyword">def</span> <span class="token-function">_run_single_eval</span>(<span class="token-keyword">self</span>, case: EvalCase) -> EvalResult:
+        agent = <span class="token-keyword">self</span>.<span class="token-function">agent_factory</span>()
+        eval_start = time.time()
+        <span class="token-keyword">try</span>:
+            result = <span class="token-keyword">await</span> agent.<span class="token-function">run</span>(task=case.user_input, session_id=<span class="token-str">f"eval-{case.id}"</span>, max_steps=case.max_steps)
+            passed, failure = <span class="token-keyword">self</span>.<span class="token-function">_evaluate</span>(case, result.output, result.tool_calls, result.steps)
+        <span class="token-keyword">except</span> <span class="token-cls">Exception</span> <span class="token-keyword">as</span> e:
+            passed, failure, result = <span class="token-keyword">False</span>, <span class="token-str">f"执行失败: {e}"</span>, <span class="token-keyword">None</span>
+        latency = (time.time() - eval_start) * <span class="token-number">1000</span>
+        <span class="token-keyword">return</span> <span class="token-cls">EvalResult</span>(case_id=case.id, passed=passed, actual_output=result.output <span class="token-keyword">if</span> result <span class="token-keyword">else</span> <span class="token-str">""</span>, tool_calls_made=result.tool_calls <span class="token-keyword">if</span> result <span class="token-keyword">else</span> [], steps_taken=result.steps <span class="token-keyword">if</span> result <span class="token-keyword">else</span> <span class="token-number">0</span>, tokens_used=result.total_tokens <span class="token-keyword">if</span> result <span class="token-keyword">else</span> <span class="token-number">0</span>, latency_ms=latency, failure_reason=failure)
+
+    <span class="token-keyword">def</span> <span class="token-function">_evaluate</span>(<span class="token-keyword">self</span>, case: EvalCase, output: <span class="token-cls">str</span>, tools: <span class="token-cls">List</span>[<span class="token-cls">str</span>], steps: <span class="token-cls">int</span>) -> <span class="token-cls">tuple</span>:
+        failures = []
+        <span class="token-keyword">if</span> case.expected_tools:
+            missing = <span class="token-builtin">set</span>(case.expected_tools) - <span class="token-builtin">set</span>(tools)
+            <span class="token-keyword">if</span> missing: failures.append(<span class="token-str">f"缺少工具调用: {missing}"</span>)
+        <span class="token-keyword">if</span> case.expected_keywords:
+            <span class="token-keyword">for</span> kw <span class="token-keyword">in</span> case.expected_keywords:
+                <span class="token-keyword">if</span> kw.lower() <span class="token-keyword">not</span> <span class="token-keyword">in</span> output.lower():
+                    failures.append(<span class="token-str">f"缺少关键词: '{kw}'"</span>)
+        <span class="token-keyword">if</span> case.forbidden_keywords:
+            <span class="token-keyword">for</span> kw <span class="token-keyword">in</span> case.forbidden_keywords:
+                <span class="token-keyword">if</span> kw.lower() <span class="token-keyword">in</span> output.lower():
+                    failures.append(<span class="token-str">f"出现禁止关键词: '{kw}' (幻觉)"</span>)
+        <span class="token-keyword">if</span> steps > case.max_steps:
+            failures.append(<span class="token-str">f"步数超限: {steps} > {case.max_steps}"</span>)
+        <span class="token-keyword">return</span> <span class="token-builtin">len</span>(failures) == <span class="token-number">0</span>, <span class="token-str">"; "</span>.<span class="token-fn">join</span>(failures) <span class="token-keyword">if</span> failures <span class="token-keyword">else</span> <span class="token-keyword">None</span>
+
+    <span class="token-keyword">def</span> <span class="token-function">get_report</span>(<span class="token-keyword">self</span>) -> <span class="token-cls">Dict</span>:
+        total = <span class="token-builtin">len</span>(<span class="token-keyword">self</span>.results)
+        passed = <span class="token-builtin">sum</span>(<span class="token-number">1</span> <span class="token-keyword">for</span> r <span class="token-keyword">in</span> <span class="token-keyword">self</span>.results <span class="token-keyword">if</span> r.passed)
+        avg_latency = <span class="token-builtin">sum</span>(r.latency_ms <span class="token-keyword">for</span> r <span class="token-keyword">in</span> <span class="token-keyword">self</span>.results) / total <span class="token-keyword">if</span> total > <span class="token-number">0</span> <span class="token-keyword">else</span> <span class="token-number">0</span>
+        failures = [{<span class="token-str">"case_id"</span>: r.case_id, <span class="token-str">"reason"</span>: r.failure_reason} <span class="token-keyword">for</span> r <span class="token-keyword">in</span> <span class="token-keyword">self</span>.results <span class="token-keyword">if</span> <span class="token-keyword">not</span> r.passed]
+        <span class="token-keyword">return</span> {<span class="token-str">"total_cases"</span>: total, <span class="token-str">"passed"</span>: passed, <span class="token-str">"failed"</span>: total - passed, <span class="token-str">"pass_rate"</span>: <span class="token-str">f"{passed/total*100:.1f}%"</span> <span class="token-keyword">if</span> total > <span class="token-number">0</span> <span class="token-keyword">else</span> <span class="token-str">"N/A"</span>, <span class="token-str">"avg_latency_ms"</span>: <span class="token-str">f"{avg_latency:.0f}"</span>, <span class="token-str">"failures"</span>: failures}</code></pre>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">好的评估集特征</div>
+        <p><strong>多样性</strong>：覆盖不同类型用户、不同复杂度任务、不同表达方式。<strong>有难度梯度</strong>：从 easy 到 hard，确保 Agent 在各个级别都有合理表现。<strong>包含对抗性示例</strong>：故意构造容易让 Agent 出错的输入。<strong>反映真实分布</strong>：从生产日志中采样，确保评估集代表实际场景。<strong>定期更新</strong>：评估集会"过拟合"——每季度从生产数据中补充新用例。</p>
+      </div>
+    </div>
+
+    <!-- Card 6: 知识共享与文档 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon teal">📝</div>
+        <div>
+          <div class="card-title">知识共享与文档 — 让 Agent 知识在团队中流动</div>
+          <div class="card-desc">ADR、工具 API 文档、提示词 rationale、故障模式与 runbook 模板</div>
+        </div>
+      </div>
+      <p>Agent 系统的"隐性知识"远比传统软件多——为什么选择这个提示词结构？为什么这个工具被设计为只读？为什么这个场景下 Agent 会表现出特定行为？这些决策背后的推理如果不被记录下来，当团队成员变动时，知识就会流失。</p>
+
+      <h4>必备文档类型</h4>
+      <ul>
+        <li><strong>架构决策记录 (ADR)</strong>：记录重要的架构决策及其背景。例如："选择不使用 LangChain 而使用原生 Anthropic SDK——原因：LangChain 的抽象层导致工具调用调试困难，且我们的场景不需要 LangChain 的复杂编排功能"</li>
+        <li><strong>工具 API 文档</strong>：每个工具的作用、参数说明、返回值格式、权限要求、速率限制、典型使用场景、已知的限制和边界条件</li>
+        <li><strong>提示词 Rationale</strong>：提示词中每个部分的设计意图。例如："在系统提示词的第3段中明确告知 Agent 不要编造数据——因为我们在客服场景中观察到 Agent 有 12% 的概率在找不到数据时编造答案"</li>
+        <li><strong>故障模式 (Failure Mode) 目录</strong>：记录已知的 Agent 失败模式、触发条件、影响范围和缓解措施。这是一个"活文档"，每次线上事故后更新</li>
+        <li><strong>Runbook (操作手册)</strong>：常见运维操作的步骤说明——如何紧急关闭某个工具、如何回滚提示词、如何切换到备用模型、如何从备份恢复对话历史</li>
+      </ul>
+
+      <h4>文档共享机制</h4>
+      <p>文档不应只存在于某人的本地文件夹中。推荐做法：(1) 将所有文档纳入 Git 仓库的 <code>docs/</code> 目录，与代码一起版本控制；(2) 每周进行一次"Agent 行为回顾会议"——团队一起查看本周的 Agent 异常行为日志，讨论并记录新的故障模式；(3) 使用内部 Wiki 或 Notion 维护一个可搜索的知识库，方便新成员快速上手。</p>
+
+      <div class="alert alert-success">
+        <div class="alert-title">文档的关键原则</div>
+        <p>好的文档不是堆砌文字——它应该<strong>回答"为什么"而不仅仅是"是什么"</strong>。"这个工具的 timeout 是 30 秒"是信息，"这个工具的 timeout 是 30 秒，因为下游 API 的 P95 响应时间是 15 秒，30 秒提供了 2 倍的安全余量"是知识。后者让读者理解决策逻辑，从而在条件变化时能做出正确的调整。</p>
+      </div>
+
+      <h4>Runbook 模板示例</h4>
+      <p>一个完备的 Agent Runbook 应包含以下结构化条目：(1) <strong>操作名称</strong>与触发条件；(2) <strong>影响范围</strong>——此操作会影响哪些用户或哪些 Agent 功能；(3) <strong>前置检查</strong>——执行前需要确认的条件；(4) <strong>操作步骤</strong>——具体的 CLI 命令或 Dashboard 操作；(5) <strong>回滚步骤</strong>——如果操作导致问题如何恢复；(6) <strong>预期结果</strong>——操作成功后系统应处于什么状态；(7) <strong>验证方法</strong>——如何确认操作成功。建议将 Runbook 以表格形式维护在团队的内部 Wiki 中，每条 Runbook 定期（至少每季度）进行演练验证。</p>
+
+      <h4>团队 Agent 知识库的维护策略</h4>
+      <p>Agent 知识库（不是用户的 RAG 知识库，而是团队关于 Agent 本身的文档和知识）需要持续维护。推荐做法：(1) 每周五下午进行 30 分钟的"知识库园艺时间"——团队成员检查是否有哪些文档已过时、哪些新的经验需要记录；(2) 利用自动化工具检测文档与代码的一致性——例如检查工具文档中的参数名是否与实际代码中的参数名一致；(3) 新成员入职时，让ta完成一次"文档修复任务"——这是最快的上手方式，同时也改善了文档质量。一个好的 Agent 知识库应该让新成员在 2 天内就能独立完成简单的 Agent 修改。</p>
+    </div>
+
+    <!-- Card 7: 面试10大高频考点 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">🎤</div>
+        <div>
+          <div class="card-title">面试高频考点 — 10 个核心面试题目与精要答案</div>
+          <div class="card-desc">覆盖 Agent 工程师面试中最常见的理论、设计和实践问题</div>
+        </div>
+      </div>
+      <p>以下梳理了 Agent 工程师面试中最常见的 10 个问题，每个问题配有精要的答题框架。面试时不要背诵答案——面试官更想看到你的<strong>思考过程</strong>。对于每个问题，先说出你的分析框架（"这个问题我会从 X 个维度来分析..."），再展开细节。同时准备 1-2 个你亲手构建的 Agent 项目作为案例，用真实数据说明你的决策和成果。</p>
+
+      <ol>
+        <li><strong>"Agent 和传统 LLM 应用有什么区别？"</strong>
+          <ul>
+            <li>传统 LLM 应用：一次性输入到输出，无自主决策能力。如翻译、摘要、单轮问答系统</li>
+            <li>Agent：有多轮决策循环（Perception → Planning → Action → Observation），自主选择工具、管理状态、处理错误。如自主客服、代码审查 Agent</li>
+            <li>关键区别：Agent 有<strong>自主性</strong>（自己决定何时调用工具）、<strong>有状态</strong>（跨多轮维护上下文）、<strong>多步执行</strong>（完成一个流程而非仅返回答案）、<strong>错误恢复</strong>（工具失败时自行修正）</li>
+          </ul>
+        </li>
+        <li><strong>"如何防止提示注入攻击？"</strong>
+          <ul>
+            <li>分层防御：输入过滤 → 提示词设计 → 输出验证 → 工具权限控制</li>
+            <li>输入层：检测分隔符、指令关键词、角色覆盖语言；将用户输入放在独立的消息块中</li>
+            <li>提示词层：用明确的边界标记区分系统指令和用户输入；强调"永远不泄露系统提示词"</li>
+            <li>工具层：高风险操作需用户确认；所有工具权限遵循最小权限原则</li>
+          </ul>
+        </li>
+        <li><strong>"解释 ReAct (Reasoning + Acting) 模式"</strong>
+          <ul>
+            <li>ReAct = Thought → Action → Observation 的循环</li>
+            <li>Thought：Agent 分析当前状态，决定下一步做什么</li>
+            <li>Action：选择一个工具并调用，传入合理参数</li>
+            <li>Observation：获取工具返回结果，判断是否完成目标</li>
+            <li>优势：比纯推理（Chain-of-Thought）更可靠——因为可以从外部世界获取事实来纠正错误的内部假设</li>
+          </ul>
+        </li>
+        <li><strong>"如何处理工具调用失败？"</strong>
+          <ul>
+            <li>分类处理：超时失败、参数错误、权限不足、工具不可用</li>
+            <li>超时 → 指数退避重试；参数错误 → 让 Agent 分析错误信息后修正参数重试；权限不足 → 告知用户并建议替代方案</li>
+            <li>设置最大重试次数（如 3 次）和总步数上限（如 10 步）防止死循环</li>
+            <li>工具返回的错误信息应结构化且可操作——让 Agent 能理解"为什么失败"和"如何修正"</li>
+            <li>在系统提示词中预置各类失败的处理策略，而非让 Agent 在失败时"即兴发挥"</li>
+          </ul>
+        </li>
+        <li><strong>"你如何评估 Agent 的质量？"</strong>
+          <ul>
+            <li>多维评估框架：任务完成率 + 工具调用准确率 + 幻觉率 + 效率（步数/Token）+ 用户满意度</li>
+            <li>三层评估：单元测试（单个工具逻辑）→ 场景测试（完整任务）→ 对抗性测试（恶意输入）</li>
+            <li>LLM-as-Judge：用更强的模型判断输出质量，但需要定期做人工校准检查一致性</li>
+            <li>最重要的原则：评估集需要持续从生产日志中更新，避免过拟合到固定的测试用例</li>
+          </ul>
+        </li>
+        <li><strong>"LangChain vs 原生 SDK，你如何选择？"</strong>
+          <ul>
+            <li>LangChain 优势：快速原型、丰富的第三方集成、社区活跃、RAG 工具链成熟</li>
+            <li>LangChain 劣势：抽象层过多导致调试困难、版本更新频繁且不兼容、性能开销大、自定义行为不够灵活</li>
+            <li>原生 SDK 优势：完全控制、轻量化、调试简单、性能最优、适合生产环境</li>
+            <li>推荐策略：原型阶段用 LangChain 快速验证想法（1-2 周）；生产阶段用原生 SDK 重写以获得更好的控制、性能和可维护性</li>
+          </ul>
+        </li>
+        <li><strong>"如何管理 Agent 的记忆？"</strong>
+          <ul>
+            <li>短期记忆（会话内）：对话历史。使用滑动窗口 + 自动摘要压缩管理上下文长度。超过 N 轮时，前面的对话自动压缩为摘要</li>
+            <li>长期记忆（跨会话）：用户偏好、历史行为模式、关键事实。存储在外部数据库（PostgreSQL + 向量数据库），通过语义检索在需要时加载</li>
+            <li>工作记忆（当前任务）：中间推理结果和工具返回值。在 Agent 循环的各步之间传递，不做持久化</li>
+            <li>核心权衡：保留更多上下文提供更好体验但增加 Token 成本和延迟。需要自动化的记忆管理策略而非硬性的"保留最近 K 轮"</li>
+          </ul>
+        </li>
+        <li><strong>"Agent 可观测性的关键指标有哪些？"</strong>
+          <ul>
+            <li>业务指标：任务完成率、用户满意度 (CSAT)、自动化解决率</li>
+            <li>性能指标：P50/P95/P99 延迟、TTFT (Time To First Token)、每任务平均步数</li>
+            <li>成本指标：每请求 Token 消耗、缓存命中率、模型分布（Haiku vs Sonnet 使用比例）</li>
+            <li>质量指标：工具调用成功率、重试率、幻觉率、用户纠错率</li>
+            <li>安全指标：PII 泄露事件数、提示注入尝试数、异常调用模式</li>
+          </ul>
+        </li>
+        <li><strong>"设计一个多 Agent 客服系统"</strong>
+          <ul>
+            <li>架构：Triage Agent (路由) → Specialist Agent (FAQ/订单/技术/退款) → Escalation Agent → 人工</li>
+            <li>Triage Agent 分析用户意图并路由。传递结构化的上下文对象（分类 + 置信度 + 关键信息提取）而非原始对话文本</li>
+            <li>每个 Specialist 有独立的工具集、知识库和提示词。Agent 之间不直接通信，通过共享的上下文对象交换信息</li>
+            <li>设置明确的升级条件：置信度低于阈值、涉及敏感操作、三次尝试后仍未解决</li>
+          </ul>
+        </li>
+        <li><strong>"如何优化 Agent 的成本？"</strong>
+          <ul>
+            <li>第一优先：Prompt Caching——零代码改动，立即节省 60-90% 输入成本</li>
+            <li>第二优先：模型分层路由——简单任务用 Haiku/Mini（更便宜），复杂任务用 Sonnet/Opus</li>
+            <li>第三优先：并行工具调用——识别独立工具调用并同时执行，减少步数 = 减少 LLM 调用</li>
+            <li>第四优先：上下文窗口管理——智能摘要 + 滑动窗口裁剪，控制上下文膨胀</li>
+            <li>第五优先：语义缓存——对高频相似查询跳过 LLM 调用，缓存命中时零成本</li>
+            <li>终极策略：批处理 API 用于离线任务，节省 50%</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Card 8: 职业发展路径 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">🚀</div>
+        <div>
+          <div class="card-title">职业发展路径 — 从初级到首席的完整成长路线</div>
+          <div class="card-desc">Agent 工程师的技能阶梯、关键里程碑与学习资源</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>级别</th>
+              <th>核心能力</th>
+              <th>典型工作内容</th>
+              <th>经验要求</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>初级 Agent 工程师</strong></td>
+              <td>提示词编写与调优、基础工具集成、LLM API 使用、单个 Agent 的行为调试</td>
+              <td>编写和优化单个功能的提示词、集成 REST API 工具、修复 Agent 行为 Bug、参与评估用例编写</td>
+              <td>0-2 年</td>
+            </tr>
+            <tr>
+              <td><strong>高级 Agent 工程师</strong></td>
+              <td>多 Agent 协作设计、复杂工具链编排、评估体系构建、成本优化、安全防护</td>
+              <td>设计多 Agent 系统架构、构建自动评估体系、优化性能和成本、指导初级工程师、主导安全审查</td>
+              <td>2-5 年</td>
+            </tr>
+            <tr>
+              <td><strong>Agent 架构师</strong></td>
+              <td>大规模 Agent 系统设计、组织级 Agent 策略制定、安全与合规架构、跨团队技术领导</td>
+              <td>制定全公司的 Agent 技术战略、设计 Agent 平台和工具链标准、指导多个 Agent 团队的技术方向</td>
+              <td>5-8 年</td>
+            </tr>
+            <tr>
+              <td><strong>AI 负责人 / Head of AI</strong></td>
+              <td>AI 产品战略与投资组合管理、团队建设与人才培养、跨部门协作与商业价值转化</td>
+              <td>设定公司 AI 方向、搭建和领导 AI 团队、管理 AI 投资预算、对外技术布道和行业影响力建设</td>
+              <td>8+ 年</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>推荐学习资源</h4>
+      <ul>
+        <li><strong>社区与讨论</strong>：Anthropic Developer Discord、LangChain Discord、r/LocalLLaMA、Hugging Face 社区论坛</li>
+        <li><strong>行业会议</strong>：AI Engineer Summit、NeurIPS (Agent Workshop)、ICLR、LangChain AI Engineer 大会</li>
+        <li><strong>在线课程</strong>：Anthropic 官方 Agent 最佳实践指南、DeepLearning.AI 的 AI Agentic Design Patterns 系列、Stanford CS 224N/224V</li>
+        <li><strong>关键论文</strong>：ReAct (Yao et al., 2022)、Toolformer (Schick et al., 2023)、Voyager (Wang et al., 2023)、AutoGen (Wu et al., 2023)</li>
+        <li><strong>认证与证书</strong>：目前 Agent 工程领域尚无权威认证，最好的"证书"是公开的 GitHub 项目和高质量技术博客</li>
+      </ul>
+    </div>
+
+    <!-- Card 9: 构建Agent作品集 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">💼</div>
+        <div>
+          <div class="card-title">构建你的 Agent 作品集 — 让能力可见</div>
+          <div class="card-desc">3 个项目创意 + 如何有效展示你的 Agent 开发能力</div>
+        </div>
+      </div>
+      <p>在 Agent 工程领域，<strong>作品集比简历更有说服力</strong>。以下是三个能充分展示你能力的项目创意，从易到难排列：</p>
+
+      <h4>项目 1：开源代码审查 Agent</h4>
+      <ul>
+        <li><strong>构建什么</strong>：一个自动审查 GitHub Pull Request 的 Agent，提供代码质量、安全性、性能方面的建议</li>
+        <li><strong>技术栈</strong>：GitHub API + Claude API + Prompt Caching + 自定义代码分析工具（AST 解析、diff 分析）</li>
+        <li><strong>展示能力</strong>：工具集成、提示词工程（代码审查需要高度结构化的输出格式）、异步处理、结果格式化</li>
+        <li><strong>出彩点</strong>：添加"与人类审查者意见的对比"仪表盘，用数据证明 Agent 的审查质量。开源并获得 GitHub Stars</li>
+      </ul>
+
+      <h4>项目 2：个人知识管理 Agent (RAG Knowledge Agent)</h4>
+      <ul>
+        <li><strong>构建什么</strong>：一个带 RAG 的个人知识管理 Agent，能搜索、整理、关联你的笔记、书签和文档</li>
+        <li><strong>技术栈</strong>：向量数据库（ChromaDB/Pinecone）+ Claude API + Embedding API + 本地文件系统工具 + 网页抓取工具</li>
+        <li><strong>展示能力</strong>：RAG 管道设计、记忆管理、多模态输入处理、用户个性化</li>
+        <li><strong>出彩点</strong>：展示"跨文档关联"能力——Agent 自动发现笔记 A 和存档 B 讨论同一主题但从未被关联。用可视化的知识图谱展示关联结果</li>
+      </ul>
+
+      <h4>项目 3：多 Agent 自动化研究系统</h4>
+      <ul>
+        <li><strong>构建什么</strong>：多个 Agent 协作完成一个研究任务——Search Agent 搜索、Analysis Agent 分析、Writing Agent 撰写报告</li>
+        <li><strong>技术栈</strong>：自定义 Multi-Agent 编排框架 + 搜索 API + LLM 多模型路由 + 消息队列协调</li>
+        <li><strong>展示能力</strong>：多 Agent 编排、任务分解与分配、Agent 间通信协议、复杂工作流管理</li>
+        <li><strong>出彩点</strong>：与单 Agent 版本做详细的对比分析（完成质量、耗时、成本），用数据说明多 Agent 在准确性、完整性上的优势</li>
+      </ul>
+
+      <div class="alert alert-info">
+        <div class="alert-title">展示作品的技巧</div>
+        <p>写一篇高质量的博客文章比只放代码库有效 10 倍。文章结构：问题定义 → 架构设计 → 关键挑战 → 解决方案 → 性能数据 → 经验教训。在 GitHub README 中加入可运行的 Demo 链接或视频演示。<strong>用具体数字说话</strong>："Agent 完成准确率 92%，比基线提升 15 个百分点"比"Agent 表现良好"有说服力得多。</p>
+      </div>
+    </div>
+
+    <!-- Card 10: 行业趋势与未来 -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">🔭</div>
+        <div>
+          <div class="card-title">行业趋势与未来机会 — 未来 3-5 年的职业定位</div>
+          <div class="card-desc">理解行业走向，抢先在正确的位置布局你的职业生涯</div>
+        </div>
+      </div>
+      <p>AI Agent 正在从"实验性技术"发展为"企业核心基础设施"。以下是未来 3-5 年最值得关注的趋势和机会：</p>
+
+      <h4>五大关键趋势</h4>
+      <ol>
+        <li><strong>Agent-Native 公司的崛起</strong>：新一代创业公司的核心产品本身就是一个 Agent（而非在现有产品上添加 AI 功能）。这些公司的团队结构、商业模式、评估体系都以 Agent 为中心设计。例如：AI 客服公司用 Agent 替代 80% 的人工客服；AI 法律服务公司用 Agent 完成合同审查和尽职调查。机会：加入这样的公司作为早期工程师，积累 Agent-first 的工程经验</li>
+        <li><strong>Agent 市场与生态形成</strong>：类似 App Store 的 Agent 市场正在形成——专门化的 Agent 可以发布、交易和组合。MCP (Model Context Protocol) 正在成为连接 Agent 和工具的行业标准协议。出现新型中间件：Agent 开发平台、Agent 托管服务、Agent 评估服务。机会：成为 MCP Server 或 Agent 工具的开发者，或构建 Agent 编排平台</li>
+        <li><strong>"Agent 工程"作为独立学科</strong>：就像"前端工程"从"软件工程"中分化出来一样，"Agent 工程"正在成为一个独立的工程学科。有独特的技能要求：提示词设计、模型行为理解、工具编排、评估设计——这些不是传统软件工程的核心技能。大学开始开设专门的 Agent 开发课程，企业开始设立"Agent 工程师"专职岗位。机会：成为第一代"Agent 工程师"的先行者，帮助定义这个职业的标准和最佳实践</li>
+        <li><strong>监管与合规成为刚需</strong>：随着 Agent 在金融、医疗、法律等受监管行业的应用增多，合规能力成为核心竞争壁垒。Agent 审计（记录和审查决策过程）、Agent 红队测试、Agent 偏见检测与公平性评估将成为标配。机会：专注 Agent 安全与合规的工程师将非常稀缺和高价值</li>
+        <li><strong>Agent-to-Agent 协议标准化</strong>：随着多 Agent 系统的普及，Agent 之间的通信协议将走向标准化。类似 HTTP 之于 Web 服务、gRPC 之于微服务——未来可能出现专门的 Agent 间通信协议（如 Google 的 A2A 协议），定义 Agent 之间如何发现彼此、协商能力、委托任务和交换结果</li>
+      </ol>
+
+      <h4>如何为未来定位自己</h4>
+      <ul>
+        <li><strong>深耕垂直领域 + Agent 技术</strong>：如"金融 + Agent"、"医疗 + Agent"、"法律 + Agent"。纯粹的 Agent 通才会越来越多，但在某个垂直领域有深厚积累的 Agent 工程师始终稀缺</li>
+        <li><strong>成为"Agent 全栈工程师"</strong>：不仅会写提示词，还理解部署、评估、安全、产品设计和成本优化。能从商业问题出发端到端地交付 Agent 解决方案</li>
+        <li><strong>建立技术品牌</strong>：写技术博客、在 GitHub 上维护开源 Agent 项目、在社区分享经验。在这个快速发展的领域，你的公共技术足迹是最有力的简历</li>
+        <li><strong>持续追踪前沿</strong>：arXiv 订阅 AI Agent 相关论文、关注 Anthropic/OpenAI/Google DeepMind 的技术博客、参与 Agent 相关的 Discord 和线上 meetup</li>
+      </ul>
+
+      <div class="alert alert-success">
+        <div class="alert-title">最后的寄语</div>
+        <p>同学，恭喜你完成了全部 16 章的学习！从"什么是 AI Agent"到"团队协作、MLOps 与面试准备"，你已经掌握了从理论到实践的完整知识体系。AI Agent 是一个快速发展的领域，今天学到的具体工具和框架可能 2 年后就过时了，但<strong>核心的设计原则</strong>——如何设计自主决策循环、如何选择和管理工具、如何平衡能力和安全、如何评估和改进 Agent 的性能——这些将长期适用。保持好奇心，保持动手实践的习惯，祝你在构建下一代智能系统的道路上取得丰硕的成果！</p>
+      </div>
+
+      <h4>2025-2027 年 Agent 领域的关键里程碑预测</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th>预期里程碑</th>
+              <th>对从业者的影响</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2025 H2</strong></td>
+              <td>MCP 协议成为 Agent-工具连接的事实标准；首个 Agent Marketplace 上线</td>
+              <td>Agent 工程师需要熟悉 MCP 协议的 Server/Client 实现；工具开发者可以专注于构建 MCP Server 获取收益</td>
+            </tr>
+            <tr>
+              <td><strong>2026 H1</strong></td>
+              <td>Agents 开始在多步骤、长周期任务中超越人类专家（如代码审查、合同分析）；Agent-Native 创业公司估值突破百亿</td>
+              <td>Agent 工程师的需求量激增；"Agent 架构师"成为独立职位；企业开始设立 Agent 卓越中心 (CoE)</td>
+            </tr>
+            <tr>
+              <td><strong>2026 H2</strong></td>
+              <td>Agent-to-Agent 协议标准化（Google A2A / Anthropic 等效协议）；跨组织 Agent 协作成为现实</td>
+              <td>需要理解分布式 Agent 系统的工程师；Agent 的"互操作性"成为核心技术考量</td>
+            </tr>
+            <tr>
+              <td><strong>2027</strong></td>
+              <td>Agent 监管框架在全球主要经济体落地；Agent 合规审计成为企业刚需；Agent 工程成为大学本科专业方向</td>
+              <td>Agent 安全/合规工程师成为最紧缺的人才之一；现在进入这个方向的从业者将享受巨大的先发优势</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="16">
+      <div class="quiz-title">📝 章节测验 — 团队协作与MLOps</div>
+      <div class="quiz-desc">测试你对 Agent 团队协作、CI/CD 和面试准备的掌握</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 提示词版本管理中，以下哪个做法是正确的？</div>
+        <button class="quiz-option" data-answer="0">A. 提示词直接存在聊天记录里，不改就不管</button>
+        <button class="quiz-option" data-answer="1">B. 所有提示词都用同一个版本号管理</button>
+        <button class="quiz-option" data-answer="2">C. 将提示词纳入 Git 版本控制，遵循语义化版本，变更需要 PR 和 Review</button>
+        <button class="quiz-option" data-answer="3">D. 提示词由一人独立管理，不需要通知团队</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. EDD (Eval-Driven Development) 的核心工作流是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 先构建完整 Agent，最后再加评估</button>
+        <button class="quiz-option" data-answer="1">B. 先定义评估集和成功标准 → 构建最小 Agent → 运行评估 → 分析失败 → 改进 → 重新评估</button>
+        <button class="quiz-option" data-answer="2">C. 评估和开发完全分离，互不影响</button>
+        <button class="quiz-option" data-answer="3">D. 只评估一次，不管后续的回归</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. Agent 的 CI/CD 流水线中，金丝雀部署 (Canary Deployment) 的正确做法是？</div>
+        <button class="quiz-option" data-answer="0">A. 将 5-10% 流量导向新版本，监控关键指标 1-4 小时，通过后全量发布，超阈值自动回滚</button>
+        <button class="quiz-option" data-answer="1">B. 一次性将所有流量切换到新版本</button>
+        <button class="quiz-option" data-answer="2">C. 只在测试环境运行 Agent，不在生产环境金丝雀</button>
+        <button class="quiz-option" data-answer="3">D. 金丝雀部署只适用于传统软件，不适用于 Agent</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a class="btn" href="../chapters/15-performance-optimization.html">
+        ← <span>第15章：Agent 性能优化</span>
+      </a>
+      <a class="btn btn-primary" href="../chapters/01-what-is-agent.html">
+        <span>回到第1章</span> ↗
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- Agent Simulator Panel -->
+<button class="sim-toggle" id="simToggle" title="Agent 模拟器">🤖</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <span><span class="sim-status-dot"></span> Agent 模拟器</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="simClose">✕</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      你好！恭喜完成全部课程。试试让我展示一个完整的 Agent 面试答案，或者设计一个多 Agent 协作方案！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:106px;width:48px;height:48px;border-radius:50%;background:var(--bg-tertiary);border:1px solid var(--border-color);z-index:85;">📝</button>
+
+<div class="sim-panel" id="notesPanel" style="bottom:96px;right:106px;width:380px;height:480px;">
+  <div class="sim-header">
+    <span>📒 我的笔记</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="notesClose">✕</button>
+  </div>
+  <div class="sim-messages" id="notesList" style="padding:12px;">
+    <div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div>
+  </div>
+  <div class="sim-input-area" style="flex-direction:column;gap:8px;">
+    <textarea class="sim-input" id="noteInput" placeholder="在这里写笔记..." rows="3"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：提示词工程</option>
+        <option value="9">第9章：Agent框架</option>
+        <option value="10">第10章：评估与测试</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+        <option value="13">第13章：构建第一个Agent</option>
+        <option value="14">第14章：企业集成模式</option>
+        <option value="15">第15章：性能优化</option>
+        <option value="16" selected>第16章：团队协作与MLOps</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- JavaScript -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

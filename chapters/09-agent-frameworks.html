@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第9章 Agent 开发框架 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+
+<!-- ============================================================
+     Top Navigation Bar
+     ============================================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================================
+     Sidebar Navigation
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link active" data-chapter="9"><span class="nav-icon">9</span> Agent 开发框架</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="sidebar-section-title">学习进度</div>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>整体进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     Main Content
+     ============================================================ -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="9" id="chapter9">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 9 章</div>
+      <h2 class="chapter-title">Agent 开发框架</h2>
+      <p class="chapter-subtitle">全面了解主流 Agent 开发框架的特点、优劣势与适用场景，帮助你做出正确的技术选型</p>
+    </header>
+
+    <!-- Card 1: Framework Landscape -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">🗺️</div>
+        <div>
+          <div class="card-title">Agent 框架全景概览</div>
+        </div>
+      </div>
+      <p>随着 AI Agent 技术的快速演进，市面上涌现出了大量 Agent 开发框架。它们各自有不同的设计哲学、抽象层级和适用场景。理解这些框架的核心差异，是做出正确技术选型的前提。</p>
+      <p>当前主流的 Agent 框架可以分为以下几类：</p>
+      <ul>
+        <li><strong>通用编排框架</strong>：LangChain、Semantic Kernel — 提供完整的工具链、记忆管理、RAG 支持，抽象层级较高，适合快速构建原型和复杂工作流。</li>
+        <li><strong>多 Agent 协作框架</strong>：CrewAI、AutoGen、Swarm — 专注于多个 Agent 之间的角色定义、任务分配和通信协调。</li>
+        <li><strong>模型原生 SDK</strong>：Anthropic SDK、OpenAI Assistants API — 直接使用模型厂商提供的第一方工具调用和 Agent 能力，抽象层级低，灵活性最高。</li>
+        <li><strong>低代码/可视化平台</strong>：Dify、Coze、Flowise — 通过拖拽界面构建 Agent 工作流，降低开发门槛。</li>
+      </ul>
+      <div class="alert alert-info">
+        <div class="alert-title">框架选择的本质</div>
+        <p>选择框架不是在选"谁最强"，而是在选<strong>谁的抽象层级和设计哲学最匹配你的项目需求</strong>。高抽象框架开发效率高但灵活性受限，低抽象 SDK 灵活但需要更多底层代码。理解这种权衡是高级 Agent 开发者的基本功。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: LangChain Deep Dive -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">🦜</div>
+        <div>
+          <div class="card-title">LangChain 深度解析</div>
+        </div>
+      </div>
+      <p><strong>LangChain</strong> 是目前生态最丰富的 Agent 开发框架，由 Harrison Chase 于 2022 年创立。它提供了从 LLM 调用到复杂 Agent 编排的完整工具链。核心模块包括：</p>
+      <ul>
+        <li><strong>Chains（链）</strong>：将多个 LLM 调用和工具调用串联成可复用的工作流。LCEL (LangChain Expression Language) 提供了声明式的链定义方式，使用 <code>|</code> 管道符串联组件。</li>
+        <li><strong>Agents（智能体）</strong>：在 Chain 之上增加了动态决策能力。Agent 可以自主选择使用哪个工具、以什么顺序调用。LangChain 提供了 OpenAI Functions Agent、ReAct Agent、JSON Chat Agent 等多种 Agent 类型。</li>
+        <li><strong>Tools（工具）</strong>：预定义了数百种工具集成，涵盖搜索引擎（Google、Bing）、数据库（SQL、Vector Store）、API 集成（GitHub、Slack、Gmail）等。</li>
+        <li><strong>Memory（记忆）</strong>：提供了 ConversationBufferMemory、ConversationSummaryMemory、VectorStoreRetrieverMemory 等多种记忆实现，支持短期和长期记忆。</li>
+        <li><strong>LangGraph</strong>：LangChain 生态中专门用于构建<strong>有状态、多步骤 Agent</strong>的库。将 Agent 逻辑建模为有向图（Graph），节点代表操作，边代表状态转移。支持条件分支、循环和人机交互节点，比传统的 AgentExecutor 提供更精细的控制。</li>
+      </ul>
+      <div class="alert alert-warning">
+        <div class="alert-title">LangChain 的争议</div>
+        <p>LangChain 以"抽象过多、调试困难"而受到一些开发者的批评。它的版本迭代较快，API 破坏性变更频繁。建议在使用前评估项目的复杂度：简单的 Agent 可能直接用模型 SDK 更合适，复杂工作流则可受益于 LangChain 的编排能力。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: LangChain Code Example -->
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — LangChain Agent 示例</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">from</span> langchain_openai <span class="token-kw">import</span> ChatOpenAI
+<span class="token-kw">from</span> langgraph.prebuilt <span class="token-kw">import</span> create_react_agent
+<span class="token-kw">from</span> langchain.tools <span class="token-kw">import</span> tool
+
+<span class="token-cm"># 1. 定义工具</span>
+<span class="token-decorator">@tool</span>
+<span class="token-kw">def</span> <span class="token-fn">get_weather</span>(city: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+    <span class="token-str">"""获取指定城市的实时天气信息"""</span>
+    <span class="token-kw">return</span> <span class="token-str">f"{city} 当前晴，温度22°C"</span>
+
+<span class="token-decorator">@tool</span>
+<span class="token-kw">def</span> <span class="token-fn">search_knowledge</span>(query: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+    <span class="token-str">"""搜索知识库获取专业信息"""</span>
+    <span class="token-kw">return</span> <span class="token-str">f"关于 '{query}' 的搜索结果: ..."</span>
+
+<span class="token-cm"># 2. 创建模型实例</span>
+model = ChatOpenAI(
+    model=<span class="token-str">"gpt-4o"</span>,
+    temperature=<span class="token-num">0.1</span>
+)
+
+<span class="token-cm"># 3. 使用 LangGraph 构建 Agent（支持状态管理）</span>
+agent = create_react_agent(
+    model=model,
+    tools=[get_weather, search_knowledge],
+    prompt=<span class="token-str">"你是一个乐于助人的AI助手。"</span>
+)
+
+<span class="token-cm"># 4. 执行任务 — LangGraph 支持流式输出和中断</span>
+config = {<span class="token-str">"configurable"</span>: {<span class="token-str">"thread_id"</span>: <span class="token-str">"session-001"</span>}}
+<span class="token-kw">for</span> event <span class="token-kw">in</span> agent.stream(
+    {<span class="token-str">"messages"</span>: [<span class="token-str">"北京今天天气怎么样？适合旅游吗？"</span>]},
+    config=config
+):
+    <span class="token-kw">if</span> <span class="token-str">"agent"</span> <span class="token-kw">in</span> event:
+        <span class="token-builtin">print</span>(event[<span class="token-str">"agent"</span>][<span class="token-str">"messages"</span>][-<span class="token-num">1</span>].content)</code></pre>
+    </div>
+
+    <!-- Card 4: CrewAI -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">👥</div>
+        <div>
+          <div class="card-title">CrewAI — 基于角色的多 Agent 协作</div>
+        </div>
+      </div>
+      <p><strong>CrewAI</strong> 的设计灵感来源于公司团队协作模式。它的核心理念是：定义不同的 AI Agent 角色，每个角色拥有特定的目标、背景故事和能力，然后通过"任务"（Task）和"Crew"（团队）来编排它们的工作流程。</p>
+      <ul>
+        <li><strong>Agent 角色定义</strong>：每个 Agent 有 role（角色名）、goal（目标）、backstory（背景故事）三个核心属性。这些描述会被注入到系统提示词中，使 Agent 表现出符合角色的行为模式。</li>
+        <li><strong>Task 委托机制</strong>：任务可以被分配给特定 Agent，也可以由多个 Agent 协作完成。任务支持异步执行、依赖关系和上下文传递。</li>
+        <li><strong>Crew 编排</strong>：Crew 定义了 Agent 团队的工作流程：sequential（顺序执行）或 hierarchical（层级调度，由管理者 Agent 分配任务）。</li>
+        <li><strong>内置工具</strong>：集成了搜索、代码解释器、文件读写等常用工具，也支持自定义工具。</li>
+        <li><strong>适用场景</strong>：特别适合内容创作（写手+编辑+出版商）、市场分析（研究员+策略师+文案）、软件开发（需求分析师+架构师+开发者+测试）等需要多角色协作的场景。</li>
+      </ul>
+    </div>
+
+    <!-- Card 5: CrewAI Code Example -->
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — CrewAI 多 Agent 协作示例</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">from</span> crewai <span class="token-kw">import</span> Agent, Task, Crew, Process
+
+<span class="token-cm"># 1. 定义角色</span>
+researcher = Agent(
+    role=<span class="token-str">"资深技术研究员"</span>,
+    goal=<span class="token-str">"深入调研新技术趋势并输出结构化分析"</span>,
+    backstory=<span class="token-str">"你拥有10年的技术研究经验，擅长快速掌握新技术本质"</span>,
+    verbose=<span class="token-num">True</span>
+)
+
+writer = Agent(
+    role=<span class="token-str">"技术内容创作者"</span>,
+    goal=<span class="token-str">"将复杂的技术概念转化为清晰易懂的内容"</span>,
+    backstory=<span class="token-str">"你是一名顶尖技术博客作者，擅长用生动的语言解释技术"</span>,
+    verbose=<span class="token-num">True</span>
+)
+
+reviewer = Agent(
+    role=<span class="token-str">"内容质量审核"</span>,
+    goal=<span class="token-str">"确保内容准确、全面且结构清晰"</span>,
+    backstory=<span class="token-str">"你是一名严谨的编辑，对技术细节一丝不苟"</span>,
+    verbose=<span class="token-num">True</span>
+)
+
+<span class="token-cm"># 2. 定义任务</span>
+research_task = Task(
+    description=<span class="token-str">"调研 AI Agent 在 2025 年的 5 大技术趋势"</span>,
+    expected_output=<span class="token-str">"包含5个趋势的详细分析报告，每项不少于200字"</span>,
+    agent=researcher
+)
+
+writing_task = Task(
+    description=<span class="token-str">"基于研究报告，撰写一篇面向大众的科普文章"</span>,
+    expected_output=<span class="token-str">"一篇1500字的科普文章，语言通俗易懂"</span>,
+    agent=writer
+)
+
+review_task = Task(
+    description=<span class="token-str">"审核文章的技术准确性和可读性，提供改进建议"</span>,
+    expected_output=<span class="token-str">"审核报告，列出修改建议和最终评分"</span>,
+    agent=reviewer
+)
+
+<span class="token-cm"># 3. 创建 Crew 并执行</span>
+crew = Crew(
+    agents=[researcher, writer, reviewer],
+    tasks=[research_task, writing_task, review_task],
+    process=Process.sequential,  <span class="token-cm"># 顺序执行模式</span>
+    verbose=<span class="token-num">True</span>
+)
+
+result = crew.kickoff()
+<span class="token-builtin">print</span>(result)</code></pre>
+    </div>
+
+    <!-- Card 6: AutoGen (Microsoft) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">🔄</div>
+        <div>
+          <div class="card-title">AutoGen (Microsoft) — 对话驱动的多 Agent 框架</div>
+        </div>
+      </div>
+      <p><strong>AutoGen</strong> 是微软开源的 Agent 框架，核心理念是<strong>"对话即编程"</strong> — Agent 之间通过自然的对话来协调和完成任务。其核心概念包括：</p>
+      <ul>
+        <li><strong>ConversableAgent</strong>：所有 Agent 的基类，拥有发送和接收消息的能力。可以配置不同的 LLM 后端、系统提示词和工具。</li>
+        <li><strong>GroupChat</strong>：允许多个 Agent 在一个共享的对话空间中协作。当一条消息发送到群组时，所有 Agent 都能看到，并由 GroupChatManager 根据规则选择下一个发言者。</li>
+        <li><strong>Two-Agent Chat Pattern</strong>：最常见的模式是助手 Agent（AssistantAgent）与用户代理（UserProxyAgent）之间的双向对话。UserProxyAgent 可以代表人类执行代码和工具调用。</li>
+        <li><strong>嵌套对话</strong>：一个对话中触发另一个子对话，例如：主对话中的 Agent 可能需要与另一个专门的 Agent 进行子对话来解决特定子问题。</li>
+        <li><strong>代码执行沙箱</strong>：AutoGen 内置了 Docker 沙箱中的代码执行能力，Agent 可以生成代码、执行代码、根据执行结果修正代码，形成自动的代码迭代循环。</li>
+        <li><strong>核心优势</strong>：微软生态原生支持（Azure OpenAI 集成）、对话模式灵活可组合、代码执行能力强大、支持人类介入（Human-in-the-Loop）。</li>
+      </ul>
+      <div class="alert alert-info">
+        <div class="alert-title">AutoGen vs CrewAI</div>
+        <p>AutoGen 更强调<strong>对话驱动</strong> — Agent 通过聊天来协调，适合需要大量交互和代码执行的场景。CrewAI 更强调<strong>角色驱动</strong> — Agent 有明确的角色定义和任务分配，适合结构化的流水线工作。两者可以互补：AutoGen 在灵活性和代码能力上更强，CrewAI 在角色建模和任务编排上更直观。</p>
+      </div>
+    </div>
+
+    <!-- Card 7: Anthropic Claude Features -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">🧠</div>
+        <div>
+          <div class="card-title">Anthropic Claude — 模型原生 Agent 能力</div>
+        </div>
+      </div>
+      <p>Anthropic 的 Claude 系列模型为 Agent 开发提供了一流的原生能力，并通过官方 SDK 提供简洁的 API。核心特性包括：</p>
+      <ul>
+        <li><strong>Tool Use (Function Calling)</strong>：Claude 原生支持工具调用，可以定义工具的 name、description 和 input_schema。支持并行工具调用（同时调用多个不相互依赖的工具），显著提升效率。</li>
+        <li><strong>Extended Thinking（扩展思考）</strong>：Claude 3.5 Sonnet 及以上模型支持"思考模式"，在回答前进行透明的、结构化的多步推理。可以设置 thinking budget（如 16000 tokens）来控制思考深度。思考过程对开发者可见，便于调试优化。</li>
+        <li><strong>Computer Use（计算机操作）</strong>：Claude 可以直接操作计算机界面——移动鼠标、点击按钮、截图分析、输入文字。这为构建操作 GUI 应用的 Agent 提供了强大的基础能力。</li>
+        <li><strong>MCP (Model Context Protocol)</strong>：Anthropic 提出的开放协议，标准化了模型与外部工具/数据源之间的连接方式。MCP 服务器可以暴露 Resources（数据）、Tools（操作）、Prompts（模板），Client 通过标准协议调用。目前已形成丰富的 MCP 服务生态。</li>
+        <li><strong>Prompt Caching</strong>：对重复使用的系统提示词和工具定义进行缓存，大幅降低延迟和成本（最高可节省 90% 的输入 token 成本）。</li>
+        <li><strong>高安全标准</strong>：Claude 在安全对齐方面投入巨大，由 Constitutional AI 方法训练，天然适合需要高安全合规的 Agent 场景。</li>
+      </ul>
+    </div>
+
+    <!-- Card 8: Anthropic SDK Code Example vs LangChain -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">📊</div>
+        <div>
+          <div class="card-title">同一任务的两种实现对比：LangChain vs Anthropic SDK</div>
+        </div>
+      </div>
+      <p>以下展示用两种框架实现同一个任务——"查询天气并根据结果给用户出行建议"的代码对比：</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">方案A: Anthropic SDK（直接、类型安全）</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="token-cm"># 定义工具</span>
+tools = [{
+    <span class="token-str">"name"</span>: <span class="token-str">"get_weather"</span>,
+    <span class="token-str">"description"</span>: <span class="token-str">"获取城市天气"</span>,
+    <span class="token-str">"input_schema"</span>: {
+        <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+        <span class="token-str">"properties"</span>: {
+            <span class="token-str">"city"</span>: {<span class="token-str">"type"</span>: <span class="token-str">"string"</span>}
+        },
+        <span class="token-str">"required"</span>: [<span class="token-str">"city"</span>]
+    }
+}]
+
+<span class="token-cm"># 执行 Agent 循环</span>
+messages = [{<span class="token-str">"role"</span>: <span class="token-str">"user"</span>, <span class="token-str">"content"</span>: <span class="token-str">"北京天气如何？"</span>}]
+
+<span class="token-kw">for</span> _ <span class="token-kw">in</span> <span class="token-builtin">range</span>(<span class="token-num">5</span>):  <span class="token-cm"># 最大循环 5 次</span>
+    response = client.messages.create(
+        model=<span class="token-str">"claude-sonnet-4-20250514"</span>,
+        max_tokens=<span class="token-num">1024</span>,
+        system=<span class="token-str">"你是天气助手，根据天气给出行建议。"</span>,
+        messages=messages,
+        tools=tools
+    )
+
+    <span class="token-kw">if</span> response.stop_reason == <span class="token-str">"end_turn"</span>:
+        <span class="token-builtin">print</span>(response.content[<span class="token-num">0</span>].text)
+        <span class="token-kw">break</span>
+
+    <span class="token-cm"># 处理工具调用</span>
+    <span class="token-kw">for</span> block <span class="token-kw">in</span> response.content:
+        <span class="token-kw">if</span> block.type == <span class="token-str">"tool_use"</span>:
+            result = execute_tool(block.name, block.input)
+            messages.append({
+                <span class="token-str">"role"</span>: <span class="token-str">"user"</span>,
+                <span class="token-str">"content"</span>: [{<span class="token-str">"type"</span>: <span class="token-str">"tool_result"</span>,
+                               <span class="token-str">"tool_use_id"</span>: block.id,
+                               <span class="token-str">"content"</span>: result}]
+            })</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">方案B: LangChain + LangGraph（抽象、可复用）</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">from</span> langgraph.prebuilt <span class="token-kw">import</span> create_react_agent
+<span class="token-kw">from</span> langchain_anthropic <span class="token-kw">import</span> ChatAnthropic
+<span class="token-kw">from</span> langchain.tools <span class="token-kw">import</span> tool
+
+<span class="token-decorator">@tool</span>
+<span class="token-kw">def</span> <span class="token-fn">get_weather</span>(city: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+    <span class="token-str">"""获取城市天气"""</span>
+    <span class="token-kw">return</span> <span class="token-str">f"{city}: 晴，22°C"</span>
+
+model = ChatAnthropic(
+    model=<span class="token-str">"claude-sonnet-4-20250514"</span>
+)
+
+agent = create_react_agent(
+    model=model,
+    tools=[get_weather],
+    prompt=<span class="token-str">"你是天气助手，根据天气给出行建议。"</span>
+)
+
+<span class="token-cm"># 一行代码触发完整 Agent 循环</span>
+result = agent.invoke(
+    {<span class="token-str">"messages"</span>: [<span class="token-str">"北京天气如何？"</span>]}
+)</code></pre>
+    </div>
+
+    <div class="alert alert-success">
+      <div class="alert-title">两种方案的特点对比</div>
+      <p><strong>Anthropic SDK</strong>：代码量稍多但逻辑完全透明，你可以精确控制每一步。适合需要精细控制、高性能、低依赖的场景。<br><strong>LangChain + LangGraph</strong>：代码量少，内置会话管理、状态持久化，适合快速开发和复杂工作流。但调试和理解内部行为需要额外学习成本。</p>
+    </div>
+
+    <!-- Card 9: Framework Comparison Table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">📊</div>
+        <div>
+          <div class="card-title">主流框架全面对比</div>
+          <div class="card-desc">从多个维度横向对比当前主流 Agent 开发框架</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>LangChain</th>
+              <th>CrewAI</th>
+              <th>AutoGen</th>
+              <th>Anthropic SDK</th>
+              <th>OpenAI Assistants</th>
+              <th>Semantic Kernel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>设计理念</strong></td>
+              <td>链式组合、模块化</td>
+              <td>角色扮演、任务分配</td>
+              <td>对话驱动、代码优先</td>
+              <td>原生能力、最小抽象</td>
+              <td>托管服务、零运维</td>
+              <td>企业集成、多语言</td>
+            </tr>
+            <tr>
+              <td><strong>多 Agent 支持</strong></td>
+              <td>通过 LangGraph 支持</td>
+              <td>核心能力</td>
+              <td>核心能力</td>
+              <td>需自行实现</td>
+              <td>有限</td>
+              <td>有限</td>
+            </tr>
+            <tr>
+              <td><strong>学习曲线</strong></td>
+              <td>中高（概念多）</td>
+              <td>低（直觉化）</td>
+              <td>中等</td>
+              <td>低（API 直观）</td>
+              <td>极低</td>
+              <td>中等</td>
+            </tr>
+            <tr>
+              <td><strong>灵活性</strong></td>
+              <td>高</td>
+              <td>中等</td>
+              <td>高</td>
+              <td>极高</td>
+              <td>低（受限平台）</td>
+              <td>中等</td>
+            </tr>
+            <tr>
+              <td><strong>生态/集成</strong></td>
+              <td>极丰富（数百个）</td>
+              <td>中等</td>
+              <td>偏微软生态</td>
+              <td>Anthropic 原生</td>
+              <td>OpenAI 原生</td>
+              <td>微软生态（C#/Python/Java）</td>
+            </tr>
+            <tr>
+              <td><strong>生产成熟度</strong></td>
+              <td>高（广泛使用）</td>
+              <td>中（快速增长）</td>
+              <td>中高（微软背书）</td>
+              <td>高（Anthropic 维护）</td>
+              <td>高（OpenAI 维护）</td>
+              <td>中高（微软背書）</td>
+            </tr>
+            <tr>
+              <td><strong>模型支持</strong></td>
+              <td>几乎所有主流模型</td>
+              <td>通过 LangChain 间接支持</td>
+              <td>支持多种模型</td>
+              <td>仅 Claude 系列</td>
+              <td>仅 OpenAI 模型</td>
+              <td>支持多种模型</td>
+            </tr>
+            <tr>
+              <td><strong>最佳场景</strong></td>
+              <td>RAG应用、复杂工作流</td>
+              <td>内容创作、多角色协作</td>
+              <td>代码生成、自动化研究</td>
+              <td>高安全Agent、Computer Use</td>
+              <td>快速原型、低代码集成</td>
+              <td>企业级 .NET/Java 集成</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 10: How to Choose -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">🎯</div>
+        <div>
+          <div class="card-title">如何选择适合你的框架</div>
+        </div>
+      </div>
+      <p>选择 Agent 框架需要综合考虑以下因素。以下是一个结构化的决策框架：</p>
+      <ol>
+        <li><strong>评估项目复杂度</strong>
+          <ul>
+            <li>简单 Agent（1-2个工具、简单循环） → 直接用 Anthropic SDK 或 OpenAI SDK</li>
+            <li>中等复杂度（多工具、RAG、记忆系统） → LangChain 或 Semantic Kernel</li>
+            <li>高复杂度（多 Agent 协作、复杂状态管理） → LangGraph + LangChain 或 AutoGen</li>
+          </ul>
+        </li>
+        <li><strong>考虑团队技术栈</strong>
+          <ul>
+            <li>Python 为主 → LangChain、CrewAI、AutoGen</li>
+            <li>.NET / C# → Semantic Kernel（微软官方支持）</li>
+            <li>TypeScript / Node.js → LangChain.js 或 Vercel AI SDK</li>
+          </ul>
+        </li>
+        <li><strong>模型锁定策略</strong>
+          <ul>
+            <li>深度绑定 Anthropic → Anthropic SDK（利用 Tool Use、Extended Thinking 等独特特性）</li>
+            <li>深度绑定 OpenAI → OpenAI Assistants API（最省心，但灵活性受限）</li>
+            <li>模型无关/多模型切换 → LangChain（统一的模型接口）</li>
+          </ul>
+        </li>
+        <li><strong>安全与合规要求</strong>
+          <ul>
+            <li>金融/医疗等高合规场景 → Anthropic Claude（Constitutional AI 安全对齐）+ 自建编排层</li>
+            <li>通用场景 → LangChain（内置输入/输出安全过滤器）</li>
+          </ul>
+        </li>
+        <li><strong>不要过度设计</strong>
+          <ul>
+            <li>"框架饥渴症"是常见陷阱 — 花三周选框架不如花三天用 SDK 写原型</li>
+            <li>可以先从 Anthropic SDK 或 OpenAI SDK 做原型验证，确认需求后再引入 LangChain 等框架来提升可维护性</li>
+          </ul>
+        </li>
+      </ol>
+      <div class="alert alert-success">
+        <div class="alert-title">实践建议</div>
+        <p><strong>起步建议</strong>：先用 Anthropic SDK 或 OpenAI SDK 写一个最小可行的 Agent 原型（不超过200行代码）。这个过程会让你深刻理解 Agent 循环的本质。之后再用框架重构，你会更清楚什么抽象是你需要的，什么是多余的。</p>
+      </div>
+    </div>
+
+    <!-- Card 11: Semantic Kernel -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">🔌</div>
+        <div>
+          <div class="card-title">Semantic Kernel (Microsoft) — 企业级 AI 编排 SDK</div>
+        </div>
+      </div>
+      <p><strong>Semantic Kernel (SK)</strong> 是微软推出的轻量级 AI 编排 SDK，与 LangChain 定位相似但设计哲学不同：</p>
+      <ul>
+        <li><strong>多语言支持</strong>：原生支持 C#、Python 和 Java，对 .NET 生态的企业用户特别友好。</li>
+        <li><strong>Plugin 架构</strong>：将功能封装为"插件"（Plugin），分为 Native Plugin（原生代码函数）和 Semantic Plugin（基于提示词模板）。插件可以被 Planner 自动编排调用。</li>
+        <li><strong>Planner</strong>：类似于 LangChain 的 Agent，但更轻量化。从用户的自然语言目标自动生成执行计划，选择要调用的插件和参数。</li>
+        <li><strong>Process Framework</strong>：SK 最近引入的流程编排能力，允许定义带有分支、循环、条件逻辑的业务流程，这些流程可以调用 AI 步骤作为其中一环。</li>
+        <li><strong>与 Azure 生态深度集成</strong>：天然支持 Azure OpenAI、Azure AI Search、Azure Cosmos DB 等服务，适合 Azure 云用户。</li>
+        <li><strong>适用场景</strong>：企业内部工具集成（通过 Plugin 模型轻松连接现有的企业 API）、.NET/C# 项目、需要将 AI 调用嵌入现有业务流程的场景。</li>
+      </ul>
+    </div>
+
+    <!-- Card 12: OpenAI Assistants API -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">🤖</div>
+        <div>
+          <div class="card-title">OpenAI Assistants API — 零运维的托管 Agent 服务</div>
+        </div>
+      </div>
+      <p>OpenAI 的 Assistants API 是一种全托管的 Agent 服务，你只需定义 Assistants 的配置，OpenAI 负责 Agent 循环、工具执行和状态管理：</p>
+      <ul>
+        <li><strong>核心抽象</strong>：Assistant（助手配置：指令+模型+工具）、Thread（对话线程：自动管理上下文窗口）、Run（一次执行：OpenAI 自动处理 Agent 循环）。</li>
+        <li><strong>内置工具</strong>：Code Interpreter（代码解释器，沙箱执行 Python）、File Search（文件搜索，基于向量检索）、Function Calling（自定义函数调用）。</li>
+        <li><strong>流式支持</strong>：支持 Server-Sent Events 实时推送 Agent 的执行状态和中间步骤。</li>
+        <li><strong>优势</strong>：零运维、无需手动管理 Agent 循环和上下文窗口、OpenAI 持续优化底层模型和 Agent 执行策略。</li>
+        <li><strong>局限</strong>：仅支持 OpenAI 模型、工具执行逻辑受限于 OpenAI 平台提供的框架、自定义程度有限、成本不可控（Agent 循环次数由 OpenAI 决定）。</li>
+      </ul>
+      <div class="alert alert-warning">
+        <div class="alert-title">选择提醒</div>
+        <p>Assistants API 非常适合<strong>快速验证想法和构建原型</strong>，但生产环境中需要评估：你是否愿意将 Agent 执行逻辑的控制权完全交给 OpenAI？如果你的回答是"不确定"，那么建议使用更灵活的 SDK + 自建编排层方案。</p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="9">
+      <div class="quiz-title">📝 章节测验</div>
+      <div class="quiz-desc">测试你对 Agent 开发框架的理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. LangChain 中专门用于构建有状态、多步骤 Agent 的库叫什么？</div>
+        <button class="quiz-option" data-answer="0">A. LangServe</button>
+        <button class="quiz-option" data-answer="1">B. LangSmith</button>
+        <button class="quiz-option" data-answer="2">C. LangGraph</button>
+        <button class="quiz-option" data-answer="3">D. LangFlow</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. CrewAI 的任务执行流程有哪两种模式？</div>
+        <button class="quiz-option" data-answer="0">A. 同步和异步</button>
+        <button class="quiz-option" data-answer="1">B. Sequential（顺序）和 Hierarchical（层级）</button>
+        <button class="quiz-option" data-answer="2">C. Push 和 Pull</button>
+        <button class="quiz-option" data-answer="3">D. Event-driven 和 Polling</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. Anthropic Claude 的 MCP (Model Context Protocol) 主要解决什么问题？</div>
+        <button class="quiz-option" data-answer="0">A. 标准化模型与外部工具/数据源之间的连接</button>
+        <button class="quiz-option" data-answer="1">B. 优化模型的推理速度</button>
+        <button class="quiz-option" data-answer="2">C. 实现模型的多语言翻译</button>
+        <button class="quiz-option" data-answer="3">D. 提供模型的训练能力</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a class="btn" href="../chapters/08-prompt-engineering.html">
+        ← <span>第8章：提示词工程</span>
+      </a>
+      <a class="btn btn-primary" href="../chapters/10-evaluation-testing.html">
+        <span>第10章：评估与测试</span> →
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- ============================================================
+     Agent Simulator Panel
+     ============================================================ -->
+<button class="sim-toggle" id="simToggle" title="Agent 模拟器">🤖</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <span><span class="sim-status-dot"></span> Agent 模拟器</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="simClose">✕</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      👋 你好！我是一个模拟的 AI Agent。试试问我关于 Agent 框架的问题，观察我是如何思考→行动→观察的！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Notes Panel
+     ============================================================ -->
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:106px;width:48px;height:48px;border-radius:50%;background:var(--bg-tertiary);border:1px solid var(--border-color);z-index:85;">📝</button>
+
+<div class="sim-panel" id="notesPanel" style="bottom:96px;right:106px;width:380px;height:480px;">
+  <div class="sim-header">
+    <span>📒 我的笔记</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="notesClose">✕</button>
+  </div>
+  <div class="sim-messages" id="notesList" style="padding:12px;">
+    <div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧 📝</div>
+  </div>
+  <div class="sim-input-area" style="flex-direction:column;gap:8px;">
+    <textarea class="sim-input" id="noteInput" placeholder="在这里写笔记..." rows="3"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：实战进阶</option>
+        <option value="9" selected>第9章：Agent框架</option>
+        <option value="10">第10章：评估与测试</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

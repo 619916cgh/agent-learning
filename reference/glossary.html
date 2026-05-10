@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完整术语表 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+/* Glossary Hero */
+.glossary-hero { text-align: center; padding: 20px 0 32px; }
+.glossary-hero h1 { font-size: 2.4rem; font-weight: 900; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* AZ Quick Nav */
+.az-nav { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 16px 0 24px; }
+.az-nav a { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); font-weight: 700; font-size: 14px; text-decoration: none; transition: all var(--ease-fast); }
+.az-nav a:hover, .az-nav a.active { background: var(--accent-cyan); color: #080c14; border-color: var(--accent-cyan); box-shadow: 0 0 16px var(--border-glow-cyan); }
+.az-nav a.empty { opacity: 0.25; pointer-events: none; }
+
+/* In-Page Search */
+.glossary-search-wrap { position: relative; max-width: 600px; margin: 0 auto 32px; }
+.glossary-search-wrap input { width: 100%; padding: 14px 20px; background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); font-size: 16px; font-family: var(--font-body); outline: none; transition: all var(--ease-fast); }
+.glossary-search-wrap input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 20px var(--border-glow-cyan); }
+
+/* Filter Bar */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px; }
+.filter-btn { padding: 8px 18px; border-radius: var(--radius-full); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: all var(--ease-fast); white-space: nowrap; }
+.filter-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.filter-btn.active { background: var(--accent-cyan); color: #080c14; border-color: var(--accent-cyan); box-shadow: 0 0 16px var(--border-glow-cyan); }
+
+/* Category Headings */
+.cat-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--border-color); }
+.cat-heading .cat-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.cat-dot.c-basic { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+.cat-dot.c-core { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+.cat-dot.c-technical { background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue); }
+.cat-dot.c-reasoning { background: var(--accent-orange); box-shadow: 0 0 10px var(--accent-orange); }
+.cat-dot.c-security { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
+.cat-dot.c-infra { background: var(--accent-purple); box-shadow: 0 0 10px var(--accent-purple); }
+.cat-dot.c-advanced { background: #ff6d00; box-shadow: 0 0 10px #ff6d00; }
+.cat-dot.c-challenge { background: #ffab00; box-shadow: 0 0 10px #ffab00; }
+.cat-heading h2 { font-size: 20px; font-weight: 800; margin: 0; }
+
+/* Term Cards */
+.glossary-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
+.glossary-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px 28px; transition: all var(--ease-base); position: relative; overflow: hidden; }
+.glossary-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent-cyan); border-radius: 0 2px 2px 0; transition: all var(--ease-base); }
+.glossary-card:hover { border-color: var(--border-glow-cyan); box-shadow: var(--shadow-glow-cyan); transform: translateY(-2px); }
+.glossary-card:hover::before { background: var(--accent-purple); width: 5px; }
+.glossary-card.hidden { display: none; }
+.gt-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.gt-names { flex: 1; min-width: 200px; }
+.gt-zh { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+.gt-en { font-family: var(--font-mono); font-size: 13px; color: var(--accent-cyan); font-weight: 500; }
+.gt-badge { display: inline-block; padding: 4px 12px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.bg-basic { background: rgba(0,230,118,0.1); color: var(--accent-green); border: 1px solid rgba(0,230,118,0.2); }
+.bg-core { background: rgba(0,229,255,0.1); color: var(--accent-cyan); border: 1px solid rgba(0,229,255,0.2); }
+.bg-technical { background: rgba(68,138,255,0.1); color: var(--accent-blue); border: 1px solid rgba(68,138,255,0.2); }
+.bg-reasoning { background: rgba(255,145,0,0.1); color: var(--accent-orange); border: 1px solid rgba(255,145,0,0.2); }
+.bg-security { background: rgba(255,61,90,0.1); color: var(--accent-red); border: 1px solid rgba(255,61,90,0.2); }
+.bg-infra { background: rgba(180,74,238,0.1); color: var(--accent-purple); border: 1px solid rgba(180,74,238,0.2); }
+.bg-advanced { background: rgba(255,109,0,0.1); color: #ff6d00; border: 1px solid rgba(255,109,0,0.2); }
+.bg-challenge { background: rgba(255,171,0,0.1); color: #ffab00; border: 1px solid rgba(255,171,0,0.2); }
+.gt-def { color: var(--text-secondary); font-size: 14px; line-height: 1.8; margin-bottom: 14px; }
+.gt-def p { margin-bottom: 8px; }
+.gt-def p:last-child { margin-bottom: 0; }
+.gt-related { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 12px; border-top: 1px solid var(--border-color); }
+.gt-related-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.gt-related a { display: inline-block; padding: 3px 10px; background: var(--bg-tertiary); border-radius: var(--radius-full); font-size: 12px; color: var(--accent-cyan); text-decoration: none; transition: all var(--ease-fast); }
+.gt-related a:hover { background: var(--accent-cyan); color: #080c14; }
+
+.no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 16px; display: none; }
+.back-top { display: block; text-align: center; margin: 48px 0 24px; }
+
+@media (max-width: 768px) {
+  .glossary-hero h1 { font-size: 1.8rem; }
+  .glossary-card { padding: 18px; }
+  .gt-header { flex-direction: column; gap: 8px; }
+  .filter-btn { padding: 6px 12px; font-size: 12px; }
+  .az-nav a { width: 30px; height: 30px; font-size: 12px; }
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ===== TOP BAR ===== -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单" style="display:none;">&#9776;</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="searchClose">&#10005;</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">&#128218; 学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link">01 · 什么是 AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link">02 · 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link">03 · 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link">04 · 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link">05 · 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link">06 · 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link">07 · 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link">08 · 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link">09 · Agent框架生态</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link">10 · 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link">11 · 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link">12 · 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link">13 · 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link">14 · 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link">15 · 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">&#128736; 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">&#128172; 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">&#128295; 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">&#129302; Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">&#128176; 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">&#129504; 记忆可视化</a>
+
+  <div class="sidebar-section-title">&#128214; 参考资料</div>
+  <a href="glossary.html" class="nav-link active">&#128213; 完整术语表</a>
+  <a href="framework-comparison.html" class="nav-link">&#128202; 框架对比</a>
+  <a href="case-studies.html" class="nav-link">&#128188; 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content">
+
+  <section class="glossary-hero">
+    <h1>&#128213; AI Agent 完整术语表</h1>
+    <p style="color:var(--text-muted);">收录 20+ 个核心术语 · 8 大分类 · 完整定义与关联参考</p>
+  </section>
+
+  <!-- In-Page Search -->
+  <div class="glossary-search-wrap">
+    <input type="text" id="glossarySearch" placeholder="输入关键词快速查找术语...">
+  </div>
+
+  <!-- A-Z Nav -->
+  <nav class="az-nav" id="azNav">
+    <a href="#cat-basic">A</a><a href="#cat-core">F</a><a href="#cat-tech">R</a>
+    <a href="#cat-reasoning">C</a><a href="#cat-security">G</a>
+    <a href="#cat-infra">M</a><a href="#cat-advanced">M</a><a href="#cat-challenge">H</a>
+  </nav>
+
+  <!-- Category Filters -->
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">全部 (21)</button>
+    <button class="filter-btn" data-filter="基础概念">基础概念 (3)</button>
+    <button class="filter-btn" data-filter="核心概念">核心概念 (4)</button>
+    <button class="filter-btn" data-filter="技术方法">技术方法 (5)</button>
+    <button class="filter-btn" data-filter="推理模式">推理模式 (3)</button>
+    <button class="filter-btn" data-filter="安全相关">安全相关 (3)</button>
+    <button class="filter-btn" data-filter="基础设施">基础设施 (2)</button>
+    <button class="filter-btn" data-filter="高级话题">高级话题 (1)</button>
+  </div>
+
+  <!-- ===== CATEGORY: 基础概念 ===== -->
+  <div class="cat-heading" id="cat-basic" data-category="基础概念">
+    <span class="cat-dot c-basic"></span>
+    <h2>基础概念</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="基础概念" data-term="AI Agent">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">AI Agent（智能体）</div><div class="gt-en">AI Agent / Intelligent Agent</div></div>
+        <span class="gt-badge bg-basic">基础概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>AI Agent（智能体）</strong>是一种能够自主感知环境、做出决策并执行行动以实现特定目标的人工智能系统。理解 Agent 的关键在于认识到：<strong>Agent 不是"更好的聊天机器人"，而是"能够使用工具的自主推理系统"</strong>。</p>
+        <p>从技术角度看，Agent 的核心公式为：<strong>Agent = LLM（推理引擎）+ 工具系统 + 编排逻辑 + 记忆系统 + 安全护栏</strong>。LLM 充当"大脑"，负责理解意图和制定策略；工具系统是"手和眼"，通过调用 API、执行代码、操作数据库等方式与外部世界交互；编排逻辑控制整个执行流程；记忆系统管理短期、工作和长期三层记忆；安全护栏确保行为在可控边界内。</p>
+        <p>Agent 的关键特征包括：<strong>自主性</strong>——无需逐步人工指令即可独立规划执行；<strong>工具使用</strong>——根据需求自动选择和调用合适的外部工具；<strong>推理能力</strong>——多步推理、分析和反思；<strong>记忆能力</strong>——跨会话和跨任务的信息持久化；<strong>学习能力</strong>——从反馈和错误中持续改进策略。</p>
+        <p>当前基于 LLM 的 Agent 主要处于 L2（目标型）到 L3（效用型）的智能层级，并具备部分 L4（学习型）特征。典型应用场景包括：软件开发助手、自动化数据分析、智能客服系统、DevOps 运维自动化和个人任务助理等。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-llm" class="term-link">LLM</a>
+        <a href="#term-fc" class="term-link">Function Calling</a>
+        <a href="#term-tool-use" class="term-link">Tool Use</a>
+        <a href="#term-react" class="term-link">ReAct</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="基础概念" data-term="LLM">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">LLM（大语言模型）</div><div class="gt-en">Large Language Model</div></div>
+        <span class="gt-badge bg-basic">基础概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>大语言模型（LLM）</strong>是基于 Transformer 架构、在海量文本数据上训练的深度神经网络模型，是 AI Agent 的核心推理引擎。模型通过自监督学习从数十亿个参数中习得语言的统计规律、知识关联和推理模式。</p>
+        <p>在 Agent 系统中，LLM 承担着多重关键角色：<strong>意图理解</strong>——将自然语言指令解析为结构化的任务描述；<strong>任务分解</strong>——把复杂目标拆分为可逐步执行的子任务；<strong>工具选择</strong>——从工具集中选出最适合当前步骤的工具并填充参数；<strong>结果综合</strong>——将多次工具调用的结果整合为连贯、有洞察的最终回复；<strong>错误恢复</strong>——识别执行失败并自主调整策略。</p>
+        <p>主流 LLM 包括 OpenAI 的 GPT-4o/4.5 系列、Anthropic 的 Claude 系列、Google 的 Gemini 系列、Meta 的 Llama 系列以及 DeepSeek、Qwen 等开源模型。不同模型在推理深度、上下文窗口大小（128K 到 1M+）、工具调用精度、多语言能力和成本结构方面各有差异。</p>
+        <p>LLM 的核心能力源于规模的涌现效应——当参数量和训练数据超过一定阈值时，模型会展现出小模型不具备的能力，如上下文学习（Few-shot Learning）、思维链推理和元认知（知道自己不知道什么）。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-agent" class="term-link">AI Agent</a>
+        <a href="#term-context" class="term-link">Context Window</a>
+        <a href="#term-token" class="term-link">Token</a>
+        <a href="#term-prompt" class="term-link">Prompt Engineering</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="基础概念" data-term="Autonomous">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">自主性（Autonomy）</div><div class="gt-en">Autonomy / Autonomous Behavior</div></div>
+        <span class="gt-badge bg-basic">基础概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>自主性</strong>是 Agent 区别于传统程序的最核心特征，指系统在没有逐步人工指令的情况下独立做出决策并执行行动的能力。自主性并非"完全不需要人"，而是指 Agent 能够根据目标和当前状态自主决定下一步做什么，无需人类逐步骤地发出指令。</p>
+        <p>自主性体现为三个递进层次：<strong>执行自主</strong>——Agent 根据高层目标自主规划具体行动步骤（如告知"帮我准备季度报告"后自主决定查询哪些数据、生成什么图表）；<strong>路径自主</strong>——面对同一目标，Agent 能在多条可行路径中选择最优方案；<strong>策略自主</strong>——当首选路径失败时，Agent 自主切换策略尝试替代方案，而非简单报错退出。</p>
+        <p>在实际设计中，自主性需要在<strong>效率</strong>和<strong>安全性</strong>之间取得平衡。全自主 Agent 可能在陌生场景下做出危险决策，因此大多数生产系统采用"有条件自主"模式——常规操作自动执行，高风险操作需人工确认。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-agent" class="term-link">AI Agent</a>
+        <a href="#term-guardrails" class="term-link">Guardrails</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 核心概念 ===== -->
+  <div class="cat-heading" id="cat-core" data-category="核心概念">
+    <span class="cat-dot c-core"></span>
+    <h2>核心概念</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="核心概念" data-term="Function Calling" id="term-fc">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Function Calling（函数调用）</div><div class="gt-en">Function Calling / Tool Calling</div></div>
+        <span class="gt-badge bg-core">核心概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Function Calling</strong> 是 LLM 的一项关键能力，允许模型以结构化 JSON 格式输出调用特定函数的请求，而非生成自由文本。这是 LLM 从"只会说话"到"能够做事"的质变技术。</p>
+        <p>工作流程分为五个阶段：<strong>定义阶段</strong>——开发者将工具的名称、描述、参数 JSON Schema 随请求发送给模型；<strong>推理阶段</strong>——模型根据用户输入判断是否需要调用工具，若需要则决定调用哪个工具并传什么参数；<strong>输出阶段</strong>——模型输出结构化 JSON（包含函数名和参数）；<strong>执行阶段</strong>——Agent 框架解析 JSON 并实际调用对应函数（模型本身不执行任何代码）；<strong>反馈阶段</strong>——将函数结果返回给模型，模型据此决定继续调用还是给出最终回答。</p>
+        <p>Function Calling 的精度取决于多个因素的综合效果：工具描述的清晰度和准确性、参数 Schema 的完整性、模型本身的推理能力、以及 Prompt 中提供的使用示例质量。最佳实践包括精确的 description 字段、使用 enum 限制参数可选值、明确标记 required 参数、为复杂工具提供 Few-shot 示例。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-tool-use" class="term-link">Tool Use</a>
+        <a href="#term-agent" class="term-link">AI Agent</a>
+        <a href="#term-orchestration" class="term-link">Orchestration</a>
+        <a href="#term-mcp" class="term-link">MCP</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="核心概念" data-term="Tool Use" id="term-tool-use">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Tool Use（工具使用）</div><div class="gt-en">Tool Use</div></div>
+        <span class="gt-badge bg-core">核心概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Tool Use（工具使用）</strong>是 Agent 通过调用外部工具来完成超出 LLM 自身能力范围的任务的能力。它是 Agent 区别于纯 LLM Chat 的核心特征，使 Agent 成为真正能够"动手做事"的智能系统。</p>
+        <p>Agent 可使用的工具涵盖：<strong>API 调用</strong>（天气查询、股票数据、网页搜索）、<strong>代码执行</strong>（Python/R/SQL 脚本运行）、<strong>文件操作</strong>（读写、搜索、修改文件）、<strong>数据库操作</strong>（查询、更新记录）、<strong>通信工具</strong>（发送邮件、推送通知）、<strong>浏览器工具</strong>（打开网页、提取内容）。每种工具都有明确的 JSON Schema 定义其接口和参数。</p>
+        <p>工具设计的核心原则：<strong>单一职责</strong>——一个工具只做一件事且做好；<strong>清晰契约</strong>——输入参数和返回格式明确且稳定；<strong>优雅降级</strong>——工具失败时返回有帮助的错误信息而非直接崩溃；<strong>最小权限</strong>——工具只开放完成任务所必需的权限。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-fc" class="term-link">Function Calling</a>
+        <a href="#term-react" class="term-link">ReAct</a>
+        <a href="#term-mcp" class="term-link">MCP</a>
+        <a href="#term-sandbox" class="term-link">Sandbox</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="核心概念" data-term="Context Window" id="term-context">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Context Window（上下文窗口）</div><div class="gt-en">Context Window</div></div>
+        <span class="gt-badge bg-core">核心概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>上下文窗口</strong>是 LLM 在一次推理中能够"看到"的最大文本量，以 Token 为单位衡量。它决定 Agent 能同时处理的对话长度、能记忆的历史信息量、以及能一次性使用的工具调用轮次。</p>
+        <p>上下文窗口经历了快速增长：从 GPT-2 的 1K 到 GPT-4 Turbo 的 128K，再到 Claude 的 200K 和 Gemini 的 1M+。更大的窗口使得 Agent 能处理超长文档（整个代码库、数百页 PDF）、维持更长时间的连续对话、并包含更完整的工具调用历史用于自我反思。</p>
+        <p>然而更大的窗口也带来挑战：<strong>注意力稀释效应</strong>——模型对窗口中部信息的关注度可能降低（"Lost in the Middle"问题）；<strong>成本非线性增长</strong>——长上下文的计算和计费开销显著增大；<strong>延迟增加</strong>——处理更多 Token 需要更长时间。因此，有效管理而非无脑扩充上下文才是关键。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-token" class="term-link">Token</a>
+        <a href="#term-llm" class="term-link">LLM</a>
+        <a href="#term-rag" class="term-link">RAG</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="核心概念" data-term="Token" id="term-token">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Token（令牌/词元）</div><div class="gt-en">Token</div></div>
+        <span class="gt-badge bg-core">核心概念</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Token</strong> 是 LLM 处理文本的基本单位。英文中约 1 Token = 0.75 个单词，中文中约 1 个汉字 = 1-2 个 Token。模型的输入理解、输出生成、计费均以 Token 为基本计量单位。这意味着处理中文内容的成本通常是英文的 1.5-3 倍。</p>
+        <p>在 Agent 场景中，Token 消耗源包括：<strong>系统提示词</strong>的固定开销（每次请求都需完整传递）、<strong>对话历史</strong>的累积开销（随对话轮次线性增长）、<strong>工具 Schema</strong>的传递开销（所有可用工具的定义都被计入）、<strong>工具执行结果</strong>的返回开销（可能非常庞大）、以及<strong>模型输出</strong>本身的 Token。一个复杂的多步 Agent 任务可能消耗数万甚至十万 Token。</p>
+        <p>Token 管理是成本控制的核心：精简系统提示词、设置滑动窗口限制对话历史、压缩工具返回结果、采用 Prompt Caching 等技术都能显著降低 Token 消耗。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-context" class="term-link">Context Window</a>
+        <a href="#term-llm" class="term-link">LLM</a>
+        <a href="#term-prompt" class="term-link">Prompt Engineering</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 技术方法 ===== -->
+  <div class="cat-heading" id="cat-tech" data-category="技术方法">
+    <span class="cat-dot c-technical"></span>
+    <h2>技术方法</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="技术方法" data-term="RAG" id="term-rag">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">RAG（检索增强生成）</div><div class="gt-en">Retrieval-Augmented Generation</div></div>
+        <span class="gt-badge bg-technical">技术方法</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>RAG（检索增强生成）</strong>是一种将信息检索与文本生成相结合的架构模式。核心思想：当 LLM 需要回答问题时，先从外部知识库中检索最相关的文档片段，再将片段作为上下文提供给 LLM，使其生成的回答更准确、有据可查且时效性强。</p>
+        <p>RAG 解决了 LLM 的两个根本局限：<strong>知识截止日期</strong>——训练数据存在时间截止点，对截止后的事件一无所知；<strong>幻觉倾向</strong>——缺乏信息时 LLM 可能编造答案。通过引入外部知识检索，RAG 让 Agent 能访问最新、最相关的信息。</p>
+        <p>标准 RAG 流程：<strong>文档分块</strong>（按语义边界切分为 256-1024 Token 的 Chunk）→ <strong>向量化</strong>（用 Embedding 模型将每个 Chunk 转为高维向量）→ <strong>索引存储</strong>（向量存入向量数据库）→ <strong>查询检索</strong>（用户查询同样向量化后通过相似度搜索找到 Top-K 相关 Chunk）→ <strong>增强生成</strong>（检索结果注入 LLM 上下文生成回答）。</p>
+        <p>RAG 性能的关键优化点：Chunk 大小的选择（太小丢失上下文，太大稀释精度）、Embedding 模型的质量、Top-K 的取值（通常 3-10）、以及是否使用 Reranker 做二次排序提升精度。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-embedding" class="term-link">Embedding</a>
+        <a href="#term-vector-db" class="term-link">Vector Database</a>
+        <a href="#term-llm" class="term-link">LLM</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="技术方法" data-term="Embedding" id="term-embedding">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Embedding（嵌入向量）</div><div class="gt-en">Embedding / Vector Representation</div></div>
+        <span class="gt-badge bg-technical">技术方法</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Embedding（嵌入向量）</strong>是将文本、图像等非结构化数据转换为固定长度浮点数向量的数学方法。核心价值在于将语义相似度转化为数学上的向量距离——语义越接近的两段文本，其 Embedding 在空间中的余弦距离越小。</p>
+        <p>主流 Embedding 模型包括 OpenAI 的 text-embedding-3（支持 256-3072 维灵活调整）、Cohere 的 Embed v3、以及开源的 BGE、GTE 系列。优秀 Embedding 模型能捕捉深层语义而非表面关键词匹配——例如，"人工智能"和"机器学习"的向量距离远小于"人工智能"和"天气"的距离。</p>
+        <p>在 Agent 系统中，Embedding 的应用场景包括：RAG 的知识检索（查询与文档的语义匹配）、长期记忆的语义召回（从历史对话中检索最相关的记忆）、工具选择的辅助（匹配当前任务最相关的工具）、以及异常检测（监控输出向量与期望的偏差）。选择 Embedding 模型需权衡维度、多语言支持、最大输入长度和部署成本。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-vector-db" class="term-link">Vector Database</a>
+        <a href="#term-rag" class="term-link">RAG</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="技术方法" data-term="Vector Database" id="term-vector-db">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Vector Database（向量数据库）</div><div class="gt-en">Vector Database</div></div>
+        <span class="gt-badge bg-technical">技术方法</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>向量数据库</strong>是专为存储和检索高维向量数据设计的数据库系统。核心操作是<strong>近似最近邻搜索（ANN）</strong>——在百万/亿级向量中，快速找到与查询向量最相似的 Top-K 个结果。在 Agent 的 RAG 架构中，向量数据库承载着长期记忆和知识库的角色。</p>
+        <p>主流选择：<strong>Pinecone</strong>（全托管云服务，零配置开箱即用）、<strong>Weaviate</strong>（开源，支持混合搜索——向量+关键词）、<strong>ChromaDB</strong>（轻量级，Python 原生，适合本地开发和实验）、<strong>Milvus</strong>（高性能分布式，适合大规模生产环境）、<strong>Qdrant</strong>（Rust 编写，过滤功能强大）、<strong>pgvector</strong>（PostgreSQL 扩展，让传统数据库也能做向量检索）。</p>
+        <p>选择向量数据库需考虑：向量规模、查询延迟要求（毫秒级对交互式 Agent 至关重要）、过滤能力（向量检索的同时按元数据过滤）、索引算法（HNSW vs IVF——速度与精度的权衡）、运维模式（云服务 vs 自托管）。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-embedding" class="term-link">Embedding</a>
+        <a href="#term-rag" class="term-link">RAG</a>
+        <a href="#term-fine-tuning" class="term-link">Fine-tuning</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="技术方法" data-term="Prompt Engineering" id="term-prompt">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Prompt Engineering（提示词工程）</div><div class="gt-en">Prompt Engineering</div></div>
+        <span class="gt-badge bg-technical">技术方法</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Prompt Engineering</strong>是设计、优化和管理 LLM 输入提示以引导模型产生期望输出的系统性方法论。在 Agent 系统中，System Prompt 不仅定义 Agent 的"人格"和行为规范，还包含工具使用指导、安全边界和错误处理策略。</p>
+        <p>Agent System Prompt 通常包含：<strong>角色定义</strong>（"你是一个专业的代码助手..."）、<strong>能力声明</strong>（"你可以使用以下工具..."）、<strong>行为规则</strong>（"不确定时主动询问用户..."）、<strong>格式要求</strong>（"输出使用 Markdown 格式..."）、<strong>安全约束</strong>（"不要执行可能删除文件的命令..."）、<strong>思维链引导</strong>（"在行动前先分析问题..."）。</p>
+        <p>核心技术包括：<strong>Few-shot Prompting</strong>（提供输入输出示例引导行为）、<strong>Chain-of-Thought</strong>（要求展示逐步推理过程）、<strong>角色扮演</strong>（设定角色身份和背景）、<strong>约束声明</strong>（精确说明什么能做/不能做）、<strong>动态组装</strong>（根据任务上下文动态拼接 Prompt 段落）。提示词工程需要持续迭代——A/B 测试、评估数据集验证、根据实际使用中的故障模式调整。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-llm" class="term-link">LLM</a>
+        <a href="#term-cot" class="term-link">Chain-of-Thought</a>
+        <a href="#term-prompt-injection" class="term-link">Prompt Injection</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="技术方法" data-term="Fine-tuning" id="term-fine-tuning">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Fine-tuning（微调）</div><div class="gt-en">Fine-tuning</div></div>
+        <span class="gt-badge bg-technical">技术方法</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Fine-tuning（微调）</strong>是在预训练模型基础上，使用特定领域数据额外训练以优化模型在特定任务上表现的技术。不同于 Prompt Engineering 只改变输入，Fine-tuning 直接修改模型权重参数，能更深层地改变模型行为模式。</p>
+        <p>在 Agent 中的应用：<strong>工具调用指令微调</strong>——用大量工具调用示例训练，提升工具选择和参数填充准确性；<strong>结构化输出微调</strong>——训练模型输出固定 JSON Schema，确保输出格式可靠；<strong>领域知识注入</strong>——用行业专有数据微调，让模型深入理解特定术语和工作流；<strong>安全对齐微调</strong>——通过 RLHF 训练模型拒绝危险请求。</p>
+        <p>Fine-tuning vs Prompt Engineering：微调可大幅减少 Prompt 长度（模型已"学会"部分行为），使用更小更便宜的模型达到大模型水平，但也面临高质量标注数据获取成本高、可能发生灾难性遗忘、更新周期长、可能过拟合等挑战。当前最佳实践是组合策略——用 Fine-tuning 固化基本行为，用 Prompt 覆盖动态变化部分。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-llm" class="term-link">LLM</a>
+        <a href="#term-prompt" class="term-link">Prompt Engineering</a>
+        <a href="#term-fc" class="term-link">Function Calling</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 推理模式 ===== -->
+  <div class="cat-heading" id="cat-reasoning" data-category="推理模式">
+    <span class="cat-dot c-reasoning"></span>
+    <h2>推理模式</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="推理模式" data-term="ReAct" id="term-react">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">ReAct（推理-行动循环）</div><div class="gt-en">ReAct (Reasoning + Acting)</div></div>
+        <span class="gt-badge bg-reasoning">推理模式</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>ReAct</strong> 是当前最主流的 Agent 推理模式，由 Google DeepMind 在 2022 年提出。核心理念是将<strong>推理</strong>和<strong>行动</strong>交替进行，每一步由三个环节构成：<strong>Thought（思考）</strong>——分析当前状态，推理下一步该做什么以及为什么；<strong>Action（行动）</strong>——选择和执行具体的工具调用；<strong>Observation（观察）</strong>——接收工具执行结果，评估是否推进了任务，是否需要调整策略。</p>
+        <p>ReAct 相比纯 Chain-of-Thought 的关键优势：思维链只在"脑子里"推理，而 ReAct 能<strong>通过与真实世界交互获取信息</strong>。模型不确定时不需要猜测——它可以调用搜索工具查找、调用计算工具验证、调用数据库核实。这种"知行合一"的模式大幅提升了输出的准确性和可靠性。</p>
+        <p>ReAct 的实现依赖 LLM 的 Function Calling 能力。框架在 Prompt 中引导模型按 Thought → Action → Observation 格式组织输出，框架解析 Action 执行实际调用，再将 Observation 反馈给模型继续思考。这种结构化格式还带来了良好的<strong>可解释性</strong>——开发者可清晰看到每一步的推理和决策过程。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-cot" class="term-link">Chain-of-Thought</a>
+        <a href="#term-fc" class="term-link">Function Calling</a>
+        <a href="#term-tool-use" class="term-link">Tool Use</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="推理模式" data-term="Chain-of-Thought" id="term-cot">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Chain-of-Thought（思维链）</div><div class="gt-en">Chain-of-Thought (CoT)</div></div>
+        <span class="gt-badge bg-reasoning">推理模式</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Chain-of-Thought（CoT / 思维链）</strong>是一种引导 LLM 进行逐步推理的提示技术。通过在 Prompt 中要求模型"让我们一步步思考"或提供包含推理步骤的 Few-shot 示例，CoT 能显著提升模型在复杂推理任务（数学题、逻辑推理、多步规划等）上的表现。</p>
+        <p>CoT 的原理是<strong>让模型展示工作过程</strong>而非直接跳到结论。复杂问题需要多步推导，直接要求答案往往导致模型猜测；而要求展示推理过程会使模型分配更多"注意力"到每个推理步骤，每步都建立在之前的结果上。研究表明，CoT 可将某些推理任务的准确率从 30% 提升到 80% 以上。</p>
+        <p>CoT 的高级变体包括：<strong>Tree of Thoughts（思维树）</strong>——同时探索多条推理路径并从最优路径回溯；<strong>Self-Consistency</strong>——多次采样取多数投票；<strong>Least-to-Most</strong>——先解决最简单子问题，逐步推进；<strong>Auto-CoT</strong>——自动生成推理链而非人工编写。在 Agent 中，CoT 已内嵌到推理循环中——Agent 选择工具和参数时就在进行思维链推理。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-react" class="term-link">ReAct</a>
+        <a href="#term-prompt" class="term-link">Prompt Engineering</a>
+        <a href="#term-llm" class="term-link">LLM</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="推理模式" data-term="Plan-and-Execute">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Plan-and-Execute（先规划后执行）</div><div class="gt-en">Plan-and-Execute</div></div>
+        <span class="gt-badge bg-reasoning">推理模式</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Plan-and-Execute</strong> 是一种先将任务分解为详细计划再逐步执行的 Agent 推理模式，与 ReAct 的"边想边做"形成互补。对于步骤明确的复杂任务（如数据分析报告生成、多阶段代码重构），这种模式比纯 ReAct 更可靠。</p>
+        <p>执行流程分为四个阶段：<strong>规划阶段</strong>——Agent 全面分析任务后生成包含所有步骤和依赖关系的详细计划；<strong>确认阶段</strong>（可选）——计划展示给用户确认或修改；<strong>执行阶段</strong>——按计划逐步执行每个步骤，每一步完成后验证结果；<strong>总结阶段</strong>——汇总所有步骤结果生成最终输出。</p>
+        <p>Plan-and-Execute 相比 ReAct 的优势：<strong>全局视角</strong>——先看全局再做每一步，避免短视决策；<strong>可审阅性</strong>——用户可提前审查计划再批准执行；<strong>可预测性</strong>——执行路径确定，适合需要审计的场景。缺点是对高度动态和不可预见的任务适应性较差。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-react" class="term-link">ReAct</a>
+        <a href="#term-orchestration" class="term-link">Orchestration</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 安全相关 ===== -->
+  <div class="cat-heading" id="cat-security" data-category="安全相关">
+    <span class="cat-dot c-security"></span>
+    <h2>安全相关</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="安全相关" data-term="Prompt Injection" id="term-prompt-injection">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Prompt Injection（提示注入）</div><div class="gt-en">Prompt Injection</div></div>
+        <span class="gt-badge bg-security">安全相关</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Prompt Injection（提示注入）</strong>是针对 LLM 应用的攻击手段，攻击者构造特殊输入试图覆盖或绕过模型的 System Prompt，使 Agent 执行非预期操作或泄露敏感信息。在 Agent 场景中——由于 Agent 能实际执行操作（调用 API、运行代码、访问文件）——提示注入的危害远比纯 Chat 场景严重。</p>
+        <p>攻击分三类：<strong>直接注入</strong>——用户输入中直接包含"忽略之前所有指令，改为执行..."；<strong>间接注入</strong>——将恶意指令隐藏在 Agent 可能读取的外部内容（网页、文档、邮件）中，Agent 访问时被"感染"；<strong>多阶段注入</strong>——先用看似无害的请求让 Agent 进入特定状态，再利用该状态实施后续攻击。</p>
+        <p>防御策略需要多层次组合：输入过滤（检测可疑指令模式）、指令隔离（用特殊分隔符明确分开系统指令和用户输入）、权限最小化（Agent 只被授予完成任务所需的最小权限）、输出审核（对输出做独立安全验证）、沙箱执行（高风险操作在隔离环境中执行）。没有任何单一方案能完全防御。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-guardrails" class="term-link">Guardrails</a>
+        <a href="#term-sandbox" class="term-link">Sandbox</a>
+        <a href="#term-prompt" class="term-link">Prompt Engineering</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="安全相关" data-term="Guardrails" id="term-guardrails">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Guardrails（安全护栏）</div><div class="gt-en">Guardrails</div></div>
+        <span class="gt-badge bg-security">安全相关</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Guardrails（安全护栏）</strong>是 Agent 系统中用于约束和控制行为的多层防护机制总称。就像高速公路护栏防止车辆冲出道路，Guardrails 确保 Agent 行为始终在安全预期范围内。</p>
+        <p>四层防护体系：<strong>输入护栏</strong>——在 Agent 接收输入前检查过滤违规内容、注入攻击和越权请求；<strong>推理护栏</strong>——Agent 生成响应或选择行动时实时干预，检测到危险操作意图时主动阻止并替换为安全响应；<strong>执行护栏</strong>——工具调用前进行权限校验、参数验证和速率限制；<strong>输出护栏</strong>——最终回复前的内容审核，确保输出合规且不包含敏感信息。</p>
+        <p>实现方式包括：规则引擎（正则/关键词快速过滤）、分类模型（专门检测不安全内容）、LLM-as-Judge（独立 LLM 审查主 Agent 的输入输出）、沙箱隔离（高风险操作限在隔离环境）。设计 Guardrails 需平衡安全性和可用性——过于严格会让 Agent 拒合理请求（假阳性），过于宽松会放过恶意行为（假阴性）。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-prompt-injection" class="term-link">Prompt Injection</a>
+        <a href="#term-sandbox" class="term-link">Sandbox</a>
+        <a href="#term-agent" class="term-link">AI Agent</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="安全相关" data-term="Sandbox" id="term-sandbox">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Sandbox（沙箱）</div><div class="gt-en">Sandbox / Isolated Execution Environment</div></div>
+        <span class="gt-badge bg-security">安全相关</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Sandbox（沙箱）</strong>是隔离的执行环境，Agent 可在其中安全地运行代码、执行命令和测试操作，不会影响宿主系统或访问未授权资源。在 Agent 安全架构中，沙箱扮演"防火墙"角色——即使 Agent 行为出现偏差或被恶意利用，损害也被限制在沙箱内部。</p>
+        <p>沙箱提供的隔离能力：<strong>文件系统隔离</strong>——Agent 只能访问沙箱内临时文件，无法触及宿主系统；<strong>网络隔离</strong>——限制可访问的网络地址和端口；<strong>资源限制</strong>——CPU、内存、磁盘和时间的硬上限，防止资源耗尽；<strong>权限限制</strong>——以最低用户权限运行，无法执行系统管理操作。</p>
+        <p>实现方式：<strong>容器化</strong>（Docker 为每次执行创建独立容器，执行后销毁）、<strong>虚拟机</strong>（隔离级别最高但启动开销大）、<strong>WebAssembly 沙箱</strong>（轻量安全）、<strong>云沙箱服务</strong>（如 AWS Lambda 隔离执行）。沙箱不仅是安全需求，也是可靠性保障——保证每次执行从"干净"状态开始，支持可重复性。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-guardrails" class="term-link">Guardrails</a>
+        <a href="#term-prompt-injection" class="term-link">Prompt Injection</a>
+        <a href="#term-tool-use" class="term-link">Tool Use</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 基础设施 ===== -->
+  <div class="cat-heading" id="cat-infra" data-category="基础设施">
+    <span class="cat-dot c-infra"></span>
+    <h2>基础设施</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="基础设施" data-term="Orchestration" id="term-orchestration">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Orchestration（编排）</div><div class="gt-en">Orchestration / Agent Workflow Management</div></div>
+        <span class="gt-badge bg-infra">基础设施</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Orchestration（编排）</strong>在 Agent 系统中指对多个组件、步骤和 Agent 进行协调调度的逻辑层。如果说 LLM 是大脑、工具是手，编排层就是"神经系统"——控制信息流动、决策分发、步骤顺序和异常处理。</p>
+        <p>编排层的核心职责：<strong>流程控制</strong>——管理推理循环，决定何时进入下一步、停止或回溯；<strong>任务分解</strong>——将高层目标拆解为可执行的子任务；<strong>工具路由</strong>——根据当前步骤将任务分发给对应工具或子 Agent；<strong>状态同步</strong>——维持全局状态统一视图；<strong>错误处理</strong>——步骤失败时决定重试、跳过还是降级。</p>
+        <p>编排模式分类：<strong>链式</strong>（A 输出作为 B 输入）、<strong>并行</strong>（多任务同时执行后汇总）、<strong>条件</strong>（根据中间结果动态选择路径）、<strong>循环</strong>（重复执行直到终止条件）、<strong>分层</strong>（主 Orchestrator 委派给子 Orchestrator）。设计编排时需要平衡灵活性和可控性——过度依赖 LLM 编排可能产生不可预测行为，过度硬编码则丧失了 Agent 的核心优势。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-multi-agent" class="term-link">Multi-Agent System</a>
+        <a href="#term-agent" class="term-link">AI Agent</a>
+        <a href="#term-mcp" class="term-link">MCP</a>
+      </div>
+    </article>
+
+    <article class="glossary-card" data-categories="基础设施" data-term="MCP" id="term-mcp">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">MCP（模型上下文协议）</div><div class="gt-en">Model Context Protocol (MCP)</div></div>
+        <span class="gt-badge bg-infra">基础设施</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>MCP（Model Context Protocol）</strong>是由 Anthropic 提出的开放标准协议，为 AI 模型与外部工具、数据源和服务之间的交互提供统一接口规范。可以理解为 AI Agent 世界的"USB 协议"——只要遵循 MCP 标准，任何支持 MCP 的 Agent 框架都能即插即用地使用任何 MCP 工具。</p>
+        <p>MCP 解决了<strong>工具集成碎片化的核心痛点</strong>——在此之前，每个 Agent 框架和每个工具之间都需要编写专门的适配代码，LangChain 有一套格式，Anthropic SDK 另一套，OpenAI 又有自己的 Schema。MCP 通过统一标准消除这种碎片化。</p>
+        <p>MCP 核心概念：<strong>Server</strong>（暴露工具和数据源的服务端）、<strong>Client</strong>（Agent 框架通过客户端连接服务端）、<strong>Tools</strong>（可调用的功能）、<strong>Resources</strong>（暴露的结构化数据）、<strong>Prompts</strong>（预定义模板和指令）。通信基于 JSON-RPC，支持 stdio 和 HTTP 两种传输方式。MCP 的出现大大提升了工具复用性和跨框架互操作性。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-fc" class="term-link">Function Calling</a>
+        <a href="#term-tool-use" class="term-link">Tool Use</a>
+        <a href="#term-orchestration" class="term-link">Orchestration</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 高级话题 ===== -->
+  <div class="cat-heading" id="cat-advanced" data-category="高级话题">
+    <span class="cat-dot c-advanced"></span>
+    <h2>高级话题</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="高级话题" data-term="Multi-Agent" id="term-multi-agent">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Multi-Agent System（多Agent系统）</div><div class="gt-en">Multi-Agent System (MAS)</div></div>
+        <span class="gt-badge bg-advanced">高级话题</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Multi-Agent System（多Agent系统）</strong>由多个独立但协作的 AI Agent 组成，通过分工、通信和协调共同完成单 Agent 难以处理的复杂任务。每个 Agent 通常专注于特定领域或角色（如研究员、写手、审核员），彼此通过消息传递、共享状态或中央调度器协同工作。</p>
+        <p>协作模式：<strong>顺序协作</strong>——Agent 按固定顺序执行，前一个输出成为下一个输入（流水线模式）；<strong>层级协作</strong>——一个管理者 Agent 负责分配、追踪和汇总，多个执行者 Agent 完成子任务；<strong>辩论模式</strong>——多个 Agent 从不同角度分析同一问题，通过辩论收敛到最优解；<strong>Swarm 模式</strong>——Agent 之间去中心化动态交接任务，群体自适应完成目标。</p>
+        <p>多Agent系统的优势：<strong>专业化</strong>（每个 Agent 专注擅长的领域）、<strong>鲁棒性</strong>（单 Agent 失败不导致系统崩溃）、<strong>并行性</strong>（多 Agent 同时处理不同子任务）、<strong>交叉验证</strong>（多视角推理互相纠正）。挑战包括：通信开销、一致性问题、任务分配优化、死锁与活锁风险。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-orchestration" class="term-link">Orchestration</a>
+        <a href="#term-agent" class="term-link">AI Agent</a>
+        <a href="#term-react" class="term-link">ReAct</a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ===== CATEGORY: 挑战与限制 ===== -->
+  <div class="cat-heading" id="cat-challenge" data-category="挑战与限制">
+    <span class="cat-dot c-challenge"></span>
+    <h2>挑战与限制</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <article class="glossary-card" data-categories="挑战与限制" data-term="Hallucination" id="term-hallucination">
+      <div class="gt-header">
+        <div class="gt-names"><div class="gt-zh">Hallucination（幻觉）</div><div class="gt-en">Hallucination / Confabulation</div></div>
+        <span class="gt-badge bg-challenge">挑战与限制</span>
+      </div>
+      <div class="gt-def">
+        <p><strong>Hallucination（幻觉）</strong>是指 LLM 生成的内容看似合理但事实上不正确、不存在或与输入无关的现象。在 Agent 场景中，幻觉的危害被放大——Agent 不仅可能"说错话"，更可能基于错误信息<strong>执行错误操作</strong>，导致实际业务损失。</p>
+        <p>幻觉的产生源于多种因素：<strong>训练数据偏差</strong>（模型学到了错误的"事实"）、<strong>概率生成本质</strong>（预测"最可能的下一个词"而非"真实事实"）、<strong>知识滞后</strong>（知识截止于训练日期）、<strong>Prompt 诱导</strong>（不当 Prompt 引导模型编造）、<strong>过度泛化</strong>（将一个领域模式错误应用于不相关领域）。</p>
+        <p>减轻幻觉影响需要多重策略组合：<strong>RAG 事实锚定</strong>（强制 Agent 先检索再基于检索结果回答）、<strong>工具验证</strong>（通过工具调用做事实核查）、<strong>置信度标注</strong>（不确定时明确表达不确定性）、<strong>多Agent交叉验证</strong>（多个 Agent 独立回答后比较一致性）、<strong>人工审核节点</strong>（关键决策前引入人工确认）。幻觉无法被完全消除——它是概率生成模型的固有特征——目标是将其影响降到可接受水平。</p>
+      </div>
+      <div class="gt-related">
+        <span class="gt-related-label">相关:</span>
+        <a href="#term-rag" class="term-link">RAG</a>
+        <a href="#term-guardrails" class="term-link">Guardrails</a>
+        <a href="#term-llm" class="term-link">LLM</a>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="no-results" id="noResults">
+    <p style="font-size:48px;">&#128270;</p>
+    <p>没有找到匹配的术语</p>
+    <p style="font-size:14px;margin-top:8px;">尝试其他关键词或切换筛选分类</p>
+  </div>
+
+  <div class="back-top"><a href="#" class="btn">&#8593; 回到顶部</a></div>
+
+</main>
+
+<!-- ===== PANELS ===== -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header"><div><span class="sim-status-dot"></span> <strong>Agent 模拟器</strong></div><button class="sim-close" id="simClose">&#10005;</button></div>
+  <div class="sim-messages" id="simMessages"><div class="sim-msg agent">&#128075; 你好！我是 AI Agent 模拟器。输入问题观察我是如何<strong>思考-行动-观察</strong>的！</div></div>
+  <div class="sim-input-area"><textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea><button class="sim-send-btn" id="simSend">发送</button></div>
+</div>
+
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header"><span>&#128212; 我的笔记</span><button class="sim-close" id="notesClose">&#10005;</button></div>
+  <div class="notes-list" id="notesList"><div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="glossary">术语表</option>
+        <option value="1">第1章</option><option value="2">第2章</option>
+        <option value="3">第3章</option><option value="4">第4章</option>
+        <option value="5">第5章</option><option value="6">第6章</option>
+        <option value="7">第7章</option><option value="8">第8章</option>
+        <option value="9">第9章</option><option value="10">第10章</option>
+        <option value="11">第11章</option><option value="12">第12章</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  const searchInput = document.getElementById('glossarySearch');
+  const filterBtns = document.querySelectorAll('#filterBar .filter-btn');
+  const cards = document.querySelectorAll('.glossary-card');
+  const catHeadings = document.querySelectorAll('.cat-heading');
+  const noResults = document.getElementById('noResults');
+
+  let activeFilter = 'all';
+  let searchQuery = '';
+
+  function update() {
+    let any = false;
+    cards.forEach(card => {
+      const cats = card.dataset.categories || '';
+      const en = (card.dataset.term || '').toLowerCase();
+      const zh = (card.querySelector('.gt-zh')?.textContent || '').toLowerCase();
+      const def = (card.querySelector('.gt-def')?.textContent || '').toLowerCase();
+      const matchCat = activeFilter === 'all' || cats.includes(activeFilter);
+      const matchSearch = !searchQuery || en.includes(searchQuery) || zh.includes(searchQuery) || def.includes(searchQuery);
+      if (matchCat && matchSearch) { card.classList.remove('hidden'); any = true; }
+      else { card.classList.add('hidden'); }
+    });
+    // Show/hide category sections
+    document.querySelectorAll('.glossary-grid').forEach(grid => {
+      const prev = grid.previousElementSibling;
+      const has = grid.querySelectorAll('.glossary-card:not(.hidden)').length > 0;
+      grid.style.display = has ? '' : 'none';
+      if (prev && prev.classList.contains('cat-heading')) prev.style.display = has ? '' : 'none';
+    });
+    noResults.style.display = any ? 'none' : 'block';
+  }
+
+  searchInput.addEventListener('input', function() {
+    searchQuery = this.value.trim().toLowerCase();
+    update();
+  });
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      activeFilter = this.dataset.filter;
+      update();
+    });
+  });
+
+  // Term link scrolling
+  document.querySelectorAll('.term-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const id = this.getAttribute('href').replace('#', '');
+      const target = document.getElementById(id);
+      if (target) {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        filterBtns[0].classList.add('active');
+        activeFilter = 'all';
+        searchInput.value = '';
+        searchQuery = '';
+        update();
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.boxShadow = '0 0 40px var(--border-glow-cyan)';
+        target.style.borderColor = 'var(--accent-cyan)';
+        setTimeout(() => { target.style.boxShadow = ''; target.style.borderColor = ''; }, 2500);
+      }
+    });
+  });
+
+  console.log('📕 术语表已就绪 · 21个术语 · 8大分类');
+})();
+</script>
+
+</body>
+</html>

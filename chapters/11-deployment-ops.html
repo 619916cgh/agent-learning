@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11章 部署与运维 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+
+<!-- ============================================================
+     Top Navigation Bar
+     ============================================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================================
+     Sidebar Navigation
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent 开发框架</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link active" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="sidebar-section-title">学习进度</div>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>整体进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     Main Content
+     ============================================================ -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="11" id="chapter11">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 11 章</div>
+      <h2 class="chapter-title">Agent 的部署与运维</h2>
+      <p class="chapter-subtitle">将 Agent 从开发环境推向生产环境，构建稳定、高效、可观测的运行体系</p>
+    </header>
+
+    <!-- Card 1: Production Architecture -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">🏗️</div>
+        <div>
+          <div class="card-title">生产级 Agent 架构设计</div>
+          <div class="card-desc">从单体原型到可扩展的生产系统</div>
+        </div>
+      </div>
+      <p>将 Agent 从本地原型变成生产服务，需要的不仅仅是一个 Agent 循环。生产级架构需要解决以下核心问题：</p>
+      <ul>
+        <li><strong>API 网关层</strong>
+          <ul>
+            <li>统一的入口点，负责请求路由、认证鉴权、请求/响应转换</li>
+            <li>关键职责：JWT/API Key 验证、请求频率限制（Rate Limiting）、请求体大小限制、CORS 处理</li>
+            <li>推荐方案：Kong、APISIX、AWS API Gateway 或 Cloudflare API Gateway</li>
+          </ul>
+        </li>
+        <li><strong>负载均衡与队列</strong>
+          <ul>
+            <li>Agent 调用是长时间运行的操作（秒级而非毫秒级），不能简单地用 HTTP 轮询处理</li>
+            <li>使用消息队列（如 Redis Bull、RabbitMQ、AWS SQS）缓冲任务请求，Worker 池异步消费</li>
+            <li>负载均衡策略：最少连接数（Least Connections）比轮询（Round Robin）更适合长连接场景</li>
+          </ul>
+        </li>
+        <li><strong>会话状态管理</strong>
+          <ul>
+            <li>Agent 是有状态的：对话历史、中间推理结果、工具调用上下文都需要持久化</li>
+            <li>使用 Redis 存储活跃会话（TTL 自动过期），PostgreSQL/MongoDB 存储完整历史</li>
+            <li>关键设计：任何 Worker 都可以接手任意会话的下一步（Stateless Worker + Stateful Session）</li>
+          </ul>
+        </li>
+        <li><strong>LLM 调用层</strong>
+          <ul>
+            <li>统一的 LLM 调用接口，支持多模型切换和降级</li>
+            <li>内置重试逻辑（指数退避）、超时控制、熔断器（Circuit Breaker）</li>
+            <li>缓存相同/相似请求的 LLM 响应（Prompt Caching 和 Semantic Cache）</li>
+          </ul>
+        </li>
+        <li><strong>工具执行层</strong>
+          <ul>
+            <li>工具调用的沙箱化执行：代码执行在 Docker 容器中、网络请求通过代理、文件操作限制在特定目录</li>
+            <li>工具执行的超时控制和并发限制</li>
+            <li>工具调用的审计日志（谁调用了什么工具、参数是什么、返回了什么）</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="alert alert-info">
+        <div class="alert-title">架构关键原则</div>
+        <p>生产环境下 Agent 的架构设计需要遵循两个核心理念：<strong>① 无状态 Worker + 有状态 Session</strong>（任何 Worker 都可以处理任意会话，会话状态存在外部存储中）；<strong>② 优雅降级</strong>（当 LLM 不可用或超时时，Agent 应该给出合理的降级响应而非直接报错）。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Deployment Patterns -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">🚀</div>
+        <div>
+          <div class="card-title">部署模式对比</div>
+          <div class="card-desc">Serverless、容器化与混合部署的优劣分析</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>部署模式</th>
+              <th>适用场景</th>
+              <th>优势</th>
+              <th>劣势</th>
+              <th>推荐工具</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Serverless (FaaS)</strong></td>
+              <td>低频调用、事件驱动的 Agent</td>
+              <td>零运维、自动扩缩、按调用付费</td>
+              <td>冷启动延迟高、执行时间有限（通常15分钟）、状态管理困难</td>
+              <td>AWS Lambda、Cloudflare Workers、Vercel Edge Functions</td>
+            </tr>
+            <tr>
+              <td><strong>容器化 (Kubernetes)</strong></td>
+              <td>高并发、需要精细资源控制的 Agent</td>
+              <td>弹性伸缩、资源隔离、滚动更新、成熟生态</td>
+              <td>运维复杂度高、需要 K8s 专业知识</td>
+              <td>Kubernetes + HPA、AWS ECS、GCP Cloud Run</td>
+            </tr>
+            <tr>
+              <td><strong>传统虚拟机 / 裸金属</strong></td>
+              <td>对延迟极度敏感、需要 GPU 的场景</td>
+              <td>最低网络开销、硬件直通、完全控制</td>
+              <td>运维成本高、弹性差</td>
+              <td>自行管理</td>
+            </tr>
+            <tr>
+              <td><strong>混合部署</strong></td>
+              <td>复杂系统：API 层 Serverless + Worker 层 K8s</td>
+              <td>兼顾弹性与性能</td>
+              <td>架构复杂、调试困难</td>
+              <td>组合使用上述工具</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>对于绝大多数 Agent 项目，推荐<strong>容器化 + Kubernetes</strong> 的部署模式。K8s 的 HPA (Horizontal Pod Autoscaler) 可以根据自定义指标（如队列长度、GPU 利用率）自动伸缩 Worker 数量，完美匹配 Agent 负载的波动性。</p>
+    </div>
+
+    <!-- Card 3: Cost Management -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">💰</div>
+        <div>
+          <div class="card-title">成本管理策略</div>
+          <div class="card-desc">Token 预算、缓存策略与模型分层</div>
+        </div>
+      </div>
+      <p>Agent 的运行成本远高于传统的 Web 服务——每次用户请求可能触发多次 LLM 调用和工具执行。有效的成本管理是 Agent 商业化的前提：</p>
+      <ul>
+        <li><strong>Token 预算管理 (Token Budgeting)</strong>
+          <ul>
+            <li>设置每个用户/会话/任务的 Token 消耗上限。超出预算后触发降级策略：使用更便宜的模型、缩短上下文、或提前终止</li>
+            <li>在系统提示词中精简工具定义（去掉不必要的 description 细节，每个字符都会重复消耗 Token）</li>
+            <li>使用滑动窗口 + 摘要压缩管理对话历史，避免上下文窗口无限膨胀</li>
+          </ul>
+        </li>
+        <li><strong>多层缓存策略</strong>
+          <ul>
+            <li><strong>Prompt Caching</strong>：Anthropic 和 OpenAI 都支持自动缓存重复的系统提示词和工具定义，可节省 50-90% 的输入 Token 成本。确保系统提示词和工具定义在请求中的位置靠前且内容不变</li>
+            <li><strong>语义缓存 (Semantic Cache)</strong>：对用户问题做语义相似度匹配，如果新问题与已缓存的问题语义相似度超过阈值（如 0.95），直接返回缓存的响应，跳过 LLM 调用。使用向量数据库实现</li>
+            <li><strong>工具结果缓存</strong>：在合理 TTL 内缓存工具调用结果（如"北京天气"的结果缓存 15 分钟），避免重复调用相同工具</li>
+          </ul>
+        </li>
+        <li><strong>模型分层 (Model Tiering)</strong>
+          <ul>
+            <li><strong>路由策略</strong>：简单任务用便宜快速的模型（如 Claude Haiku、GPT-4o-mini），复杂任务升级到强大模型（如 Claude Opus、GPT-4o）</li>
+            <li><strong>模型降级</strong>：主模型不可用或超时时，自动切换到备用模型，保障服务可用性</li>
+            <li><strong>量化部署</strong>：对于自托管模型，使用 INT8/INT4 量化降低 GPU 成本和推理延迟</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="alert alert-success">
+        <div class="alert-title">成本优化实践</div>
+        <p>一个典型的成本优化结果是：通过 Prompt Caching 节省 60%、语义缓存节省 15%、模型分层节省 20%，总成本降低到原始方案的 30-40%。<strong>缓存的投入产出比是 Agent 成本优化中最高的</strong>。</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Monitoring Stack -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">📊</div>
+        <div>
+          <div class="card-title">可观测性三支柱：日志、指标、追踪</div>
+        </div>
+      </div>
+      <p>Agent 生产系统的可观测性需要覆盖从用户请求到 LLM 调用的全链路。以下是完整的监控体系：</p>
+      <ul>
+        <li><strong>日志 (Logs) — 记录发生了什么</strong>
+          <ul>
+            <li><strong>请求日志</strong>：用户 ID、Session ID、请求时间戳、用户输入</li>
+            <li><strong>推理日志</strong>：每一轮 Agent 循环的 Thought-Action-Observation 三元组</li>
+            <li><strong>工具调用日志</strong>：工具名称、调用参数、返回结果、耗时、成功/失败</li>
+            <li><strong>LLM 调用日志</strong>：模型名称、Prompt Token 数、Completion Token 数、延迟</li>
+            <li>日志级别分级：DEBUG（详细推理过程）、INFO（关键步骤）、WARN（重试、降级）、ERROR（失败）</li>
+          </ul>
+        </li>
+        <li><strong>指标 (Metrics) — 量化系统状态</strong>
+          <ul>
+            <li><strong>业务指标</strong>：请求量 (QPS)、任务完成率、用户满意度、错误率</li>
+            <li><strong>性能指标</strong>：端到端延迟 (P50/P95/P99)、TTFT、每任务平均步数</li>
+            <li><strong>成本指标</strong>：每分钟 Token 消耗、每任务平均成本、缓存命中率</li>
+            <li><strong>基础设施指标</strong>：CPU 使用率、内存使用率、GPU 利用率、队列长度</li>
+          </ul>
+        </li>
+        <li><strong>追踪 (Traces) — 理解请求的全链路</strong>
+          <ul>
+            <li>使用分布式追踪（如 OpenTelemetry）跟踪从 API Gateway 到 LLM 调用再到工具执行的完整路径</li>
+            <li>每个 Agent 循环步骤作为一个 Span，记录该步骤的输入、输出、耗时</li>
+            <li>通过 Trace ID 串联同一个用户会话的所有请求，方便问题排查</li>
+            <li>推荐工具：LangSmith（LangChain 生态）、Arize Phoenix、Datadog APM、Jaeger</li>
+          </ul>
+        </li>
+        <li><strong>告警 (Alerts) — 及时发现问题</strong>
+          <ul>
+            <li>错误率告警：5分钟内错误率超过 5% → 立即通知（PagerDuty/Slack）</li>
+            <li>延迟告警：P95 延迟超过阈值（如 30 秒）→ 告警</li>
+            <li>成本告警：每日 Token 消耗超过预算 → 告警</li>
+            <li>工具可用性告警：外部 API 连续失败 → 告警</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Card 5: Common Production Issues -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">⚠️</div>
+        <div>
+          <div class="card-title">生产环境常见问题与应对</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>问题类型</th>
+              <th>表现</th>
+              <th>根因</th>
+              <th>解决方案</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>LLM 调用超时</strong></td>
+              <td>等待 LLM 响应超时，Agent 卡住</td>
+              <td>模型服务过载、网络问题、长上下文导致推理慢</td>
+              <td>设置合理的 timeout（30-60s）、实现指数退避重试、准备降级模型</td>
+            </tr>
+            <tr>
+              <td><strong>模型输出格式错误</strong></td>
+              <td>LLM 返回的 JSON 无法解析、工具调用参数缺失</td>
+              <td>模型未按预期格式输出、temperature 设置过高</td>
+              <td>使用 structured output / JSON mode、加入格式验证和重试、降低 temperature</td>
+            </tr>
+            <tr>
+              <td><strong>工具调用死循环</strong></td>
+              <td>Agent 反复调用同一工具无进展</td>
+              <td>工具返回结果不明确、Agent 无法判断是否已完成</td>
+              <td>设置 max_steps 硬限制、检测重复调用模式、改进工具描述</td>
+            </tr>
+            <tr>
+              <td><strong>上下文窗口溢出</strong></td>
+              <td>对话历史超出模型上下文限制</td>
+              <td>长对话或大量工具结果累积</td>
+              <td>实现滑动窗口 + 摘要压缩、监控上下文使用率、设置截断策略</td>
+            </tr>
+            <tr>
+              <td><strong>模型延迟尖刺</strong></td>
+              <td>偶发性 LLM 响应极慢（数十秒→几分钟）</td>
+              <td>模型服务端负载波动、网络拥塞</td>
+              <td>多区域部署、客户端超时 + 快速重试、使用低延迟备选模型</td>
+            </tr>
+            <tr>
+              <td><strong>会话状态丢失</strong></td>
+              <td>Agent "忘记"之前的对话内容</td>
+              <td>Redis 内存不足导致 key 被驱逐、Worker 重启</td>
+              <td>Redis 持久化（AOF）、会话状态双写（Redis + DB）、优雅的降级提示</td>
+            </tr>
+            <tr>
+              <td><strong>外部 API 限流</strong></td>
+              <td>工具调用因 API Rate Limit 失败</td>
+              <td>超出第三方 API 的调用频率限制</td>
+              <td>客户端限流（Token Bucket）、请求队列化、增加 API Key 配额</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-warning">
+        <div class="alert-title">生产故障预防原则</div>
+        <p><strong>"为失败而设计" (Design for Failure)</strong> 是 Agent 生产运维的第一原则。假设每个外部依赖都会失败——LLM 可能超时、工具 API 可能宕机、数据库可能响应慢。为每种失败模式设计降级路径，而不是寄希望于一切顺利。</p>
+      </div>
+    </div>
+
+    <!-- Card 6: Scaling Strategies -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">📈</div>
+        <div>
+          <div class="card-title">弹性伸缩策略</div>
+        </div>
+      </div>
+      <p>Agent 服务的负载模式与传统 Web 服务有显著差异——单个请求可能持续数秒到数十秒，且资源消耗（特别是 Token）高度可变。这要求独特的伸缩策略：</p>
+      <ul>
+        <li><strong>水平扩展 (Horizontal Scaling)</strong>
+          <ul>
+            <li>通过增加 Worker 实例数来提升并发处理能力</li>
+            <li>K8s HPA 基于队列长度或活跃连接数自动伸缩</li>
+            <li>预热 (Warm-up)：保持一定数量的热备 Worker，避免冷启动延迟</li>
+          </ul>
+        </li>
+        <li><strong>垂直扩展 (Vertical Scaling)</strong>
+          <ul>
+            <li>增加单个 Worker 的资源（CPU、内存、GPU）来处理更复杂的任务</li>
+            <li>适用于需要加载大型模型或处理超大上下文的场景</li>
+            <li>限制：单机资源有上限，成本增长非线性</li>
+          </ul>
+        </li>
+        <li><strong>请求批处理 (Request Batching)</strong>
+          <ul>
+            <li>将多个独立请求合并为一次 LLM 调用，共享系统提示词和工具定义，提高 Token 利用效率</li>
+            <li>需要在批处理带来的延迟增加和成本节省之间权衡</li>
+            <li>适用于离线场景（批量评估、数据处理），不适合实时交互</li>
+          </ul>
+        </li>
+        <li><strong>请求合并 (Request Coalescing)</strong>
+          <ul>
+            <li>短时间内多个相同/相似的请求合并为一次执行</li>
+            <li>例如：多个用户同时查询"北京天气"，只调用一次工具，结果共享</li>
+            <li>通过请求去重 + 结果广播实现</li>
+          </ul>
+        </li>
+        <li><strong>分级服务 (Tiered Service)</strong>
+          <ul>
+            <li>免费用户：队列优先级低、使用便宜模型、有并发限制</li>
+            <li>付费用户：队列优先级高、使用强大模型、更高的并发配额</li>
+            <li>通过请求标记 (Request Tagging) 在 API Gateway 层实现分流</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Card 7: CI/CD for Agents -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">🔄</div>
+        <div>
+          <div class="card-title">Agent 的 CI/CD — 提示词版本化、分阶段发布与金丝雀部署</div>
+        </div>
+      </div>
+      <p>Agent 的 CI/CD 不止是代码的发布，还需要管理提示词、模型选择和配置的变更：</p>
+      <ul>
+        <li><strong>提示词版本化 (Prompt Versioning)</strong>
+          <ul>
+            <li>将系统提示词当作代码一样管理：存储在 Git 仓库中，每个变更都有 commit message 和 diff</li>
+            <li>提示词模板化：使用变量（如 <code>{user_name}</code>、<code>{current_date}</code>）分离静态和动态部分</li>
+            <li>提示词变更必须经过评估流水线验证（见第10章）</li>
+            <li>推荐实践：提示词文件使用 <code>.prompt</code> 或 <code>.md</code> 格式，易于 diff 和 review</li>
+          </ul>
+        </li>
+        <li><strong>分阶段发布 (Staged Rollout)</strong>
+          <ul>
+            <li><strong>阶段 1 — 开发环境</strong>：新提示词/代码在本地和 CI 中通过单元测试和集成测试</li>
+            <li><strong>阶段 2 — 预发布环境</strong>：在类生产环境中运行完整的回归测试套件，与当前生产版本进行 A/B 对比</li>
+            <li><strong>阶段 3 — 金丝雀部署 (Canary Deployment)</strong>：将 5-10% 的生产流量导向新版本，监控关键指标（错误率、延迟、任务完成率）30 分钟到 2 小时</li>
+            <li><strong>阶段 4 — 全量发布</strong>：确认金丝雀无问题后，逐步将流量提升到 100%</li>
+          </ul>
+        </li>
+        <li><strong>回滚策略</strong>
+          <ul>
+            <li>快速回滚能力比完美发布更重要 — 确保可以在一分钟内回滚到上一个版本</li>
+            <li>回滚条件：错误率超过基线 2 倍、P95 延迟超过基线 1.5 倍、任务完成率低于基线 10%</li>
+            <li>自动化回滚：当关键指标突破阈值时，CI/CD 系统自动触发回滚</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="alert alert-info">
+        <div class="alert-title">Agent CI/CD 的独特挑战</div>
+        <p>传统 CI/CD 关注的是"代码是否通过测试"，Agent CI/CD 还需要回答"Agent 行为是否退化"。一个提示词的微小改动（如将"请"改为"务必"）可能在测试集上表现相同，但在真实场景中引入微妙的行为变化。因此，Agent 的 CI/CD 需要更长、更细致的金丝雀观察期。</p>
+      </div>
+    </div>
+
+    <!-- Card 8: Production Agent Wrapper Code -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">💻</div>
+        <div>
+          <div class="card-title">生产级 Agent 包装器实现</div>
+          <div class="card-desc">带重试、超时、熔断器的生产级 Agent 包装器</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">Python — 生产级 Agent 包装器（Retry + Timeout + Circuit Breaker + Metrics）</span>
+        <button class="code-copy-btn">复制代码</button>
+      </div>
+      <pre><code><span class="token-kw">import</span> time
+<span class="token-kw">import</span> asyncio
+<span class="token-kw">import</span> logging
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Optional, Callable
+
+logger = logging.getLogger(__name__)
+
+<span class="token-cm"># ===== 熔断器状态 =====</span>
+<span class="token-kw">class</span> <span class="token-cls">CircuitState</span>(<span class="token-cls">Enum</span>):
+    CLOSED = <span class="token-str">"closed"</span>        <span class="token-cm"># 正常工作</span>
+    OPEN = <span class="token-str">"open"</span>          <span class="token-cm"># 熔断打开，拒绝请求</span>
+    HALF_OPEN = <span class="token-str">"half_open"</span>  <span class="token-cm"># 尝试恢复</span>
+
+<span class="token-cm"># ===== 熔断器 =====</span>
+<span class="token-kw">class</span> <span class="token-cls">CircuitBreaker</span>:
+    <span class="token-str">"""防止级联故障的熔断器"""</span>
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, failure_threshold=<span class="token-num">5</span>, recovery_timeout=<span class="token-num">30</span>):
+        <span class="token-kw">self</span>.failure_threshold = failure_threshold
+        <span class="token-kw">self</span>.recovery_timeout = recovery_timeout  <span class="token-cm"># 秒</span>
+        <span class="token-kw">self</span>.failure_count = <span class="token-num">0</span>
+        <span class="token-kw">self</span>.last_failure_time = <span class="token-num">0</span>
+        <span class="token-kw">self</span>.state = <span class="token-cls">CircuitState</span>.CLOSED
+
+    <span class="token-kw">def</span> <span class="token-fn">call</span>(<span class="token-kw">self</span>, func: <span class="token-cls">Callable</span>, *args, **kwargs):
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.state == <span class="token-cls">CircuitState</span>.OPEN:
+            <span class="token-kw">if</span> time.time() - <span class="token-kw">self</span>.last_failure_time > <span class="token-kw">self</span>.recovery_timeout:
+                <span class="token-kw">self</span>.state = <span class="token-cls">CircuitState</span>.HALF_OPEN
+                logger.info(<span class="token-str">"熔断器进入半开状态，尝试恢复"</span>)
+            <span class="token-kw">else</span>:
+                <span class="token-kw">raise</span> <span class="token-cls">Exception</span>(<span class="token-str">"熔断器已打开，请求被拒绝"</span>)
+
+        <span class="token-kw">try</span>:
+            result = func(*args, **kwargs)
+            <span class="token-kw">self</span>.<span class="token-fn">_on_success</span>()
+            <span class="token-kw">return</span> result
+        <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+            <span class="token-kw">self</span>.<span class="token-fn">_on_failure</span>()
+            <span class="token-kw">raise</span> e
+
+    <span class="token-kw">def</span> <span class="token-fn">_on_success</span>(<span class="token-kw">self</span>):
+        <span class="token-kw">self</span>.failure_count = <span class="token-num">0</span>
+        <span class="token-kw">self</span>.state = <span class="token-cls">CircuitState</span>.CLOSED
+
+    <span class="token-kw">def</span> <span class="token-fn">_on_failure</span>(<span class="token-kw">self</span>):
+        <span class="token-kw">self</span>.failure_count += <span class="token-num">1</span>
+        <span class="token-kw">self</span>.last_failure_time = time.time()
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.failure_count >= <span class="token-kw">self</span>.failure_threshold:
+            <span class="token-kw">self</span>.state = <span class="token-cls">CircuitState</span>.OPEN
+            logger.error(<span class="token-str">f"熔断器打开！连续失敗 {self.failure_count} 次"</span>)
+
+<span class="token-cm"># ===== Agent 执行结果 =====</span>
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">AgentResult</span>:
+    success: <span class="token-cls">bool</span>
+    output: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-num">None</span>
+    error: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-num">None</span>
+    tokens_used: <span class="token-cls">int</span> = <span class="token-num">0</span>
+    latency_ms: <span class="token-cls">float</span> = <span class="token-num">0.0</span>
+    retry_count: <span class="token-cls">int</span> = <span class="token-num">0</span>
+    degraded: <span class="token-cls">bool</span> = <span class="token-num">False</span>  <span class="token-cm"># 是否使用了降级策略</span>
+
+<span class="token-cm"># ===== 生产级 Agent 包装器 =====</span>
+<span class="token-kw">class</span> <span class="token-cls">ProductionAgent</span>:
+    <span class="token-str">"""
+    生产级 Agent 包装器：
+    - 指数退避重试
+    - 超时控制
+    - 熔断器保护
+    - 模型降级
+    - 指标记录
+    """</span>
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(
+        <span class="token-kw">self</span>,
+        primary_agent,              <span class="token-cm"># 主 Agent 实例</span>
+        fallback_agent=<span class="token-num">None</span>,         <span class="token-cm"># 降级 Agent（可选，通常用更便宜/快速的模型）</span>
+        max_retries=<span class="token-num">3</span>,
+        base_timeout=<span class="token-num">30</span>,           <span class="token-cm"># 基础超时秒数</span>
+        circuit_breaker=<span class="token-num">None</span>,      <span class="token-cm"># 熔断器实例</span>
+    ):
+        <span class="token-kw">self</span>.primary_agent = primary_agent
+        <span class="token-kw">self</span>.fallback_agent = fallback_agent
+        <span class="token-kw">self</span>.max_retries = max_retries
+        <span class="token-kw">self</span>.base_timeout = base_timeout
+        <span class="token-kw">self</span>.circuit_breaker = circuit_breaker <span class="token-kw">or</span> <span class="token-cls">CircuitBreaker</span>()
+
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">run</span>(<span class="token-kw">self</span>, user_input: <span class="token-cls">str</span>, session_id: <span class="token-cls">str</span>) -> <span class="token-cls">AgentResult</span>:
+        <span class="token-str">"""执行 Agent 任务，带完整容错保护"""</span>
+        start_time = time.time()
+        last_error = <span class="token-num">None</span>
+
+        <span class="token-kw">for</span> attempt <span class="token-kw">in</span> <span class="token-builtin">range</span>(<span class="token-num">1</span>, <span class="token-kw">self</span>.max_retries + <span class="token-num">1</span>):
+            <span class="token-kw">try</span>:
+                <span class="token-cm"># 使用熔断器保护 LLM 调用</span>
+                result = <span class="token-kw">await</span> <span class="token-kw">self</span>.<span class="token-fn">_execute_with_timeout</span>(
+                    <span class="token-kw">self</span>.primary_agent,
+                    user_input,
+                    session_id,
+                    timeout=<span class="token-kw">self</span>.base_timeout * (<span class="token-num">1.5</span> ** (attempt - <span class="token-num">1</span>))  <span class="token-cm"># 递增超时</span>
+                )
+
+                latency = (time.time() - start_time) * <span class="token-num">1000</span>
+                logger.info(
+                    <span class="token-str">f"Agent 任务成功 | session={session_id} | "</span>
+                    <span class="token-str">f"attempt={attempt} | latency={latency:.0f}ms | "</span>
+                    <span class="token-str">f"tokens={result.tokens_used}"</span>
+                )
+                result.latency_ms = latency
+                result.retry_count = attempt - <span class="token-num">1</span>
+                <span class="token-kw">return</span> result
+
+            <span class="token-kw">except</span> <span class="token-cls">asyncio</span>.TimeoutError:
+                last_error = <span class="token-str">f"超时 (attempt {attempt}/{self.max_retries})"</span>
+                logger.warning(<span class="token-str">f"Agent 调用超時 | session={session_id} | {last_error}"</span>)
+
+            <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+                last_error = <span class="token-builtin">str</span>(e)
+                logger.error(<span class="token-str">f"Agent 调用失败 | session={session_id} | {last_error}"</span>)
+
+            <span class="token-cm"># 指数退避：1s, 2s, 4s...</span>
+            <span class="token-kw">if</span> attempt < <span class="token-kw">self</span>.max_retries:
+                wait_time = <span class="token-num">2</span> ** (attempt - <span class="token-num">1</span>)
+                logger.info(<span class="token-str">f"等待 {wait_time}s 后重试..."</span>)
+                <span class="token-kw">await</span> asyncio.<span class="token-fn">sleep</span>(wait_time)
+
+        <span class="token-cm"># 所有重试都失败，尝试降级</span>
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.fallback_agent:
+            <span class="token-kw">try</span>:
+                logger.warning(<span class="token-str">f"主 Agent 全部失败，尝试降级 | session={session_id}"</span>)
+                result = <span class="token-kw">await</span> <span class="token-kw">self</span>.<span class="token-fn">_execute_with_timeout</span>(
+                    <span class="token-kw">self</span>.fallback_agent, user_input, session_id,
+                    timeout=<span class="token-kw">self</span>.base_timeout
+                )
+                result.degraded = <span class="token-num">True</span>
+                result.retry_count = <span class="token-kw">self</span>.max_retries
+                <span class="token-kw">return</span> result
+            <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+                logger.error(<span class="token-str">f"降级 Agent 也失败了 | session={session_id} | {e}"</span>)
+
+        <span class="token-cm"># 完全失败</span>
+        <span class="token-kw">return</span> <span class="token-cls">AgentResult</span>(
+            success=<span class="token-num">False</span>,
+            error=<span class="token-str">f"所有尝试均失败: {last_error}"</span>,
+            latency_ms=(time.time() - start_time) * <span class="token-num">1000</span>
+        )
+
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">_execute_with_timeout</span>(
+        <span class="token-kw">self</span>, agent, user_input, session_id, timeout
+    ) -> <span class="token-cls">AgentResult</span>:
+        <span class="token-str">"""带超时控制的 Agent 执行"""</span>
+        <span class="token-kw">return</span> <span class="token-kw">await</span> asyncio.<span class="token-fn">wait_for</span>(
+            <span class="token-kw">self</span>.<span class="token-fn">_execute_with_circuit_breaker</span>(agent, user_input, session_id),
+            timeout=timeout
+        )
+
+    <span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">_execute_with_circuit_breaker</span>(
+        <span class="token-kw">self</span>, agent, user_input, session_id
+    ) -> <span class="token-cls">AgentResult</span>:
+        <span class="token-str">"""带熔断器保护的 Agent 执行"""</span>
+        <span class="token-kw">def</span> <span class="token-fn">_run</span>():
+            <span class="token-kw">return</span> agent.<span class="token-fn">run</span>(task=user_input, session_id=session_id)
+
+        <span class="token-kw">return</span> <span class="token-kw">self</span>.circuit_breaker.<span class="token-fn">call</span>(_run)
+
+<span class="token-cm"># ===== 使用示例 =====</span>
+<span class="token-cm"># 创建主 Agent (使用 Claude Sonnet)</span>
+primary = MyAgent(model=<span class="token-str">"claude-sonnet-4-20250514"</span>)
+<span class="token-cm"># 创建降级 Agent (使用 Claude Haiku，更快更便宜)</span>
+fallback = MyAgent(model=<span class="token-str">"claude-haiku-4-20250514"</span>)
+
+<span class="token-cm"># 包装为生产级 Agent</span>
+prod_agent = <span class="token-cls">ProductionAgent</span>(
+    primary_agent=primary,
+    fallback_agent=fallback,
+    max_retries=<span class="token-num">3</span>,
+    base_timeout=<span class="token-num">30</span>
+)
+
+<span class="token-cm"># 执行 — 自动处理重试、超时、熔断、降级</span>
+result = <span class="token-kw">await</span> prod_agent.<span class="token-fn">run</span>(
+    user_input=<span class="token-str">"帮我分析最近的销售数据"</span>,
+    session_id=<span class="token-str">"user-123-session-abc"</span>
+)</code></pre>
+    </div>
+
+    <!-- Card 9: Security in Production -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">🔒</div>
+        <div>
+          <div class="card-title">生产环境安全加固</div>
+        </div>
+      </div>
+      <p>Agent 的开放性使其面临独特的安全威胁：</p>
+      <ul>
+        <li><strong>输入安全</strong>：所有用户输入经过内容审核（检测提示注入、有害内容）。限制输入长度，拒绝超大 payload。对用户上传的文件进行病毒扫描和类型验证。</li>
+        <li><strong>输出安全</strong>：Agent 输出经过二次审核（防止泄露系统提示词、个人信息、内部 API 地址）。敏感数据自动脱敏（如手机号、身份证号）。</li>
+        <li><strong>工具执行安全</strong>：代码执行在隔离沙箱中（Docker/gVisor），不允许网络访问。工具调用需要用户确认（高风险操作如删除、支付）。工具权限白名单，非白名单 API 一律拒绝。</li>
+        <li><strong>数据安全</strong>：会话数据加密存储（AES-256）。设置数据保留策略（如 90 天自动清理）。PII (Personally Identifiable Information) 不进入 LLM 上下文。</li>
+        <li><strong>访问控制</strong>：API 需要认证（JWT/OAuth2）。Agent 操作的资源受 RBAC (Role-Based Access Control) 控制。完整的审计日志记录所有操作。</li>
+      </ul>
+    </div>
+
+    <!-- Card 10: Operational Checklist -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">✅</div>
+        <div>
+          <div class="card-title">Agent 上线检查清单</div>
+          <div class="card-desc">在生产环境上线 Agent 前的完整验证清单</div>
+        </div>
+      </div>
+      <ol>
+        <li><strong>性能与可靠性</strong>
+          <ul>
+            <li>所有工具调用设置了合理的 timeout（不超过 30 秒）</li>
+            <li>Agent 循环有 max_steps 硬限制（建议不超过 15 步）</li>
+            <li>LLM 调用有指数退避重试机制（建议 3 次）</li>
+            <li>实现了降级策略（主模型失败时自动切换到备用模型）</li>
+            <li>负载测试通过：能承受预期的峰值 QPS</li>
+          </ul>
+        </li>
+        <li><strong>成本控制</strong>
+          <ul>
+            <li>每个用户/会话有 Token 预算上限</li>
+            <li>启用了 Prompt Caching（系统提示词和工具定义靠前放置）</li>
+            <li>配置了每日/每月成本告警阈值</li>
+          </ul>
+        </li>
+        <li><strong>可观测性</strong>
+          <ul>
+            <li>关键业务指标有仪表板（Grafana / Datadog）</li>
+            <li>异常情况有自动告警（错误率、延迟、成本）</li>
+            <li>每个请求有端到端的 Trace，便于排查问题</li>
+            <li>Agent 的推理和工具调用过程有结构化日志</li>
+          </ul>
+        </li>
+        <li><strong>安全合规</strong>
+          <ul>
+            <li>API 端点有认证和速率限制</li>
+            <li>用户数据有加密存储和明确的保留策略</li>
+            <li>通过了提示注入和越狱测试</li>
+            <li>满足相关法规要求（如 GDPR、个人信息保护法）</li>
+          </ul>
+        </li>
+        <li><strong>运维就绪</strong>
+          <ul>
+            <li>有清晰的 Runbook（故障处理手册）</li>
+            <li>回滚流程已验证（可在 1 分钟内回滚）</li>
+            <li>值班和 On-Call 机制已建立</li>
+          </ul>
+        </li>
+      </ol>
+      <div class="alert alert-success">
+        <div class="alert-title">最后一句话</div>
+        <p>Agent 上线不是终点，而是持续运营的起点。生产环境会暴露开发环境中从未出现过的问题。保持<strong>谦逊</strong>——即使你的 Agent 在测试中表现完美，也要为生产中的意外做好充分准备。建立快速的<strong>反馈回路</strong>：从生产数据中学习，持续改进 Agent 的质量和稳定性。</p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="11">
+      <div class="quiz-title">📝 章节测验</div>
+      <div class="quiz-desc">测试你对 Agent 部署与运维的理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 生产级 Agent 架构中，"无状态 Worker + 有状态 Session"的设计原则是为了什么？</div>
+        <button class="quiz-option" data-answer="0">A. 任何 Worker 可以接手任意会话，提高系统的弹性和可扩展性</button>
+        <button class="quiz-option" data-answer="1">B. 减少代码量</button>
+        <button class="quiz-option" data-answer="2">C. 让 Agent 运行得更快</button>
+        <button class="quiz-option" data-answer="3">D. 降低 LLM 的 Token 消耗</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 金丝雀部署 (Canary Deployment) 的正确做法是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 直接将新版本部署到所有服务器</button>
+        <button class="quiz-option" data-answer="1">B. 先上线到测试环境就完成了</button>
+        <button class="quiz-option" data-answer="2">C. 先让 5-10% 流量使用新版本，观察指标后再逐步扩大</button>
+        <button class="quiz-option" data-answer="3">D. 只在晚上部署</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 熔断器 (Circuit Breaker) 在 Agent 系统中的作用是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 加速 LLM 调用</button>
+        <button class="quiz-option" data-answer="1">B. 当连续失败超过阈值时自动停止请求，防止级联故障</button>
+        <button class="quiz-option" data-answer="2">C. 减少 Token 消耗</button>
+        <button class="quiz-option" data-answer="3">D. 优化提示词</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a class="btn" href="../chapters/10-evaluation-testing.html">
+        ← <span>第10章：评估与测试</span>
+      </a>
+      <a class="btn btn-primary" href="../chapters/12-future-trends.html">
+        <span>第12章：未来趋势</span> →
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- ============================================================
+     Agent Simulator Panel
+     ============================================================ -->
+<button class="sim-toggle" id="simToggle" title="Agent 模拟器">🤖</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <span><span class="sim-status-dot"></span> Agent 模拟器</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="simClose">✕</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      👋 你好！试试让我完成一些任务，体验 Agent 在生产环境中如何思考和行动！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Notes Panel
+     ============================================================ -->
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:106px;width:48px;height:48px;border-radius:50%;background:var(--bg-tertiary);border:1px solid var(--border-color);z-index:85;">📝</button>
+
+<div class="sim-panel" id="notesPanel" style="bottom:96px;right:106px;width:380px;height:480px;">
+  <div class="sim-header">
+    <span>📒 我的笔记</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="notesClose">✕</button>
+  </div>
+  <div class="sim-messages" id="notesList" style="padding:12px;">
+    <div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧 📝</div>
+  </div>
+  <div class="sim-input-area" style="flex-direction:column;gap:8px;">
+    <textarea class="sim-input" id="noteInput" placeholder="在这里写笔记..." rows="3"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：实战进阶</option>
+        <option value="9">第9章：Agent框架</option>
+        <option value="10">第10章：评估与测试</option>
+        <option value="11" selected>第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

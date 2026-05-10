@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 框架全面对比 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+/* ============================================
+   Framework Comparison Page Specific
+   ============================================ */
+.fw-hero { text-align: center; padding: 20px 0 32px; }
+.fw-hero h1 { font-size: 2.4rem; font-weight: 900; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.fw-tabs { display: flex; gap: 0; margin-bottom: 28px; overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+.fw-tab { padding: 12px 20px; background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; font-size: 13px; font-weight: 600; transition: all var(--ease-fast); white-space: nowrap; border: none; font-family: var(--font-body); }
+.fw-tab:not(:last-child) { border-right: 1px solid var(--border-color); }
+.fw-tab:hover { color: var(--accent-cyan); }
+.fw-tab.active { background: var(--accent-cyan); color: #080c14; }
+
+.fw-section { display: none; }
+.fw-section.active { display: block; }
+
+.stars { color: var(--accent-orange); letter-spacing: 2px; }
+.stars .empty { color: var(--text-muted); opacity: 0.3; }
+
+.fw-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px; transition: all var(--ease-base); }
+.fw-card:hover { border-color: var(--border-glow-cyan); box-shadow: var(--shadow-glow-cyan); }
+.fw-card h3 { font-size: 20px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+.fw-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+
+.pro-con-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.pro-col, .con-col { padding: 18px; border-radius: var(--radius-md); }
+.pro-col { background: rgba(0,230,118,0.04); border: 1px solid rgba(0,230,118,0.12); }
+.con-col { background: rgba(255,61,90,0.04); border: 1px solid rgba(255,61,90,0.12); }
+.pro-col h5 { color: var(--accent-green); margin-bottom: 10px; font-size: 14px; }
+.con-col h5 { color: var(--accent-red); margin-bottom: 10px; font-size: 14px; }
+.pro-con-grid ul { padding-left: 1.2rem; margin: 0; font-size: 13px; }
+.pro-con-grid li { margin-bottom: 5px; color: var(--text-secondary); line-height: 1.5; }
+
+.dt-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 28px; margin: 24px 0; font-family: var(--font-mono); font-size: 13px; line-height: 2; }
+.dt-q { color: var(--accent-cyan); font-weight: 700; }
+.dt-a { color: var(--text-secondary); padding-left: 16px; }
+.dt-result { color: var(--accent-green); font-weight: 700; padding-left: 24px; }
+.dt-branch { color: var(--text-muted); }
+
+.uc-card { padding: 18px 22px; border-radius: var(--radius-md); margin-bottom: 12px; border-left: 3px solid var(--accent-cyan); background: rgba(0,229,255,0.03); }
+.uc-card strong { color: var(--accent-cyan); font-size: 15px; }
+.uc-card p { margin: 6px 0 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.fw-badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; }
+.fw-badge.best { background: rgba(0,230,118,0.15); color: var(--accent-green); }
+.fw-badge.good { background: rgba(0,229,255,0.12); color: var(--accent-cyan); }
+.fw-badge.ok { background: rgba(255,145,0,0.12); color: var(--accent-orange); }
+.fw-badge.limited { background: rgba(255,61,90,0.12); color: var(--accent-red); }
+
+.code-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+.dc-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 14px; border-left: 4px solid var(--accent-cyan); display: flex; gap: 16px; align-items: flex-start; transition: all var(--ease-base); }
+.dc-card:hover { border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); }
+.dc-num { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #fff; flex-shrink: 0; }
+.dc-content { flex: 1; }
+.dc-scenario { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.dc-recommend { font-size: 14px; color: var(--accent-cyan); margin-bottom: 4px; font-weight: 600; }
+.dc-reason { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.summary-box { background: linear-gradient(135deg, rgba(0,229,255,0.06), rgba(180,74,238,0.06)); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: 36px; margin-top: 32px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 20px; }
+.summary-item { background: var(--bg-card); border-radius: var(--radius-md); padding: 18px 20px; border: 1px solid var(--border-color); }
+.si-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+.si-value { font-size: 15px; font-weight: 700; color: var(--accent-cyan); }
+
+@media (max-width: 768px) {
+  .pro-con-grid { grid-template-columns: 1fr; }
+  .code-compare { grid-template-columns: 1fr; }
+  .fw-hero h1 { font-size: 1.8rem; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .fw-tab { padding: 8px 14px; font-size: 12px; }
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ===== TOP BAR ===== -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单" style="display:none;">&#9776;</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="searchClose">&#10005;</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">&#128218; 学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link">01 · 什么是 AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link">02 · 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link">03 · 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link">04 · 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link">05 · 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link">06 · 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link">07 · 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link">08 · 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link">09 · Agent框架生态</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link">10 · 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link">11 · 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link">12 · 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link">13 · 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link">14 · 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link">15 · 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">&#128736; 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">&#128172; 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">&#128295; 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">&#129302; Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">&#128176; 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">&#129504; 记忆可视化</a>
+
+  <div class="sidebar-section-title">&#128214; 参考资料</div>
+  <a href="glossary.html" class="nav-link">&#128213; 完整术语表</a>
+  <a href="framework-comparison.html" class="nav-link active">&#128202; 框架对比</a>
+  <a href="case-studies.html" class="nav-link">&#128188; 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content">
+
+  <section class="fw-hero">
+    <h1>&#128202; AI Agent 框架全面对比</h1>
+    <p style="color:var(--text-muted);">8 大主流框架 · 多维度深度分析 · 选型决策指南</p>
+  </section>
+
+  <p style="font-size:15px;color:var(--text-secondary);line-height:1.8;margin-bottom:28px;">
+    2026 年，AI Agent 框架生态百花齐放。不同的框架有不同的设计哲学、适用场景和取舍——没有"最好"的框架，只有"最适合你场景"的框架。本页面对 8 个主流框架进行系统性、多维度的深度对比，帮助你做出正确的技术选型。每个框架的评估基于实际使用体验、社区反馈和生产部署案例。
+  </p>
+
+  <!-- Tabs -->
+  <div class="fw-tabs" id="fwTabs">
+    <button class="fw-tab active" data-tab="overview">&#128202; 总览对比</button>
+    <button class="fw-tab" data-tab="decision">&#127795; 选型决策</button>
+    <button class="fw-tab" data-tab="langchain">LangChain</button>
+    <button class="fw-tab" data-tab="crewai">CrewAI</button>
+    <button class="fw-tab" data-tab="autogen">AutoGen</button>
+    <button class="fw-tab" data-tab="sk">Semantic Kernel</button>
+    <button class="fw-tab" data-tab="anthropic">Anthropic SDK</button>
+    <button class="fw-tab" data-tab="openai">OpenAI Assistants</button>
+    <button class="fw-tab" data-tab="dify">Dify</button>
+    <button class="fw-tab" data-tab="coze">Coze</button>
+    <button class="fw-tab" data-tab="code">&#128187; 代码对比</button>
+  </div>
+
+  <!-- ========= TAB: OVERVIEW ========= -->
+  <div class="fw-section active" id="tab-overview">
+    <div class="card" style="overflow-x:auto;">
+      <h3>&#128202; 8 大框架全维度对比总表</h3>
+      <p style="color:var(--text-muted);margin-bottom:16px;">12 个维度横向对比——绿色代表显著优势，红色代表显著限制</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>维度</th><th>LangChain</th><th>CrewAI</th><th>AutoGen</th><th>Semantic Kernel</th><th>Claude SDK</th><th>OpenAI Assistants</th><th>Dify</th><th>Coze</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>学习曲线</strong></td>
+              <td><span class="fw-badge ok">中高</span></td><td><span class="fw-badge best">低</span></td><td><span class="fw-badge ok">中等</span></td><td><span class="fw-badge ok">中等</span></td>
+              <td><span class="fw-badge best">低</span></td><td><span class="fw-badge best">极低</span></td><td><span class="fw-badge best">低</span></td><td><span class="fw-badge best">极低</span></td></tr>
+            <tr><td><strong>灵活性</strong></td>
+              <td><span class="fw-badge good">高</span></td><td><span class="fw-badge ok">中等</span></td><td><span class="fw-badge good">高</span></td><td><span class="fw-badge ok">中等</span></td>
+              <td><span class="fw-badge best">极高</span></td><td><span class="fw-badge limited">低</span></td><td><span class="fw-badge ok">中等</span></td><td><span class="fw-badge limited">低</span></td></tr>
+            <tr><td><strong>生产就绪</strong></td>
+              <td><span class="fw-badge good">高</span></td><td><span class="fw-badge ok">中</span></td><td><span class="fw-badge good">中高</span></td><td><span class="fw-badge good">中高</span></td>
+              <td><span class="fw-badge best">高</span></td><td><span class="fw-badge best">高</span></td><td><span class="fw-badge ok">中</span></td><td><span class="fw-badge ok">中</span></td></tr>
+            <tr><td><strong>社区规模</strong></td>
+              <td><span class="fw-badge best">极大 (95K+)</span></td><td><span class="fw-badge ok">中 (20K+)</span></td><td><span class="fw-badge good">大 (35K+)</span></td><td><span class="fw-badge ok">中 (21K+)</span></td>
+              <td><span class="fw-badge good">大</span></td><td><span class="fw-badge best">极大</span></td><td><span class="fw-badge good">大 (50K+)</span></td><td><span class="fw-badge good">大</span></td></tr>
+            <tr><td><strong>Python</strong></td>
+              <td><span class="fw-badge best">一流</span></td><td><span class="fw-badge best">一流</span></td><td><span class="fw-badge best">一流</span></td><td><span class="fw-badge good">良好</span></td>
+              <td><span class="fw-badge best">一流</span></td><td><span class="fw-badge best">一流</span></td><td><span class="fw-badge good">SDK</span></td><td><span class="fw-badge ok">API</span></td></tr>
+            <tr><td><strong>JS/TS</strong></td>
+              <td><span class="fw-badge good">LangChain.js</span></td><td><span class="fw-badge limited">有限</span></td><td><span class="fw-badge ok">AutoGen.js</span></td><td><span class="fw-badge ok">支持</span></td>
+              <td><span class="fw-badge good">官方SDK</span></td><td><span class="fw-badge good">官方SDK</span></td><td><span class="fw-badge ok">SDK</span></td><td><span class="fw-badge limited">仅API</span></td></tr>
+            <tr><td><strong>独特优势</strong></td>
+              <td style="font-size:12px;">700+集成、LangGraph状态机、LangSmith可观测</td><td style="font-size:12px;">角色驱动多Agent建模，直觉化协作</td><td style="font-size:12px;">对话即编程、内置代码沙箱、嵌套对话</td><td style="font-size:12px;">企业Plugin架构、.NET原生、Azure集成</td>
+              <td style="font-size:12px;">Extended Thinking、MCP协议、Computer Use</td><td style="font-size:12px;">零运维、Code Interpreter、File Search</td><td style="font-size:12px;">开源可视化平台、自部署、全生命周期</td><td style="font-size:12px;">零代码、国内生态、多平台发布</td></tr>
+            <tr><td><strong>适用场景</strong></td>
+              <td style="font-size:12px;">RAG应用、复杂工作流</td><td style="font-size:12px;">内容创作、多角色流水线</td><td style="font-size:12px;">代码生成、科研自动化</td><td style="font-size:12px;">企业.NET/Java集成</td>
+              <td style="font-size:12px;">高安全Agent、GUI自动化</td><td style="font-size:12px;">快速原型、MVP验证</td><td style="font-size:12px;">内部工具、知识库问答</td><td style="font-size:12px;">C端Bot、社交媒体分发</td></tr>
+            <tr><td><strong>许可证</strong></td>
+              <td><span class="fw-badge best">MIT</span></td><td><span class="fw-badge best">Apache 2.0</span></td><td><span class="fw-badge best">MIT</span></td><td><span class="fw-badge best">MIT</span></td>
+              <td><span class="fw-badge best">MIT</span></td><td><span class="fw-badge ok">商用API</span></td><td><span class="fw-badge best">Apache 2.0</span></td><td><span class="fw-badge ok">免费+付费</span></td></tr>
+            <tr><td><strong>自部署</strong></td>
+              <td><span class="fw-badge best">支持</span></td><td><span class="fw-badge best">支持</span></td><td><span class="fw-badge best">支持</span></td><td><span class="fw-badge best">支持</span></td>
+              <td><span class="fw-badge best">支持</span></td><td><span class="fw-badge limited">仅托管</span></td><td><span class="fw-badge best">支持</span></td><td><span class="fw-badge limited">仅托管</span></td></tr>
+            <tr><td><strong>MCP支持</strong></td>
+              <td><span class="fw-badge best">原生</span></td><td><span class="fw-badge ok">间接</span></td><td><span class="fw-badge limited">有限</span></td><td><span class="fw-badge ok">扩展</span></td>
+              <td><span class="fw-badge best">核心</span></td><td><span class="fw-badge limited">有限</span></td><td><span class="fw-badge ok">插件</span></td><td><span class="fw-badge limited">有限</span></td></tr>
+            <tr><td><strong>模型支持</strong></td>
+              <td style="font-size:12px;">几乎所有主流模型</td><td style="font-size:12px;">通过LangChain</td><td style="font-size:12px;">OpenAI/Azure/开源</td><td style="font-size:12px;">OpenAI/Azure/开源</td>
+              <td style="font-size:12px;">仅Claude系列</td><td style="font-size:12px;">仅OpenAI模型</td><td style="font-size:12px;">多种提供商</td><td style="font-size:12px;">平台内置</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <div class="alert-title">如何读懂这张表</div>
+      <p>没有"最好"的框架，只有"最匹配"的框架。先明确你的<strong>不可妥协维度</strong>（如必须自部署、必须Python），再在满足条件的框架中比较优劣势。绿色标记代表显著优势，红色代表显著限制。</p>
+    </div>
+  </div>
+
+  <!-- ========= TAB: DECISION ========= -->
+  <div class="fw-section" id="tab-decision">
+    <div class="card">
+      <h3>&#127795; 框架选择决策树</h3>
+      <p style="color:var(--text-muted);margin-bottom:16px;">按以下决策树依次回答，找到最适合你场景的框架：</p>
+      <div class="dt-box">
+        <div class="dt-q">1. 你需要图形化/零代码界面还是纯代码开发？</div>
+        <div class="dt-a dt-branch">&#9500;&#9472; 图形化/零代码 &#10132;</div>
+        <div class="dt-a dt-q">  1a. 需要私有化部署还是 SaaS 即可？</div>
+        <div class="dt-a dt-branch">  &#9500;&#9472; 私有部署 &#10132;</div>
+        <div class="dt-result">  &#9500;&#9472; <strong>Dify</strong> — 开源可视化平台，可自托管，工作流编排 + 知识库管理</div>
+        <div class="dt-a dt-branch">  &#9492;&#9472; SaaS 即可，需要快速分发到C端 &#10132;</div>
+        <div class="dt-result">  &#9492;&#9472; <strong>Coze（扣子）</strong> — 字节跳动出品，插件商店丰富，一键发布到飞书/抖音/微信</div>
+        <div class="dt-a dt-branch">&#9492;&#9472; 纯代码开发 &#10132;</div>
+        <div class="dt-a dt-q">  2. 你是构建单Agent还是多Agent协作系统？</div>
+        <div class="dt-a dt-branch">  &#9500;&#9472; 单Agent &#10132;</div>
+        <div class="dt-a dt-q">    2a. 你需要最大控制权还是快速开发？</div>
+        <div class="dt-a dt-branch">    &#9500;&#9472; 最大控制权，深度定制 &#10132;</div>
+        <div class="dt-result">    &#9500;&#9472; <strong>Anthropic SDK</strong> — 直接控制 API，无框架开销，Prompt Caching 降本</div>
+        <div class="dt-a dt-branch">    &#9492;&#9472; 快速开发，需要丰富的预置集成 &#10132;</div>
+        <div class="dt-result">    &#9492;&#9472; <strong>LangChain</strong> — 最大社区，最丰富的工具/RAG/记忆组件</div>
+        <div class="dt-a dt-branch">  &#9492;&#9472; 多Agent协作 &#10132;</div>
+        <div class="dt-a dt-q">    2b. 需要企业级支持和微软生态集成？</div>
+        <div class="dt-a dt-branch">    &#9500;&#9472; 需要，在 Azure/M365 生态中 &#10132;</div>
+        <div class="dt-result">    &#9500;&#9472; <strong>Semantic Kernel</strong> — 微软企业级方案，与 Azure AI / Copilot 深度绑定</div>
+        <div class="dt-a dt-branch">    &#9492;&#9472; 不需要，更注重灵活性和研究性 &#10132;</div>
+        <div class="dt-a dt-q">      2c. 需要角色驱动且快速上手，还是需要最大通信灵活性？</div>
+        <div class="dt-a dt-branch">      &#9500;&#9472; 角色驱动，快速上手 &#10132;</div>
+        <div class="dt-result">      &#9500;&#9472; <strong>CrewAI</strong> — 角色+任务+团队模型，API 简洁直观</div>
+        <div class="dt-a dt-branch">      &#9492;&#9472; 复杂对话拓扑，分布式Agent &#10132;</div>
+        <div class="dt-result">      &#9492;&#9472; <strong>AutoGen</strong> — 任意图结构通信拓扑，微软研究院背书</div>
+        <div class="dt-branch" style="margin-top:8px;">3. 快速验证 MVP？</div>
+        <div class="dt-a dt-branch">&#9492;&#9472; 是，需要最快速度跑通 &#10132;</div>
+        <div class="dt-result">&#9492;&#9472; <strong>OpenAI Assistants API</strong> — 几行代码创建 Agent，内置 Code Interpreter + RAG</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#127919; 按场景推荐的框架</h3>
+      <div class="uc-card"><strong>&#128187; 构建企业内部知识库问答系统</strong><p>推荐: <strong>Dify</strong> (知识库管理 + 可视化编排) 或 <strong>LangChain</strong> (RAG pipeline 灵活定制)。Dify 适合快速部署和团队协作，LangChain 适合深度定制检索策略。</p></div>
+      <div class="uc-card"><strong>&#128221; 搭建多角色协作的研究/写作团队</strong><p>推荐: <strong>CrewAI</strong> — 角色定义（研究员、写手、编辑）+ 任务分配模型天然适合内容创作流水线。或 <strong>AutoGen</strong> 如需更复杂的 Agent 间讨论和辩论模式。</p></div>
+      <div class="uc-card"><strong>&#127758; 面向C端用户发布AI应用</strong><p>推荐: <strong>Coze</strong> — 零代码构建 + 插件商店 + 一键发布到飞书/抖音/微信。需自托管和数据不出域则选择 <strong>Dify</strong> 私有化部署。</p></div>
+      <div class="uc-card"><strong>&#127970; 与 Microsoft 365/Azure 生态集成</strong><p>推荐: <strong>Semantic Kernel</strong> — 原生支持 Azure AI、Copilot、Teams、Microsoft Graph。Plugin 模式可复用现有企业组件。也可与 AutoGen 组合使用。</p></div>
+      <div class="uc-card"><strong>&#128300; 研究分布式多Agent通信模式</strong><p>推荐: <strong>AutoGen</strong> — 最灵活的多Agent对话拓扑，支持复杂通信模式（群组对话、嵌套对话、顺序对话），微软学术研究团队持续维护。</p></div>
+      <div class="uc-card"><strong>&#128295; 构建需要最大控制的深度定制Agent</strong><p>推荐: <strong>Anthropic SDK</strong> + 自建编排逻辑 — 无框架依赖，完全自主可控。直接使用 Claude API 所有高级功能（Prompt Caching、Extended Thinking、Tool Use）。</p></div>
+      <div class="uc-card"><strong>&#128640; 最快速验证Agent原型想法</strong><p>推荐: <strong>OpenAI Assistants API</strong> — 几行代码创建带 Code Interpreter 和 RAG 的 Agent，或 <strong>Anthropic SDK</strong> — 直接调用 API。</p></div>
+      <div class="uc-card"><strong>&#128260; 需要兼容多种LLM提供商</strong><p>推荐: <strong>LangChain</strong> — 统一模型抽象层，支持 100+ 模型提供商。或 <strong>Dify</strong> — 可视化配置多种模型。</p></div>
+
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">核心原则</div>
+        <p><strong>1. 先原型再框架</strong>：用最简单的方式验证核心价值，确定需求后再引入框架。三周框架调研不如三天 SDK 原型实验。<strong>2. 技术栈优先</strong>：.NET 团队用 Semantic Kernel 比硬上 LangChain 更合理。让框架适配团队而非反过来。<strong>3. 警惕模型锁定</strong>：如需未来切换模型，选择模型无关的框架。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: LangChain ========= -->
+  <div class="fw-section" id="tab-langchain">
+    <div class="fw-card">
+      <h3>&#128279; LangChain — 最成熟的 LLM 应用框架</h3>
+      <p class="fw-meta">GitHub 95K+ Stars | Python/JS双语言 | MIT 许可证 | 创建于 2022</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>LangChain</strong> 由 Harrison Chase 于 2022 年创立，是当前生态最丰富的 AI Agent 开发框架。它将 Agent 开发中的各种关注点抽象为独立的、可替换的组件，通过链 (Chain) 和 Agent 组合成完整工作流。核心子项目包括：<strong>LangChain Core</strong>（核心抽象——Model I/O、Retrieval、Chains、Agents、Memory）、<strong>LangGraph</strong>（有状态 Agent 图引擎，支持条件分支、循环、并行、人机交互断点、检查点持久化——这是与竞品拉开差距的核心能力）、<strong>LangSmith</strong>（调试、追踪和评估平台）、<strong>LangServe</strong>（部署为 REST API）、<strong>LCEL</strong>（使用 Python 管道符串联组件的声明式语法）。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>700+ 集成覆盖几乎所有 LLM、向量库、文档加载器</li>
+            <li>LangGraph 提供工业级状态管理和多步工作流编排</li>
+            <li>LangSmith 提供 Agent 可观测性——每步 token 消耗、延迟、错误追踪</li>
+            <li>社区最大——问题容易找到答案，教程和案例丰富</li>
+            <li>模型无关设计——同一套代码可切换 OpenAI、Anthropic、Ollama 等后端</li>
+            <li>最完善的 RAG 组件——文档加载、分块、Embedding、检索、重排序全流程</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>抽象层次多，调试困难——Agent 行为不符合预期时定位问题费时</li>
+            <li>版本迭代快，API 破坏性变更频繁——从 0.1 到 1.0 迁移成本显著</li>
+            <li>简单任务用 LangChain 反而增加代码量和心智负担</li>
+            <li>部分文档滞后于代码更新，高级功能缺少详细文档</li>
+            <li>框架本身有性能开销——延迟敏感场景直接 SDK 更快</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>复杂 RAG 应用、需要多步状态管理的工作流、需快速集成多种外部服务、需团队协作维护的长期 Agent 项目。不适合简单单工具 Agent 或对"框架魔法"容忍度低、需要极致稳定 API 的长期项目。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: CrewAI ========= -->
+  <div class="fw-section" id="tab-crewai">
+    <div class="fw-card">
+      <h3>&#128101; CrewAI — 角色驱动的多Agent编排</h3>
+      <p class="fw-meta">GitHub 20K+ Stars | Python | Apache 2.0 | 创建于 2023</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>CrewAI</strong> 的设计灵感来源于公司团队协作——每个 Agent 拥有角色 (Role)、目标 (Goal) 和背景故事 (Backstory)。通过 Task 分配任务，通过 Crew 编排团队工作。核心创新在于将多Agent协作建模为角色扮演，大幅降低了多Agent系统的开发门槛。执行模式有两种：<strong>Sequential</strong>（顺序执行，前一 Agent 输出成为后一 Agent 输入）和<strong>Hierarchical</strong>（层级执行，Manager Agent 动态分配任务和协调结果）。CrewAI 在内容创作场景中表现尤为出色——研究员收集资料、撰写者生成初稿、审核员检查质量，这种流水线只需几十行代码。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>角色驱动设计非常直观——非技术人员也能理解和配置 Agent 分工</li>
+            <li>极低的多Agent入门门槛——定义角色和任务即可运行</li>
+            <li>内置记忆和上下文传递——Agent 间共享信息自动化</li>
+            <li>适合结构化流水线任务（调研-撰写-审核-发布）</li>
+            <li>与 LangChain 工具生态兼容——可复用丰富工具集</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>灵活性受限——自定义 Agent 间通信协议时遇到瓶颈</li>
+            <li>层级模式下 Manager Agent 可能做出不合理的分配决策</li>
+            <li>不适合 Agent 间反复对话辩论的动态场景</li>
+            <li>仅支持 Python——无法在 Node.js 或其他语言环境中使用</li>
+            <li>生产级部署案例还不多——大型企业应用的验证有限</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>内容创作团队（研究+撰写+审核）、结构化市场分析流水线、多角色协作原型验证。不适合 Agent 间自由辩论场景、需精细控制通信协议的生产系统、非 Python 技术栈。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: AutoGen ========= -->
+  <div class="fw-section" id="tab-autogen">
+    <div class="fw-card">
+      <h3>&#128259; AutoGen — 对话驱动的多Agent框架</h3>
+      <p class="fw-meta">GitHub 35K+ Stars | Python + .NET | MIT | 创建于 2023 | 微软研究院</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>AutoGen</strong> 是微软研究院推出的多Agent对话框架。核心理念是"对话即编程"——Agent 通过收发消息来协调任务。核心概念包括：ConversableAgent（基类）、AssistantAgent（LLM 推理）、UserProxyAgent（代表人类/执行代码）、GroupChat（多Agent 共享对话空间）。最强大的特性之一是<strong>内置代码执行沙箱</strong>——Agent 生成的 Python 代码在 Docker 容器中执行，如出错则自动读取错误信息并修正，形成"生成-执行-调试"自动循环。另一重要特性是<strong>嵌套对话</strong>——一个对话中可触发子对话，例如主 Agent 遇到数学问题时自动启动与数学 Agent 的子对话。AutoGen 特别适合需要灵活对话拓扑的研究和实验场景。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>对话驱动模型非常灵活——Agent 可自由讨论、辩论、交换信息</li>
+            <li>内置 Docker 代码沙箱——自动执行和纠错循环</li>
+            <li>强大的 Human-in-the-Loop 支持——可在 Agent 执行关键步骤前请求人工确认</li>
+            <li>嵌套对话让复杂任务分解和子问题求解非常自然</li>
+            <li>与 Semantic Kernel 互补——AutoGen 做编排，SK 做企业集成</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>结果不确定性高——同样输入可能产生不同执行路径</li>
+            <li>学习曲线中等——对话概念（GroupChat、Speaker Selection）需时间适应</li>
+            <li>调试困难——多层嵌套对话的执行流难以追踪</li>
+            <li>对 Docker 依赖较重——代码执行功能需要 Docker 环境</li>
+            <li>社区分裂风险——0.7 版本后出现 AG2 分支，长期维护方向不确定</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>自动化代码生成和数据分析、科研多Agent实验、需 Agent 间自由讨论的决策场景、Human-in-the-Loop 审批工作流。不适合需确定性执行路径的生产环境、无 Docker 的受限部署场景。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: Semantic Kernel ========= -->
+  <div class="fw-section" id="tab-sk">
+    <div class="fw-card">
+      <h3>&#127970; Semantic Kernel — 企业级 AI 编排 SDK</h3>
+      <p class="fw-meta">GitHub 21K+ Stars | Python/C#/Java | MIT | 创建于 2023 | 微软</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>Semantic Kernel (SK)</strong> 是微软的企业级 AI 编排 SDK，被设计为 Microsoft Copilot 生态的基础框架。核心抽象是<strong>Plugin</strong>——将功能封装为 AI 可调用的单元：Native Plugin（原生代码函数）和 Semantic Plugin（基于提示词模板）。SK 是唯二对 .NET 提供一流支持的 AI 编排框架（另一个是 AutoGen），对微软技术栈企业极其友好。SK 的 <strong>Planner</strong> 是其 Agent 能力核心——给定自然语言目标，自动选择插件、决定调用顺序、传递参数。与 Azure AI Search、Cosmos DB 等深度集成。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>C#/.NET 生态的天然选择——对 Java 也提供良好支持</li>
+            <li>Plugin 架构简洁——将现有企业 API 包装为 AI 可调用 Plugin 很方便</li>
+            <li>Azure AI 服务深度集成——一键接入 Azure OpenAI、AI Search</li>
+            <li>微软官方长期维护——企业支持有保障</li>
+            <li>SDK 设计克制——没有 LangChain 过度抽象的问题</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>社区规模远小于 LangChain——第三方教程和案例有限</li>
+            <li>Python 版本成熟度不如 C# 版本</li>
+            <li>与微软生态绑定程度高——脱离 Azure 后部分优势消失</li>
+            <li>多Agent 支持现阶段不够成熟</li>
+            <li>非微软技术栈团队引入有额外学习成本</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>.NET/C# 企业团队、深度使用 Azure 的组织、将 AI 嵌入现有企业业务系统（ERP/CRM）。不适合 Python 优先的 AI 团队、非 Azure 云用户、大规模多Agent 协作系统。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: Anthropic SDK ========= -->
+  <div class="fw-section" id="tab-anthropic">
+    <div class="fw-card">
+      <h3>&#129302; Anthropic Claude SDK — 原生 Tool Use/Thinking/MCP</h3>
+      <p class="fw-meta">Python + TypeScript | MIT | 官方维护 | 创建于 2023</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>Anthropic Claude SDK</strong> 不是传统"框架"，而是 Anthropic 官方提供的模型调用 SDK。其设计哲学是"最小抽象"——让开发者直接控制 Agent 循环的每个环节。Claude 提供构建 Agent 所需的所有<strong>原生能力</strong>：<strong>Tool Use</strong>（支持并行工具调用）、<strong>Extended Thinking</strong>（独有的透明多步推理，thinking budget 4K-32K tokens）、<strong>Computer Use</strong>（操作计算机界面——移动鼠标、点击按钮、截图分析，构建 GUI Agent 的独一无二能力）、<strong>MCP 协议</strong>（Anthropic 提出的开放标准，将工具提供方和消费方解耦，数百个 MCP 服务可用）、<strong>Prompt Caching</strong>（缓存系统提示词和工具定义，节省高达 90% 输入 token 成本）、<strong>Constitutional AI</strong>（安全对齐行业领先，适合金融/医疗等高合规场景）。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>API 设计简洁直观——无框架间接层次的黑盒</li>
+            <li>Extended Thinking 是独有的差异化能力——推理过程透明可见</li>
+            <li>MCP 协议生态快速增长——工具复用和解耦最佳实践</li>
+            <li>Computer Use 独一无二——可操作 GUI 应用</li>
+            <li>安全性行业领先——Constitutional AI 训练方法</li>
+            <li>Prompt Caching 成本节省显著（90% 输入 token 成本）</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>仅支持 Claude 模型——无法切换到 GPT 或 Gemini</li>
+            <li>需要手写 Agent 循环——开发量大（虽然控制力强）</li>
+            <li>没有内置多Agent 编排——需自行实现</li>
+            <li>没有内置记忆管理——需自行实现对话摘要/向量检索</li>
+            <li>生态集成少——需手动对接向量库、文档加载器等</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>高安全合规场景、需要 Extended Thinking 的复杂推理、GUI 桌面自动化、MCP 生态工具构建、需精确控制 Agent 行为的开发者。不适合需多模型切换的场景、需零代码或少代码的团队。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: OpenAI Assistants ========= -->
+  <div class="fw-section" id="tab-openai">
+    <div class="fw-card">
+      <h3>&#129302; OpenAI Assistants API — 托管式 Agent 服务</h3>
+      <p class="fw-meta">Python + Node.js | 付费 API | 创建于 2023 | OpenAI</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>OpenAI Assistants API</strong> 是全托管 Agent 服务。无需关心 Agent 循环、上下文窗口管理、工具执行编排——只需定义 Assistant 的指令/模型/工具，创建 Thread 并提交消息，OpenAI 服务器自动处理一切。三个核心抽象：<strong>Assistant</strong>（配置）、<strong>Thread</strong>（对话历史）、<strong>Run</strong>（执行）。内置三个强大工具：<strong>Code Interpreter</strong>（沙箱 Python）、<strong>File Search</strong>（向量检索 RAG）、<strong>Function Calling</strong>（自定义函数）。最大优势是零运维——无需管理基础设施、无需处理并发、无需担心上下文窗口溢出。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>零运维、零配置——创建 Assistant 定义即可使用</li>
+            <li>内置 Code Interpreter 和 File Search——开箱即用</li>
+            <li>自动管理上下文窗口和对话历史</li>
+            <li>OpenAI 持续优化底层 Agent 策略，应用自动受益</li>
+            <li>与 GPT 模型最佳适配——不需额外配置即获最优工具调用准确率</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>仅支持 OpenAI 模型——模型锁定风险高</li>
+            <li>黑盒执行——无法控制 Agent 何时停止、何时重试</li>
+            <li>成本不透明——Agent 循环次数由 OpenAI 决定</li>
+            <li>无法自部署——数据必须经过 OpenAI 服务器</li>
+            <li>自定义能力有限——工具执行逻辑受限于平台框架</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>快速原型验证、MVP 阶段的 Agent 产品、需 Code Interpreter 的数据分析、非技术团队的 Agent 验证。不适合有数据隐私自部署要求的场景、多模型支持策略、需精确控制 Agent 行为的生产系统。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: Dify ========= -->
+  <div class="fw-section" id="tab-dify">
+    <div class="fw-card">
+      <h3>&#127912; Dify — 开源低代码 AI 应用平台</h3>
+      <p class="fw-meta">GitHub 50K+ Stars | 可视化 + API | Apache 2.0 | 创建于 2023</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>Dify</strong> 是开源的 AI 应用开发平台，定位于"LLMOps 平台"——覆盖从原型设计、Prompt 编排、知识库管理、Agent 配置到效果监控的全生命周期。核心特性包括：<strong>可视化工作流编排器</strong>（拖拽节点构建 Agent 流程）、<strong>内置 RAG 引擎</strong>（上传文档即构建知识库问答）、<strong>Agent 策略配置界面</strong>和 <strong>API 发布功能</strong>。支持多种 LLM 提供商并提供<strong>自部署</strong>选项（Docker Compose 一键部署）。Dify 定位在 LangChain（高灵活高门槛）和 Coze（低灵活低门槛）之间——比 Coze 更灵活可定制，比 LangChain 更低门槛更可视。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>可视化工作流编排——降低 Agent 开发技术门槛</li>
+            <li>开源可自部署——满足数据隐私和合规要求</li>
+            <li>内置 RAG 引擎——上传文档即可构建知识库问答</li>
+            <li>多模型支持——灵活切换 OpenAI/Claude/本地模型</li>
+            <li>全生命周期管理——从原型到监控的完整工具链</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>灵活性受限——超出内置节点能力时会遇瓶颈</li>
+            <li>可视化抽象层增加额外处理延迟</li>
+            <li>版本升级可能存在破坏性变更</li>
+            <li>自部署需运维能力——Docker、数据库、Redis 等</li>
+            <li>大规模并发场景下的性能调优经验有限</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>企业内部工具（知识库问答、客服机器人）、中小团队 AI MVP、可视化协作的非纯技术人员团队、数据隐私自部署场景。不适合需高度定制 Agent 行为的产品、对延迟敏感的实时应用、需复杂多Agent 协作的场景。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: Coze ========= -->
+  <div class="fw-section" id="tab-coze">
+    <div class="fw-card">
+      <h3>&#129303; Coze (扣子) — 零代码 Agent 构建平台</h3>
+      <p class="fw-meta">Web + 移动端 | 免费 + 付费 | 创建于 2024 | 字节跳动</p>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;margin-bottom:16px;">
+        <strong>Coze（扣子）</strong>是字节跳动推出的零代码 AI Agent 构建平台。核心卖点是<strong>"完全零代码"</strong>——拖拽、配置和自然语言描述即可构建 Bot。完成后的 Bot 可一键发布到抖音、飞书、微信、Discord 等平台。对国内开发者而言，与飞书和抖音的无缝对接是不可替代的优势。内置能力包括：知识库（上传文档/网页即知识来源）、插件系统（数百个官方和社区插件）、工作流编排（拖拽式多步骤流程）、长期记忆（向量库的用户记忆）和定时任务。支持豆包等国内模型。主要限制是完全平台锁定——无法导出代码或自部署。
+      </p>
+      <div class="pro-con-grid">
+        <div class="pro-col">
+          <h5>&#9989; 优势</h5>
+          <ul>
+            <li>绝对零代码——拖拽+配置即可构建 Agent</li>
+            <li>多平台一键发布——抖音、飞书、微信、Discord 等</li>
+            <li>国内生态整合——字节跳动产品无缝对接</li>
+            <li>丰富插件生态——数百个预建插件</li>
+            <li>免费额度充足——适合个人学习和小项目验证</li>
+          </ul>
+        </div>
+        <div class="con-col">
+          <h5>&#10060; 劣势</h5>
+          <ul>
+            <li>完全平台锁定——无法导出代码或自部署</li>
+            <li>仅支持平台内置模型——无法接入第三方 LLM</li>
+            <li>工作流灵活性不及代码级框架</li>
+            <li>数据隐私——所有数据经 Coze 平台处理</li>
+            <li>字节生态依赖——不在其生态内价值打折扣</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-success" style="margin-top:16px;">
+        <div class="alert-title">最佳适用场景</div>
+        <p>国内市场运营（抖音/飞书生态 Bot）、非技术团队的 Agent 原型、个人创作者的 AI 助手、教育场景快速 Demo。不适合需代码导出和自部署的生产系统、需接入第三方 LLM 的企业应用、数据隐私严格的金融/医疗场景。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= TAB: CODE COMPARISON ========= -->
+  <div class="fw-section" id="tab-code">
+    <div class="card">
+      <h3>&#128187; 代码对比：同一 Agent 的三种实现</h3>
+      <p style="color:var(--text-muted);margin-bottom:16px;">任务："查询北京天气并给出出行建议"——注意代码量、透明度和控制力的差异</p>
+
+      <div class="code-compare">
+        <div>
+          <h4 style="color:var(--accent-green);margin-bottom:12px;">Anthropic SDK — 完全透明循环</h4>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">Python (~40行)</span><button class="code-copy-btn" onclick="copyCode(this)">复制代码</button></div>
+            <pre><code><span class="token-kw">import</span> anthropic
+client = anthropic.Anthropic()
+MODEL = <span class="token-str">"claude-sonnet-4-20250514"</span>
+
+tools = [{
+    <span class="token-str">"name"</span>: <span class="token-str">"get_weather"</span>,
+    <span class="token-str">"description"</span>: <span class="token-str">"获取指定城市的实时天气"</span>,
+    <span class="token-str">"input_schema"</span>: {
+        <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+        <span class="token-str">"properties"</span>: {<span class="token-str">"city"</span>: {<span class="token-str">"type"</span>: <span class="token-str">"string"</span>}},
+        <span class="token-str">"required"</span>: [<span class="token-str">"city"</span>]
+    }
+}]
+
+<span class="token-kw">def</span> <span class="token-fn">execute_tool</span>(name, input_data):
+    db = {<span class="token-str">"北京"</span>: <span class="token-str">"晴 22&#176;C 风力3级"</span>}
+    <span class="token-kw">return</span> db.get(input_data.get(<span class="token-str">"city"</span>, <span class="token-str">""</span>), <span class="token-str">"无数据"</span>)
+
+messages = [{<span class="token-str">"role"</span>:<span class="token-str">"user"</span>, <span class="token-str">"content"</span>:<span class="token-str">"北京今天天气？适合户外运动吗？"</span>}]
+
+<span class="token-kw">for</span> _ <span class="token-kw">in</span> <span class="token-fn">range</span>(<span class="token-num">5</span>):
+    resp = client.messages.create(model=MODEL, max_tokens=<span class="token-num">1024</span>,
+        system=<span class="token-str">"你是天气助手..."</span>, messages=messages, tools=tools)
+    <span class="token-kw">if</span> resp.stop_reason == <span class="token-str">"end_turn"</span>:
+        <span class="token-fn">print</span>(resp.content[<span class="token-num">0</span>].text); <span class="token-kw">break</span>
+    <span class="token-kw">for</span> block <span class="token-kw">in</span> resp.content:
+        <span class="token-kw">if</span> block.type == <span class="token-str">"tool_use"</span>:
+            result = execute_tool(block.name, block.input)
+            messages.append({<span class="token-str">"role"</span>:<span class="token-str">"user"</span>, <span class="token-str">"content"</span>:[
+                {<span class="token-str">"type"</span>:<span class="token-str">"tool_result"</span>, <span class="token-str">"tool_use_id"</span>:block.id, <span class="token-str">"content"</span>:result}
+            ]})</code></pre>
+          </div>
+        </div>
+        <div>
+          <h4 style="color:var(--accent-purple);margin-bottom:12px;">LangChain + LangGraph — 框架封装</h4>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">Python (~15行)</span><button class="code-copy-btn" onclick="copyCode(this)">复制代码</button></div>
+            <pre><code><span class="token-kw">from</span> langgraph.prebuilt <span class="token-kw">import</span> create_react_agent
+<span class="token-kw">from</span> langchain_anthropic <span class="token-kw">import</span> ChatAnthropic
+<span class="token-kw">from</span> langchain.tools <span class="token-kw">import</span> tool
+
+<span class="token-decorator">@tool</span>
+<span class="token-kw">def</span> <span class="token-fn">get_weather</span>(city: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+    <span class="token-str">"""获取指定城市的实时天气"""</span>
+    db = {<span class="token-str">"北京"</span>: <span class="token-str">"晴 22&#176;C 风力3级"</span>}
+    <span class="token-kw">return</span> db.get(city, <span class="token-str">"无数据"</span>)
+
+agent = create_react_agent(
+    model=ChatAnthropic(
+        model=<span class="token-str">"claude-sonnet-4-20250514"</span>),
+    tools=[get_weather],
+    prompt=<span class="token-str">"你是天气助手。"</span>
+)
+
+result = agent.invoke({
+    <span class="token-str">"messages"</span>: [<span class="token-str">"北京今天天气？适合户外运动吗？"</span>]
+})
+<span class="token-fn">print</span>(result[<span class="token-str">"messages"</span>][-<span class="token-num">1</span>].content)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info" style="margin-top:20px;">
+        <div class="alert-title">代码设计哲学对比</div>
+        <p><strong>Anthropic SDK</strong>：完全控制 Agent 循环每一步，逻辑透明，适合对精度和控制有要求的场景。<strong>LangChain + LangGraph</strong>：框架封装循环、状态管理和会话持久化，代码最少（核心约10行），适合需会话管理的长期项目。选择取决于你对"便利性 vs 控制力"的权衡。</p>
+      </div>
+    </div>
+
+    <!-- 10 Decision Scenarios -->
+    <div class="card" style="margin-top:20px;">
+      <h3>&#127919; 10 个典型场景的选型推荐</h3>
+      <p style="color:var(--text-muted);margin-bottom:16px;">"如果你需要X，推荐用Y，因为Z"——基于真实工程经验的推荐</p>
+
+      <div class="dc-card"><div class="dc-num">1</div><div class="dc-content"><div class="dc-scenario">快速验证 Agent 想法，不关心架构细节</div><div class="dc-recommend">推荐: OpenAI Assistants API 或 Coze</div><div class="dc-reason">因为它们能在5分钟内跑通完整 Agent 原型。当目标是验证"这个 Agent 是否对用户有价值"时，流程效率远比架构优雅重要。</div></div></div>
+      <div class="dc-card"><div class="dc-num">2</div><div class="dc-content"><div class="dc-scenario">构建高安全合规的金融/医疗 Agent</div><div class="dc-recommend">推荐: Anthropic Claude SDK + 自建编排层</div><div class="dc-reason">Claude 的 Constitutional AI 安全对齐是行业最严格的。MCP 协议让安全审计工具模块化接入，自建编排层可实现完整审计日志和权限控制。</div></div></div>
+      <div class="dc-card"><div class="dc-num">3</div><div class="dc-content"><div class="dc-scenario">构建复杂 RAG 知识库问答系统</div><div class="dc-recommend">推荐: LangChain + LangGraph</div><div class="dc-reason">LangChain 拥有最丰富的文档加载器、最全的向量数据库集成和最成熟的 RAG Chain 实现。LangGraph 可为 RAG 增加查询改写、多轮检索、结果融合等高级编排。</div></div></div>
+      <div class="dc-card"><div class="dc-num">4</div><div class="dc-content"><div class="dc-scenario">构建多角色协作的内容创作流水线</div><div class="dc-recommend">推荐: CrewAI</div><div class="dc-reason">CrewAI 的"角色-任务"模型天然适合这种场景。研究员→写手→审核→发布的流水线只需几十行配置代码。用 LangGraph 需手动定义状态图。</div></div></div>
+      <div class="dc-card"><div class="dc-num">5</div><div class="dc-content"><div class="dc-scenario">构建能自动生成代码、执行并修复 Bug 的 Agent</div><div class="dc-recommend">推荐: AutoGen</div><div class="dc-reason">AutoGen 内置 Docker 沙箱的"生成-执行-调试"循环——Agent 生成代码→执行→遇错→读错误修正→再执行。这是 AutoGen 开箱即用的核心特性。</div></div></div>
+      <div class="dc-card"><div class="dc-num">6</div><div class="dc-content"><div class="dc-scenario">.NET/C# 团队需将 AI 集成到现有企业系统</div><div class="dc-recommend">推荐: Semantic Kernel</div><div class="dc-reason">SK 是唯一对 .NET 提供一流支持的 AI 编排框架。C# 代码可直接用 Plugin 架构把现有企业 API 包装为 AI 可调用的工具。</div></div></div>
+      <div class="dc-card"><div class="dc-num">7</div><div class="dc-content"><div class="dc-scenario">构建能操作桌面应用或网页的 GUI Agent</div><div class="dc-recommend">推荐: Anthropic Claude SDK (Computer Use)</div><div class="dc-reason">Claude 的 Computer Use 是目前唯一能可靠操作 GUI 的商业化 AI 能力——看截图理解界面、移动鼠标、点击按钮、输入文字。适合 RPA 自动化和软件测试。</div></div></div>
+      <div class="dc-card"><div class="dc-num">8</div><div class="dc-content"><div class="dc-scenario">在国内抖音/飞书生态中快速上线 AI 助手</div><div class="dc-recommend">推荐: Coze (字节跳动)</div><div class="dc-reason">Coze 与抖音和飞书有最深度的发布集成。构建的 Agent 可发布为飞书机器人或抖音互动 Bot。没有任何其他框架提供同等平台集成便利性。</div></div></div>
+      <div class="dc-card"><div class="dc-num">9</div><div class="dc-content"><div class="dc-scenario">构建需可观测性、调试和版本管理的长期 Agent 产品</div><div class="dc-recommend">推荐: LangChain + LangSmith</div><div class="dc-reason">LangSmith 提供目前最完善的 Agent 可观测性——每步执行追踪、token 统计、延迟分析、A/B 测试。对长期维护的 Agent 产品，可观测性是"必选项"。</div></div></div>
+      <div class="dc-card"><div class="dc-num">10</div><div class="dc-content"><div class="dc-scenario">构建利用 MCP 协议、可复用工具的 Agent 生态</div><div class="dc-recommend">推荐: Anthropic Claude SDK + MCP Server</div><div class="dc-reason">MCP 协议是 Anthropic 提出的，Claude SDK 对 MCP 支持最成熟全面。可将文件操作、数据库查询等封装为标准 MCP 服务器在多个 Agent 间复用。</div></div></div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-box">
+    <h2 style="text-align:center;margin-bottom:8px;">&#128203; 一页纸速查表</h2>
+    <p style="text-align:center;color:var(--text-muted);margin-bottom:20px;">记住这张表，选型不迷路</p>
+    <div class="summary-grid">
+      <div class="summary-item"><div class="si-label">最快原型验证</div><div class="si-value">OpenAI Assistants / Coze</div></div>
+      <div class="summary-item"><div class="si-label">最灵活控制</div><div class="si-value">Anthropic Claude SDK</div></div>
+      <div class="summary-item"><div class="si-label">最丰富生态</div><div class="si-value">LangChain + LangGraph</div></div>
+      <div class="summary-item"><div class="si-label">最佳多Agent编排</div><div class="si-value">CrewAI / AutoGen</div></div>
+      <div class="summary-item"><div class="si-label">.NET/C# 首选</div><div class="si-value">Semantic Kernel</div></div>
+      <div class="summary-item"><div class="si-label">国内生态首选</div><div class="si-value">Coze / Dify</div></div>
+      <div class="summary-item"><div class="si-label">最高安全合规</div><div class="si-value">Anthropic Claude</div></div>
+      <div class="summary-item"><div class="si-label">最佳可观测性</div><div class="si-value">LangChain + LangSmith</div></div>
+      <div class="summary-item"><div class="si-label">零代码可视化</div><div class="si-value">Dify / Coze</div></div>
+      <div class="summary-item"><div class="si-label">GUI 操作自动化</div><div class="si-value">Claude Computer Use</div></div>
+      <div class="summary-item"><div class="si-label">代码生成/执行</div><div class="si-value">AutoGen</div></div>
+      <div class="summary-item"><div class="si-label">低代码+自部署</div><div class="si-value">Dify</div></div>
+    </div>
+  </div>
+
+  <!-- Page Nav -->
+  <nav style="display:flex;justify-content:space-between;margin-top:40px;">
+    <a class="btn" href="glossary.html">&#8592; 术语表</a>
+    <a class="btn btn-primary" href="case-studies.html">案例研究 &#8594;</a>
+  </nav>
+
+</main>
+
+<!-- ===== PANELS ===== -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header"><div><span class="sim-status-dot"></span> <strong>Agent 模拟器</strong></div><button class="sim-close" id="simClose">&#10005;</button></div>
+  <div class="sim-messages" id="simMessages"><div class="sim-msg agent">&#128075; 你好！问我关于 AI Agent 框架的问题，我会模拟思考、工具调用和回答的完整过程！</div></div>
+  <div class="sim-input-area"><textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea><button class="sim-send-btn" id="simSend">发送</button></div>
+</div>
+
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header"><span>&#128212; 我的笔记</span><button class="sim-close" id="notesClose">&#10005;</button></div>
+  <div class="notes-list" id="notesList"><div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="frameworks">框架对比</option>
+        <option value="1">第1章</option><option value="2">第2章</option>
+        <option value="3">第3章</option><option value="4">第4章</option>
+        <option value="5">第5章</option><option value="6">第6章</option>
+        <option value="7">第7章</option><option value="8">第8章</option>
+        <option value="9">第9章</option><option value="10">第10章</option>
+        <option value="11">第11章</option><option value="12">第12章</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  document.querySelectorAll('.fw-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.fw-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      document.querySelectorAll('.fw-section').forEach(s => s.classList.remove('active'));
+      var target = document.getElementById('tab-' + this.dataset.tab);
+      if (target) target.classList.add('active');
+    });
+  });
+
+  window.copyCode = function(btn) {
+    var code = btn.closest('.code-block').querySelector('code').textContent;
+    navigator.clipboard.writeText(code).then(function() {
+      btn.textContent = '已复制!';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '复制代码'; btn.classList.remove('copied'); }, 2000);
+    });
+  };
+
+  console.log('📊 框架对比页面已就绪 · 8个框架 · 12个维度');
+})();
+</script>
+
+</body>
+</html>

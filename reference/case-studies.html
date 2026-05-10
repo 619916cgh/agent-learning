@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实战案例研究 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+<style>
+.cs-hero { text-align: center; padding: 20px 0 32px; }
+.cs-hero h1 { font-size: 2.4rem; font-weight: 900; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.cs-nav { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.cs-nav-btn { padding: 14px 22px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; font-size: 14px; font-weight: 600; transition: all var(--ease-fast); text-align: left; font-family: var(--font-body); flex: 1; min-width: 140px; }
+.cs-nav-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.cs-nav-btn.active { border-color: var(--accent-cyan); background: rgba(0,229,255,0.06); color: var(--accent-cyan); box-shadow: 0 0 16px var(--border-glow-cyan); }
+.cs-nav-btn .sn-num { font-size: 28px; font-weight: 900; display: block; margin-bottom: 4px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.cs-section { margin-bottom: 60px; scroll-margin-top: 80px; }
+.cs-section h2 { font-size: 28px; margin-bottom: 8px; }
+.cs-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.info-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px 24px; }
+.info-card h4 { font-size: 13px; color: var(--accent-cyan); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.info-card p { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+
+.arch-box { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 28px; margin: 20px 0; overflow-x: auto; }
+.arch-box h4 { color: var(--accent-purple); margin-bottom: 16px; font-size: 14px; font-weight: 700; }
+.arch-flow { text-align: center; line-height: 2.8; font-size: 14px; }
+.arch-node { display: inline-block; padding: 12px 20px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-card); font-size: 13px; font-weight: 600; text-align: center; margin: 4px 6px; vertical-align: middle; }
+.arch-node.hl { border-color: var(--accent-cyan); background: rgba(0,229,255,0.06); }
+.arch-node.hl2 { border-color: var(--accent-purple); background: rgba(180,74,238,0.06); }
+.arch-arrow { color: var(--accent-cyan); font-size: 20px; margin: 0 6px; vertical-align: middle; }
+.arch-arrow.down { display: block; margin: 4px 0; font-size: 16px; }
+
+.metrics-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+.metric-badge { padding: 16px 22px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-color); text-align: center; min-width: 110px; flex: 1; }
+.metric-badge .mb-val { font-size: 26px; font-weight: 900; color: var(--accent-cyan); }
+.metric-badge .mb-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.lesson-card { padding: 20px 24px; border-radius: var(--radius-md); margin-bottom: 12px; border-left: 4px solid var(--accent-purple); background: rgba(180,74,238,0.03); }
+.lesson-card h4 { color: var(--accent-purple); margin-bottom: 6px; font-size: 15px; }
+.lesson-card h4.good-lesson { color: var(--accent-green); }
+.lesson-card h4.caution-lesson { color: var(--accent-red); }
+.lesson-card p { font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+
+.fw-badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; }
+.fw-badge.best { background: rgba(0,230,118,0.15); color: var(--accent-green); }
+.fw-badge.ok { background: rgba(255,145,0,0.12); color: var(--accent-orange); }
+.fw-badge.limited { background: rgba(255,61,90,0.12); color: var(--accent-red); }
+
+.pattern-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+.pattern-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px 24px; transition: all var(--ease-base); }
+.pattern-card:hover { border-color: var(--accent-cyan); box-shadow: var(--shadow-glow-cyan); }
+.pattern-card .pat-num { font-size: 28px; font-weight: 900; color: var(--accent-cyan); margin-bottom: 6px; }
+.pattern-card h4 { font-size: 16px; margin-bottom: 8px; font-weight: 700; }
+.pattern-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin: 0; }
+
+@media (max-width: 768px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .cs-hero h1 { font-size: 1.8rem; }
+  .cs-nav { flex-direction: column; }
+  .pattern-grid { grid-template-columns: 1fr; }
+  .metrics-row { flex-direction: column; }
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单" style="display:none;">&#9776;</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="searchClose">&#10005;</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">&#128218; 学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link">01 · 什么是 AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link">02 · 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link">03 · 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link">04 · 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link">05 · 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link">06 · 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link">07 · 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link">08 · 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link">09 · Agent框架生态</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link">10 · 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link">11 · 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link">12 · 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link">13 · 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link">14 · 企业集成模式</a>
+  <a href="../chapters/15-performance-optimization.html" class="nav-link">15 · 性能优化</a>
+  <a href="../chapters/16-team-collaboration.html" class="nav-link">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">&#128736; 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">&#128172; 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">&#128295; 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">&#129302; Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">&#128176; 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">&#129504; 记忆可视化</a>
+
+  <div class="sidebar-section-title">&#128214; 参考资料</div>
+  <a href="glossary.html" class="nav-link">&#128213; 完整术语表</a>
+  <a href="framework-comparison.html" class="nav-link">&#128202; 框架对比</a>
+  <a href="case-studies.html" class="nav-link active">&#128188; 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header"><span>学习进度</span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <section class="cs-hero">
+    <h1>&#128188; 实战案例研究</h1>
+    <p style="color:var(--text-muted);">4 个真实场景的 Agent 实施方案 · 架构设计 · 经验教训</p>
+  </section>
+
+  <p style="font-size:15px;color:var(--text-secondary);line-height:1.8;margin-bottom:28px;">
+    AI Agent 不是空中楼阁。以下 4 个案例展示了 Agent 技术在不同领域的真实应用——从代码编写到客户服务，从数据分析到运维自动化。每个案例都包含完整的背景、架构设计、工具选型、量化结果和核心经验教训。这些不是"完美的成功故事"，而是包含失败与修正的工程实录。
+  </p>
+
+  <!-- Quick Nav -->
+  <div class="cs-nav" id="csNav">
+    <button class="cs-nav-btn active" data-case="case1"><span class="sn-num">01</span>AI 代码助手</button>
+    <button class="cs-nav-btn" data-case="case2"><span class="sn-num">02</span>智能客服系统</button>
+    <button class="cs-nav-btn" data-case="case3"><span class="sn-num">03</span>数据分析 Agent</button>
+    <button class="cs-nav-btn" data-case="case4"><span class="sn-num">04</span>DevOps 运维 Agent</button>
+  </div>
+
+  <!-- ===== CASE 1: AI Code Assistant ===== -->
+  <section class="cs-section" id="case1">
+    <h2>&#128187; 案例一：AI 代码助手</h2>
+    <p class="cs-subtitle">基于 ReAct 模式的全栈代码编辑 Agent —— 从需求描述到代码提交的完整闭环</p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>&#127919; 问题背景</h4>
+        <p>在一个 50 万行的微服务代码库中，开发者每天花费大量时间在重复性任务上：理解代码库结构、查找相关文件、修复简单 Bug、编写样板代码。新加入的开发者可能需要 2-3 周才能做出有意义的代码贡献。团队需要一个能理解完整代码库上下文、自主执行文件和命令操作、并在完成后提交 PR 的 AI 编程助手。</p>
+      </div>
+      <div class="info-card">
+        <h4>&#9989; 解决方案概要</h4>
+        <p>构建使用 ReAct 模式的 Code Agent，集成文件系统工具、Shell 执行、Git 操作和 LSP 诊断工具。Agent 通过多步推理理解任务，自主规划执行路径——先搜索理解代码库，再编辑代码，运行测试验证，最后提交 PR。核心设计原则："工具权限最小化"和"每步可撤销"。</p>
+      </div>
+    </div>
+
+    <div class="arch-box">
+      <h4>&#128736; 系统架构 —— ReAct 循环</h4>
+      <div class="arch-flow">
+        <span class="arch-node hl">用户输入<br><small>"修复登录超时Bug"</small></span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl2">Claude Agent<br><small>核心推理引擎<br>ReAct 循环<br>最多 10 步</small></span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node">&#128269; 搜索</span>
+        <span class="arch-node">&#128196; 文件读写</span>
+        <span class="arch-node">&#128421; Shell</span>
+        <span class="arch-node">&#128736; Git</span>
+        <span class="arch-node">&#128211; LSP</span>
+        <br>
+        <span class="arch-arrow down">&#8593; 工具结果返回 Agent，形成持续反馈循环</span>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:16px;">设计关键：Agent 每轮执行 Thought(推理) &#8594; Action(行动) &#8594; Observation(观察) 三步。每步可选择不同工具，工具硬限制最多 10 步防止无限循环。</p>
+    </div>
+
+    <div class="card">
+      <h3>&#128295; 工具集与安全设计</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>工具</th><th>功能</th><th>权限</th><th>安全机制</th></tr></thead>
+          <tbody>
+            <tr><td><code>read_file</code></td><td>读取文件（支持分页）</td><td><span class="fw-badge best">只读</span></td><td>路径白名单校验</td></tr>
+            <tr><td><code>write_file</code></td><td>创建或覆写文件</td><td><span class="fw-badge ok">写入</span></td><td>禁止覆盖已有文件（除非用户允许）</td></tr>
+            <tr><td><code>edit_file</code></td><td>精确字符串替换（最核心）</td><td><span class="fw-badge ok">修改</span></td><td>old_string 必须在文件中唯一匹配</td></tr>
+            <tr><td><code>grep_search</code></td><td>正则搜索代码库</td><td><span class="fw-badge best">只读</span></td><td>结果上限 250 行</td></tr>
+            <tr><td><code>glob_find</code></td><td>文件名模式匹配</td><td><span class="fw-badge best">只读</span></td><td>无风险</td></tr>
+            <tr><td><code>bash_exec</code></td><td>执行 Shell 命令</td><td><span class="fw-badge limited">高风险</span></td><td>命令白名单 + 用户确认 + 超时 120s</td></tr>
+            <tr><td><code>git_diff</code></td><td>查看 Git 变更</td><td><span class="fw-badge best">只读</span></td><td>无风险</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-badge"><div class="mb-val">~40%</div><div class="mb-label">开发效率提升</div></div>
+      <div class="metric-badge"><div class="mb-val">3-5x</div><div class="mb-label">Review 速度</div></div>
+      <div class="metric-badge"><div class="mb-val">~85%</div><div class="mb-label">任务完成率</div></div>
+      <div class="metric-badge"><div class="mb-val">&lt; 30s</div><div class="mb-label">平均响应时间</div></div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h3>&#128218; 核心经验与教训</h3>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 1：精确编辑接口是关键</h4><p>使用 old_string/new_string 精确替换比行号替换可靠——行号在多步编辑中动态变化。但必须做唯一性校验，若匹配多处则要求 Agent 提供更多上下文。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 2：给 Agent 足够的项目上下文</h4><p>初版仅传当前文件，Agent 经常做出不符合项目架构的修改。改进后提供目录树、相关文件摘要和依赖关系图，决策准确率提升 35%。"让 Agent 看到和人一样多的上下文"。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 3：Prompt Caching 是成本控制的命脉</h4><p>每次调用需传递完整的工具定义和 System Prompt。通过 Caching 缓存这些固定内容，输入 Token 成本降低约 85%，使大规模使用在经济上可行。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 1：无限制 Shell 执行极其危险</h4><p>Agent 曾生成 <code>rm -rf</code> 和 <code>git push --force</code> 命令。改进包括命令白名单、高风险操作需用户确认、Docker 沙箱中执行、超时强制终止。安全不能依赖 LLM"自觉"。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 2：Agent 会"过度自信"</h4><p>Agent 在不确定时倾向给出"确定"的代码，而非承认不确定。约 12% 错误源于未充分理解需求就动手。解决：强化 Prompt 中"不确定先问"的准则，加入主动信息收集步骤。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== CASE 2: Customer Service ===== -->
+  <section class="cs-section" id="case2">
+    <h2>&#128172; 案例二：智能客服多Agent系统</h2>
+    <p class="cs-subtitle">大型电商平台的层级式多Agent客服系统 —— 分流、解答、升级一体化</p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>&#127919; 问题背景</h4>
+        <p>某电商平台日均客服咨询 10 万+，大促期间可达 30 万+。约 65% 的问题是可标准化处理的（物流查询、退换货政策），但仍占用了大量人工坐席时间。复杂问题因此排队过长，用户满意度持续下降。需一个能自动处理常见问题、准确分流复杂问题、并在需要时无缝交接给人工的系统。</p>
+      </div>
+      <div class="info-card">
+        <h4>&#9989; 解决方案概要</h4>
+        <p>构建层级式多Agent协作系统：分流 Agent 做意图识别和情感分析，将问题路由到 4 个专业 Agent（物流、售后、产品、技术）。所有 Agent 共享订单系统、知识库和用户画像。无法处理的问题由升级 Agent 生成完整上下文摘要后转接人工坐席。"让简单问题自动化，人工聚焦高价值服务"。</p>
+      </div>
+    </div>
+
+    <div class="arch-box">
+      <h4>&#128736; 系统架构 —— 层级式路由 + 共享底座</h4>
+      <div class="arch-flow">
+        <span class="arch-node hl">用户消息</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl2">分流 Agent<br><small>意图 + 情感分析<br>置信度评估</small></span>
+        <br>
+        <span class="arch-arrow down">&#8595; 置信度 &#8805; 85% 自动 | &lt; 85% 升级</span>
+        <br>
+        <span class="arch-node">物流 Agent</span>
+        <span class="arch-node">售后 Agent</span>
+        <span class="arch-node">产品 Agent</span>
+        <span class="arch-node">技术 Agent</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl">升级 Agent<br><small>摘要生成<br>坐席匹配</small></span>
+        <br>
+        <span style="font-size:12px;color:var(--text-muted);">共享底座: 订单 API | RAG 知识库 | 用户画像 | 对话历史 | 情感引擎</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#128101; Agent 角色与能力</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Agent</th><th>职责</th><th>工具</th><th>升级条件</th></tr></thead>
+          <tbody>
+            <tr><td><strong>分流 Agent</strong></td><td>意图识别、情感分析、路由分发</td><td>意图分类模型 (微调 BERT)、用户画像 API、情感分析引擎</td><td>置信度 &lt; 85%、愤怒情绪检测、连续 3 轮未解决</td></tr>
+            <tr><td><strong>物流 Agent</strong></td><td>订单追踪、物流状态、催单</td><td>物流公司 API、订单系统、送达预估</td><td>物流异常（丢件/破损）、涉及理赔</td></tr>
+            <tr><td><strong>售后 Agent</strong></td><td>退换货流程、质量问题评估</td><td>售后工单 API、退换政策 RAG、图片质量检测</td><td>纠纷/投诉、涉及金额 &gt; 500 元</td></tr>
+            <tr><td><strong>产品 Agent</strong></td><td>产品功能、购买建议、规格解答</td><td>产品数据库、FAQ 知识库、推荐引擎</td><td>技术问题超出知识库范围</td></tr>
+            <tr><td><strong>技术 Agent</strong></td><td>Bug 排查、使用诊断、方案建议</td><td>日志查询、错误码库、兼容性数据库</td><td>需后端日志分析（权限限制）</td></tr>
+            <tr><td><strong>升级 Agent</strong></td><td>上下文摘要、坐席匹配、对话交接</td><td>排队系统 API、坐席状态、摘要生成 LLM</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-badge"><div class="mb-val">62%</div><div class="mb-label">自动解决率</div></div>
+      <div class="metric-badge"><div class="mb-val">45s</div><div class="mb-label">平均首响应</div></div>
+      <div class="metric-badge"><div class="mb-val">-35%</div><div class="mb-label">人工坐席需求</div></div>
+      <div class="metric-badge"><div class="mb-val">4.2/5</div><div class="mb-label">满意度(原 3.6)</div></div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h3>&#128218; 核心经验与教训</h3>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 1：分流准确率是系统命门</h4><p>分流错误导致问题被发往错误 Agent，用户需重复描述。团队使用 Sentence-BERT + 规则引擎，将分流准确率从 72% 提升到 94%。关键决策：置信度低于 85% 的宁可升级也不冒险路由。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 2：上下文传递决定升级体验</h4><p>从 Agent 到人工的交接不能只是"转接中"。升级 Agent 生成结构化摘要（问题、已尝试方案、情感状态），人工坐席可无缝接手。转接后问题解决率提升 40%。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 3：知识库质量比模型能力更重要</h4><p>初版 RAG 准确率仅 60%。团队重构知识库——每个条目含标准问、变体问法、标准答案和参考链接。加入用户反馈闭环后，RAG 准确率提升到 92%。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 1："尽力回答"倾向不适合客服</h4><p>LLM 不确定时倾向给出"看起来合理"的答案。解决方案：知识锚定机制——回答必须基于检索到的具体文档，不允许脱离文档自由发挥。不确定时明确说"我需要帮您转接"。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 2：情感升级必须及时</h4><p>用户从困惑到愤怒的转变窗口很短。部署实时情感分析引擎，愤怒指数超阈值时立即升级，不等待当前对话完成。投诉率下降 55%。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== CASE 3: Data Analysis ===== -->
+  <section class="cs-section" id="case3">
+    <h2>&#128202; 案例三：自动化数据分析 Agent</h2>
+    <p class="cs-subtitle">基于 Plan-and-Execute 模式的商业分析报告自动生成系统</p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>&#127919; 问题背景</h4>
+        <p>某零售企业业务团队每周需要多份分析报告（销售周报、用户增长、竞品追踪、促销评估）。数据分析师团队仅 5 人，但需求来自 8 个业务线，报告交付周期长达 3-5 天。业务决策常在拿到报告时已错过窗口期。需要用 AI 大幅缩短从"业务提需求"到"拿到洞察"的周期。</p>
+      </div>
+      <div class="info-card">
+        <h4>&#9989; 解决方案概要</h4>
+        <p>构建 Plan-and-Execute 模式的 Data Agent：用户用自然语言描述需求，Agent 先生成分析计划供确认，然后逐步执行——SQL 查询数据仓库、Python 数据处理与统计、自适应图表选择、文本洞察和业务建议。所有步骤结果可审计，分析过程可复现。</p>
+      </div>
+    </div>
+
+    <div class="arch-box">
+      <h4>&#128736; 报告生成流水线</h4>
+      <div class="arch-flow">
+        <span class="arch-node hl">用户需求<br><small>"上月销售趋势"</small></span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl2">规划 Agent<br><small>生成+确认计划</small></span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node">SQL 生成</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node">数据清洗</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node">统计分析</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node">可视化</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl">报告输出<br><small>Markdown/PDF</small></span>
+        <br>
+        <span style="font-size:12px;color:var(--text-muted);">每步验证: SQL 语法检查 &#8594; 结果抽样 &#8594; 统计检验 (p-value) &#8594; 图表合理性</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#128736; 关键设计决策</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>环节</th><th>传统方式</th><th>Agent 方式</th><th>提升</th></tr></thead>
+          <tbody>
+            <tr><td><strong>需求理解</strong></td><td>人工沟通 2-3 轮，0.5-1 天</td><td>LLM 理解 NL 并自动生成分析计划</td><td>沟通减少 ~80%</td></tr>
+            <tr><td><strong>数据提取</strong></td><td>手写 SQL，反复调试</td><td>LLM 生成 SQL + 语法检查 + EXPLAIN 验证</td><td>编写时间减少 ~90%</td></tr>
+            <tr><td><strong>数据处理</strong></td><td>Jupyter Notebook 手动清洗</td><td>Agent 自动生成 Python 脚本并在沙箱执行</td><td>效率提升 5-8x</td></tr>
+            <tr><td><strong>统计分析</strong></td><td>手动选择检验方法</td><td>自动选择 + 强制输出 p 值和置信区间</td><td>方法正确率 70% &#8594; 95%</td></tr>
+            <tr><td><strong>可视化</strong></td><td>手动选图表类型和参数</td><td>根据数据特征自适应选择最优图表</td><td>生成时间减少 ~85%</td></tr>
+            <tr><td><strong>结论生成</strong></td><td>人工阅读结果后撰写</td><td>LLM 汇总结果生成结构化报告含业务建议</td><td>报告一致性显著提升</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-badge"><div class="mb-val">3天 &#8594; 2h</div><div class="mb-label">报告交付时间</div></div>
+      <div class="metric-badge"><div class="mb-val">~95%</div><div class="mb-label">数据查询准确率</div></div>
+      <div class="metric-badge"><div class="mb-val">+300%</div><div class="mb-label">报告产能</div></div>
+      <div class="metric-badge"><div class="mb-val">~88%</div><div class="mb-label">一次确认通过率</div></div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h3>&#128218; 核心经验与教训</h3>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 1：Plan-and-Execute 优于纯 ReAct</h4><p>数据分析步骤明确可预见。先展示计划再执行比"边想边做"更可靠，用户可审查和调整计划，增加了对过程的控制感。代价是对"突发发现"的灵活性较差——正在改进。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 2：SQL 需要多层验证</h4><p>LLM 生成的 SQL 存在语法/逻辑/表名错误。三层验证：语法检查器、EXPLAIN 执行计划、结果抽样（行数合理性、字段类型、空值异常）。将错误率从 25% 降到 3%。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 3：强制统计检验防止"假规律"</h4><p>LLM 倾向从随机波动中"发现趋势"。改进：强制在给出结论前输出 p 值和置信区间。p &gt; 0.05 的发现标注"未达到统计显著水平"。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 1：数据安全是能力天花板</h4><p>安全措施：只读数据库账户、30s 查询超时、敏感字段自动脱敏、所有查询日志 90 天审计。安全应设计之初嵌入而非上线后打补丁。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 2：过度自动化降低用户信任</h4><p>Agent 全程自主并直接输出结论时，用户反而更不信任。增加"分析溯源"功能——每个数据点和结论可点击展开显示来源 SQL 和计算细节。"透明"比"自动化"更能赢得信任。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== CASE 4: DevOps ===== -->
+  <section class="cs-section" id="case4">
+    <h2>&#128421; 案例四：DevOps 运维 Agent</h2>
+    <p class="cs-subtitle">自动化事故响应 —— 从告警触发到根因分析再到自动修复的智能运维体系</p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>&#127919; 问题背景</h4>
+        <p>某 SaaS 公司微服务架构含 120+ 个服务，日均告警 500+ 条（约 70% 误报或可自动恢复）。工程师告警疲劳，关键告警淹没在噪声中。事故后需人工跨多系统排查（Prometheus、ELK、Jaeger、K8s、CI/CD 变更记录），MTTR 长达 45 分钟。凌晨 2:00 AM 的事故响应尤其痛苦。</p>
+      </div>
+      <div class="info-card">
+        <h4>&#9989; 解决方案概要</h4>
+        <p>构建 DevOps Agent 系统，与现有可观测性平台深度集成。告警触发后 Agent 启动诊断：并行收集 Prometheus/ELK/Jaeger/K8s 数据、多源关联分析、根因定位、生成处理建议并执行分级自动修复。三级权限模型：只读自动执行、低风险写入自动但有审计、高风险操作需人工确认。</p>
+      </div>
+    </div>
+
+    <div class="arch-box">
+      <h4>&#128736; 事故响应架构</h4>
+      <div class="arch-flow">
+        <span class="arch-node hl">&#128680; 告警触发</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl2">事故指挥官 Agent<br><small>启动诊断流程</small></span>
+        <br>
+        <span class="arch-arrow down">&#8595; 并行信息收集（同时执行，不串行）</span>
+        <br>
+        <span class="arch-node">Prometheus<br><small>Metrics</small></span>
+        <span class="arch-node">ELK<br><small>Logs</small></span>
+        <span class="arch-node">Jaeger<br><small>Traces</small></span>
+        <span class="arch-node">K8s API<br><small>集群状态</small></span>
+        <span class="arch-node">CI/CD<br><small>变更记录</small></span>
+        <br>
+        <span class="arch-arrow down">&#8595; Agent 综合关联分析 → 根因 + 置信度</span>
+        <br>
+        <span class="arch-node">L1 自动读取</span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl">L2 自动修复<br><small>低风险</small></span>
+        <span class="arch-node">L3 人工审批<br><small>高风险</small></span>
+        <span class="arch-arrow">&#10132;</span>
+        <span class="arch-node hl2">事故报告生成</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&#128295; 工具与三级权限模型</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>工具</th><th>用途</th><th>权限</th><th>触发条件</th></tr></thead>
+          <tbody>
+            <tr><td><code>query_prometheus</code></td><td>查询实时和历史 Metrics</td><td><span class="fw-badge best">L1 只读</span></td><td>自动</td></tr>
+            <tr><td><code>search_logs</code></td><td>ELK 中按时间/关键词搜索</td><td><span class="fw-badge best">L1 只读</span></td><td>自动</td></tr>
+            <tr><td><code>trace_request</code></td><td>追踪分布式调用链</td><td><span class="fw-badge best">L1 只读</span></td><td>自动</td></tr>
+            <tr><td><code>get_k8s_status</code></td><td>Pod/Node/Service 状态</td><td><span class="fw-badge best">L1 只读</span></td><td>自动</td></tr>
+            <tr><td><code>query_recent_deploys</code></td><td>最近部署和变更记录</td><td><span class="fw-badge best">L1 只读</span></td><td>自动（高优先级）</td></tr>
+            <tr><td><code>restart_pod</code></td><td>重启指定 Pod</td><td><span class="fw-badge ok">L2 自动</span></td><td>单Pod异常 + 非核心</td></tr>
+            <tr><td><code>scale_service</code></td><td>水平扩缩容</td><td><span class="fw-badge ok">L2 自动</span></td><td>资源超阈值 + 在预算内</td></tr>
+            <tr><td><code>clear_cache</code></td><td>清理缓存</td><td><span class="fw-badge ok">L2 自动</span></td><td>缓存告警 + 夜间</td></tr>
+            <tr><td><code>rollback_deploy</code></td><td>回滚部署</td><td><span class="fw-badge limited">L3 需确认</span></td><td>必须人工审批</td></tr>
+            <tr><td><code>update_dns</code></td><td>修改 DNS/负载均衡</td><td><span class="fw-badge limited">L3 需确认</span></td><td>必须人工审批</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-badge"><div class="mb-val">-60%</div><div class="mb-label">MTTR 降低</div></div>
+      <div class="metric-badge"><div class="mb-val">-45%</div><div class="mb-label">夜间告警响应</div></div>
+      <div class="metric-badge"><div class="mb-val">2.5 分钟</div><div class="mb-label">平均根因定位</div></div>
+      <div class="metric-badge"><div class="mb-val">~92%</div><div class="mb-label">根因准确率</div></div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h3>&#128218; 核心经验与教训</h3>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 1：变更记录是最有价值的线索</h4><p>统计 500+ 历史事故，70% 与最近变更相关。Agent 最先查询变更记录——若事故时间点附近有变更，变更就是最高嫌疑根因。这一简单启发式规则将根因定位缩短 40%。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 2：并行数据收集比串行快 5 倍</h4><p>初版串行查询各数据源，诊断耗时 3-5 分钟。改进后使用并行工具调用同时查询所有源，总诊断降到 30-60 秒。在事故场景中每一秒都很宝贵。</p></div>
+      <div class="lesson-card"><h4 class="good-lesson">&#9989; 经验 3：分级权限是安全与效率的平衡点</h4><p>全手动失去自动化价值，全自动安全不可接受。L1(只读全自动) + L2(低风险写入+审计) + L3(高风险需审批) 在实践中找到最佳平衡。约 60% 事故可通过 L1+L2 自动恢复。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 1：Agent 可能做出"合理但错误"的诊断</h4><p>Agent 曾将死循环导致的内存泄漏诊断为"流量激增"，建议扩容。扩容只是掩盖问题。改进：给出扩容结论前需排除代码层面异常。</p></div>
+      <div class="lesson-card"><h4 class="caution-lesson">&#9888; 教训 2：信息过载会让 Agent "迷路"</h4><p>严重事故产生数万条日志和数百 Metrics。全量喂给 Agent 不仅消耗大量 Token 还导致无法区分信号与噪声。增加信息预筛选层——用统计方法提取真正异常信号再传给 Agent。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== SUMMARY ===== -->
+  <section>
+    <h2 style="font-size:28px;margin-bottom:24px;">&#128218; 跨案例总结：7 个共性模式</h2>
+    <p style="color:var(--text-secondary);font-size:14px;line-height:1.8;margin-bottom:24px;">
+      4 个案例虽应用领域迥异，但反复出现相同的工程思想。这些共性模式是 AI Agent 工程的"第一性原理"。
+    </p>
+
+    <div class="pattern-grid">
+      <div class="pattern-card"><div class="pat-num">01</div><h4>闭环反馈是 Agent 的灵魂</h4><p>所有案例中 Agent 都运行在"执行-观察-调整-再执行"闭环中。代码 Agent 运行测试修正代码，客服 Agent 根据反馈决定升级，数据 Agent 验证查询后调整，运维 Agent 交叉验证根因。</p></div>
+      <div class="pattern-card"><div class="pat-num">02</div><h4>安全需要硬约束，不可依赖 LLM</h4><p>每个案例都实施了 LLM 之外的硬约束：命令白名单、知识锚定、只读账户、分级权限。安全必须从系统层面设计，不能仅靠 Prompt 中"请不要做 X"。</p></div>
+      <div class="pattern-card"><div class="pat-num">03</div><h4>信息质量决定决策质量</h4><p>Agent 只能基于它"看到"的信息做决策。代码 Agent 需项目上下文，客服需高质量知识库，数据需多层 SQL 验证，运维需信息预筛选。投入在信息质量上的工程时间回报率最高。</p></div>
+      <div class="pattern-card"><div class="pat-num">04</div><h4>Human-in-the-Loop 不可或缺</h4><p>所有案例中关键决策点都需要人类介入。破坏性命令需确认、低置信度时升级、分析计划先确认、高风险操作需审批。"有监督的自动化"比"全自动"更可靠。</p></div>
+      <div class="pattern-card"><div class="pat-num">05</div><h4>可观测性是运营基石</h4><p>每步调用什么工具、传什么参数、得到什么结果、为什么做这个决策——这些日志不仅用于调试，更用于持续优化 Prompt 和工具设计。</p></div>
+      <div class="pattern-card"><div class="pat-num">06</div><h4>工具粒度决定 Agent 上限</h4><p>不是越多越好——代码 Agent 7 个工具足够，客服每个专业 Agent 2-3 个。原则：单一职责、清晰契约、优雅降级。工具质量远比数量重要。</p></div>
+      <div class="pattern-card"><div class="pat-num">07</div><h4>成本管理是持续工程</h4><p>Prompt Caching 降 85% 成本、小模型分流、限制返回行数、信息预筛选——成本优化贯穿设计、开发和运营全过程，不是一次性"设置"。</p></div>
+    </div>
+
+    <div class="alert alert-success" style="margin-top:24px;">
+      <div class="alert-title">最终建议</div>
+      <p><strong>从小处开始，从简单开始。</strong>不要试图一次性构建万能 Agent。找一个具体的、边界明确的、重复性高的任务，构建一个只做这件事的 Agent，在实际使用中观察、学习、迭代。AI Agent 工程化是一个不断"发现问题-解决问题"的过程，而非一次性设计完美系统的过程。</p>
+    </div>
+  </section>
+
+  <nav style="display:flex;justify-content:space-between;margin-top:40px;">
+    <a class="btn" href="framework-comparison.html">&#8592; 框架对比</a>
+    <a class="btn btn-primary" href="glossary.html">术语表 &#8594;</a>
+  </nav>
+
+</main>
+
+<!-- ===== PANELS ===== -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header"><div><span class="sim-status-dot"></span> <strong>Agent 模拟器</strong></div><button class="sim-close" id="simClose">&#10005;</button></div>
+  <div class="sim-messages" id="simMessages"><div class="sim-msg agent">&#128075; 你好！问我关于案例研究的问题，我会模拟 Agent 的思考过程！</div></div>
+  <div class="sim-input-area"><textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea><button class="sim-send-btn" id="simSend">发送</button></div>
+</div>
+
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header"><span>&#128212; 我的笔记</span><button class="sim-close" id="notesClose">&#10005;</button></div>
+  <div class="notes-list" id="notesList"><div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="case-studies">案例研究</option>
+        <option value="1">第1章</option><option value="2">第2章</option><option value="3">第3章</option><option value="4">第4章</option>
+        <option value="5">第5章</option><option value="6">第6章</option><option value="7">第7章</option><option value="8">第8章</option>
+        <option value="9">第9章</option><option value="10">第10章</option><option value="11">第11章</option><option value="12">第12章</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+<script>
+(function() {
+  'use strict';
+  var navBtns = document.querySelectorAll('.cs-nav-btn');
+  navBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = document.getElementById(this.dataset.case);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      navBtns.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+  var sections = document.querySelectorAll('.cs-section');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        navBtns.forEach(function(b) { b.classList.remove('active'); });
+        var idx = Array.from(sections).indexOf(entry.target);
+        if (idx >= 0 && idx < navBtns.length) navBtns[idx].classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(function(s) { observer.observe(s); });
+  console.log('💼 案例研究页面已就绪 · 4个案例 · 7个共性模式');
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2章：核心架构 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body data-theme="dark">
+
+<!-- ============================================
+     Top Navigation Bar
+     ============================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单" style="display:none;">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)" aria-label="搜索">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (按 Esc 关闭)">
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- ============================================
+     Sidebar Navigation
+     ============================================ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">📚 学习章节</div>
+  <a href="01-what-is-agent.html" class="nav-link" data-chapter="1">01 · 什么是 AI Agent</a>
+  <a href="02-core-architecture.html" class="nav-link active" data-chapter="2">02 · 核心架构</a>
+  <a href="03-tool-calling.html" class="nav-link" data-chapter="3">03 · 工具调用机制</a>
+  <a href="04-memory-management.html" class="nav-link" data-chapter="4">04 · 记忆与状态管理</a>
+  <a href="05-reasoning-planning.html" class="nav-link" data-chapter="5">05 · 推理与规划</a>
+  <a href="06-multi-agent.html" class="nav-link" data-chapter="6">06 · 多Agent系统</a>
+  <a href="07-safety-reliability.html" class="nav-link" data-chapter="7">07 · 安全与可靠性</a>
+  <a href="08-prompt-engineering.html" class="nav-link" data-chapter="8">08 · 提示词工程</a>
+  <a href="09-agent-frameworks.html" class="nav-link" data-chapter="9">09 · Agent框架生态</a>
+  <a href="10-evaluation-testing.html" class="nav-link" data-chapter="10">10 · 评估与测试</a>
+  <a href="11-deployment-ops.html" class="nav-link" data-chapter="11">11 · 部署与运维</a>
+  <a href="12-future-trends.html" class="nav-link" data-chapter="12">12 · 未来趋势</a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>学习进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================
+     Main Content
+     ============================================ -->
+<main class="main-content" id="mainContent">
+
+  <section class="chapter" data-chapter="2" id="chapter2">
+
+    <!-- Chapter Header -->
+    <header class="chapter-header">
+      <div class="chapter-number">第 2 章</div>
+      <h2 class="chapter-title">Agent 核心架构</h2>
+      <p class="chapter-subtitle">深入理解 Agent 的内部构造、运行循环和分层设计。本章将为你揭开 Agent 系统的"黑箱"，让你看清它的每一个组成部分如何协同工作。</p>
+    </header>
+
+    <!-- Card 1: Complete Agent Anatomy -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">&#127959;</div>
+        <div>
+          <div class="card-title">Agent 全景解构：从外到内看透 Agent</div>
+          <div class="card-desc">一张思维导图式描述，建立对 Agent 完整架构的直观印象</div>
+        </div>
+      </div>
+      <p>在深入到每个组件之前，我们先用一个全景视角审视 Agent 的整体结构。想象 Agent 是一个有五层楼的建筑，每一层都有独立的职责，层与层之间通过明确的接口通信：</p>
+
+      <div style="background:var(--bg-tertiary);border-radius:12px;padding:24px;margin:16px 0;font-family:var(--font-mono);font-size:13px;line-height:2;">
+        <div style="color:var(--accent-cyan);font-weight:700;text-align:center;margin-bottom:12px;">Agent 五层架构全景图</div>
+        <div style="border:1px solid var(--border-glow-cyan);border-radius:8px;padding:12px;margin:8px 0;background:rgba(0,229,255,0.05);">
+          <strong style="color:var(--accent-orange);">&#128737; 第5层 — Guardrails（安全护栏）</strong><br>
+          <span style="color:var(--text-secondary);">输入验证 | 输出过滤 | 权限检查 | 审计日志 | 速率限制 | 内容审核</span>
+        </div>
+        <div style="border:1px solid var(--border-glow-purple);border-radius:8px;padding:12px;margin:8px 0;background:rgba(180,74,238,0.05);">
+          <strong style="color:var(--accent-purple);">&#128173; 第4层 — Memory（记忆系统）</strong><br>
+          <span style="color:var(--text-secondary);">短期记忆（对话窗口）| 工作记忆（任务状态）| 长期记忆（向量库）</span>
+        </div>
+        <div style="border:1px solid var(--border-glow-cyan);border-radius:8px;padding:12px;margin:8px 0;background:rgba(0,229,255,0.05);">
+          <strong style="color:var(--accent-cyan);">&#9881; 第3层 — Orchestrator（编排引擎）</strong><br>
+          <span style="color:var(--text-secondary);">主循环控制 | 步骤调度 | 错误恢复 | 超时管理 | 并发协调</span>
+        </div>
+        <div style="border:1px solid var(--border-glow-purple);border-radius:8px;padding:12px;margin:8px 0;background:rgba(180,74,238,0.05);">
+          <strong style="color:var(--accent-green);">&#128736; 第2层 — Tools（工具层）</strong><br>
+          <span style="color:var(--text-secondary);">工具注册 | Schema管理 | 执行适配 | 结果转换 | 错误标准化</span>
+        </div>
+        <div style="border:1px solid var(--border-glow-cyan);border-radius:8px;padding:12px;margin:8px 0;background:rgba(0,229,255,0.05);">
+          <strong style="color:var(--accent-blue);">&#129504; 第1层 — Model（LLM推理引擎）</strong><br>
+          <span style="color:var(--text-secondary);">模型选择 | 推理调用 | Token管理 | 温度控制 | 流式输出</span>
+        </div>
+      </div>
+
+      <p>这个五层架构的"数据流向"遵循一个清晰的模式：用户输入从最外层（Guardrails）进入，逐层向内传递到 Model 层进行推理，然后 Model 的决策经过 Orchestrator 编排后向外层（Tools）传递并执行，执行结果再回传到内层形成下一个推理循环。</p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">架构设计理念</div>
+        <p>五层架构的核心设计理念是<strong>关注点分离（Separation of Concerns）</strong>。每一层只做自己的事，不跨层干涉。这种设计让你可以单独替换任一层而不会破坏整体。例如，你可以将 LLM 从 GPT-4 换成 Claude，只需要修改第1层的适配代码，其他四层完全不需要变动。</p>
+      </div>
+    </article>
+
+    <!-- Card 2: Perceive-Plan-Act-Observe Loop -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">&#128259;</div>
+        <div>
+          <div class="card-title">灵魂循环：感知-规划-行动-观察</div>
+          <div class="card-desc">Agent 与其他 AI 系统最本质的区别就在于这个持续运行的循环</div>
+        </div>
+      </div>
+      <p>如果只能用一个概念来理解 Agent，那就是<strong>感知-规划-行动-观察循环</strong>（Perceive-Plan-Act-Observe Loop）。这个循环是 Agent 的"心跳"，只要 Agent 还在运行，这个循环就在持续转动。下面我们通过一个"用户请求 Agent 分析销售数据"的真实案例来追踪循环的每一步。</p>
+
+      <h4>第1阶段：感知 (Perceive)</h4>
+      <p><strong>触发</strong>：用户输入 "帮我分析上个月各区域的销售数据，找出表现最好的产品"</p>
+      <p><strong>Agent 做了什么</strong>：</p>
+      <ul>
+        <li>接收原始用户输入文本</li>
+        <li>结合系统提示词（system prompt）理解任务目标和约束</li>
+        <li>识别出这是一个数据分析任务，需要访问数据库、进行计算、生成结论</li>
+        <li>从工作记忆中检查是否有相关的历史上下文（如之前查询过类似数据）</li>
+        <li>从长期记忆中检索是否有相关的业务知识（如"区域"的定义、"产品"的分类）</li>
+      </ul>
+      <p><strong>输出</strong>：结构化的任务理解 — "目标：分析销售数据；维度：区域、产品；指标：销售额/利润；时间范围：上个月；产出：最佳产品清单"</p>
+
+      <h4>第2阶段：规划 (Plan)</h4>
+      <p><strong>Agent 做了什么</strong>：</p>
+      <ul>
+        <li>拆分子任务：① 查询数据库获取销售数据；② 按区域汇总计算；③ 按产品汇总计算；④ 排序找出 Top 产品；⑤ 生成分析报告</li>
+        <li>为每个子任务匹配合适的工具：查询用 SQL 工具、汇总用计算工具、报告用文本生成</li>
+        <li>规划执行顺序：先查数据，再计算，最后生成报告（顺序依赖关系）</li>
+        <li>评估风险：数据量是否过大？查询是否会超时？是否需要用户确认？</li>
+      </ul>
+      <p><strong>输出</strong>：执行计划 — 一个有顺序依赖关系的步骤列表</p>
+
+      <h4>第3阶段：行动 (Act)</h4>
+      <p><strong>Agent 做了什么</strong>：</p>
+      <ul>
+        <li>依次调用计划中的工具：执行 SQL 查询 -> 对结果进行聚合计算 -> 排序筛选</li>
+        <li>每次工具调用都等待结果返回，验证结果的有效性</li>
+        <li>如果某步失败（如 SQL 语法错误），进入错误恢复流程</li>
+        <li>将中间结果存入工作记忆，供后续步骤使用</li>
+      </ul>
+
+      <h4>第4阶段：观察 (Observe)</h4>
+      <p><strong>Agent 做了什么</strong>：</p>
+      <ul>
+        <li>检查每个工具的执行结果是否符合预期格式和内容</li>
+        <li>判断任务是否已经完成：数据是否完整？结论是否充分？</li>
+        <li>如果完成，生成最终回答并退出循环</li>
+        <li>如果未完成，带着新的观察结果回到"感知"阶段，开始新一轮循环</li>
+      </ul>
+
+      <div class="alert alert-success">
+        <div class="alert-title">循环的关键特征</div>
+        <p>注意三个关键点：<strong>1)</strong> 循环不是线性的——Agent 可能在"行动"之后发现需要重新"规划"；<strong>2)</strong> 每一次循环都在消耗 token 和时间，所以高效的 Agent 会尽量减少无意义的循环；<strong>3)</strong> 终止条件的设计非常关键——它决定了 Agent 是"懂得适时收手"还是"陷入死循环"。</p>
+      </div>
+    </article>
+
+    <!-- Card 3: LLM as Reasoning Engine -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">&#129504;</div>
+        <div>
+          <div class="card-title">LLM 作为推理引擎：Prompt 如何变成 Action</div>
+          <div class="card-desc">理解 LLM 在 Agent 架构中扮演的独特角色和运作机制</div>
+        </div>
+      </div>
+      <p>在 Agent 架构中，LLM 的角色不是"聊天"，而是<strong>推理决策</strong>。每一次 LLM 调用的输入和输出都是精心设计的结构化信息，而非自由对话。理解这个过程是掌握 Agent 架构的关键。</p>
+
+      <h4>输入：比"用户消息"丰富得多</h4>
+      <p>当 Agent 调用 LLM 时，发送的不是一条简单的用户消息，而是一个<strong>复合上下文包</strong>：</p>
+      <ol>
+        <li><strong>系统提示词 (System Prompt)</strong>：定义 Agent 的角色、行为准则和可用工具</li>
+        <li><strong>历史消息 (Message History)</strong>：用户输入、Agent 之前的回答、工具调用记录</li>
+        <li><strong>工具定义 (Tool Definitions)</strong>：完整的工具列表及其 JSON Schema</li>
+        <li><strong>记忆注入 (Memory Context)</strong>：从长期记忆中检索到的相关信息</li>
+        <li><strong>规划状态 (Plan State)</strong>：当前任务的执行计划和已完成步骤（可选）</li>
+      </ol>
+
+      <h4>推理过程：多路径决策树</h4>
+      <p>LLM 在收到这个上下文包后，内部经历一个多路径的决策过程：</p>
+      <ul>
+        <li><strong>理解路径</strong>：解析用户意图，识别任务类型和复杂度</li>
+        <li><strong>工具匹配路径</strong>：在所有可用工具中评估哪个最适合当前步骤</li>
+        <li><strong>参数推理路径</strong>：从上下文和历史中提取/推断工具所需的参数值</li>
+        <li><strong>终止判断路径</strong>：评估是否应该停止循环并输出最终结果</li>
+      </ul>
+
+      <h4>输出：结构化的行动指令</h4>
+      <p>LLM 的输出不是自由文本，而是两种可能的形式之一：</p>
+      <ul>
+        <li><strong>工具调用请求</strong>：包含 tool_name 和 arguments JSON，告诉编排器"我要调用这个工具，参数是这些"</li>
+        <li><strong>最终文本回答</strong>：表示任务完成，输出给用户的自然语言结果</li>
+      </ul>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">常见误区</div>
+        <p>很多人误以为 Agent 的 LLM 在"控制一切"——实际上，<strong>LLM 只负责推理和决策，真正的执行由编排器和工具层完成</strong>。LLM 说"查询数据库"，但它不亲自查询数据库；编排器接收这个指令，调用数据库工具，再把结果送回给 LLM。这个"决策与执行分离"的架构是 Agent 设计的精髓所在。</p>
+      </div>
+    </article>
+
+    <!-- Card 4: Context Window Mechanics -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon orange">&#128466;</div>
+        <div>
+          <div class="card-title">上下文窗口机制：Agent 的"视野"限制</div>
+          <div class="card-desc">上下文窗口的大小和管理方式深刻影响着 Agent 的行为能力</div>
+        </div>
+      </div>
+      <p>上下文窗口（Context Window）是 LLM 处理信息的基本单位，也是 Agent 设计中最重要的<strong>硬约束</strong>之一。当前的顶级模型支持 128K 到 200K token 的上下文窗口（约等于一本中等长度的小说），但这个空间需要被很多内容共享。</p>
+
+      <h4>上下文窗口的"分配图"</h4>
+      <p>假设你的 LLM 有 128K token 的上下文窗口，在一次典型的 Agent 任务中，这个空间是这样分配的：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>内容</th>
+              <th>典型占用</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>系统提示词</td>
+              <td>2K - 8K</td>
+              <td>固定开销，每次请求都携带</td>
+            </tr>
+            <tr>
+              <td>工具定义 Schema</td>
+              <td>3K - 10K</td>
+              <td>随工具数量线性增长；10个复杂工具可占 10K+</td>
+            </tr>
+            <tr>
+              <td>对话历史</td>
+              <td>10K - 50K</td>
+              <td>随交互轮数增长；是上下文压力的主要来源</td>
+            </tr>
+            <tr>
+              <td>工具调用结果</td>
+              <td>5K - 30K</td>
+              <td>每次工具返回的数据都在这里累积</td>
+            </tr>
+            <tr>
+              <td>记忆检索注入</td>
+              <td>2K - 8K</td>
+              <td>RAG 注入的相关文档片段</td>
+            </tr>
+            <tr>
+              <td>输出预留空间</td>
+              <td>2K - 16K</td>
+              <td>LLM 生成回答所需的空间</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>上下文窗口压力带来的挑战</h4>
+      <ul>
+        <li><strong>信息丢失</strong>：当总内容超出窗口限制时，最早的信息会被截断。如果关键信息正好在"被遗忘"的部分，Agent 的行为就会出错。</li>
+        <li><strong>注意力稀释</strong>：即使没有超出窗口，过多的内容也会稀释 LLM 对关键信息的注意力。这就是著名的"中间丢失"（Lost in the Middle）现象。</li>
+        <li><strong>成本线性增长</strong>：每次请求携带的上下文越多，token 消耗越大，API 成本越高。一个长对话的 Agent 任务可能消耗上百万 token。</li>
+        <li><strong>延迟增加</strong>：更大的上下文意味着更长的处理时间，直接影响用户体验。</li>
+      </ul>
+
+      <h4>应对策略</h4>
+      <ul>
+        <li><strong>滑动窗口</strong>：只保留最近 N 轮对话，旧消息自动丢弃</li>
+        <li><strong>摘要压缩</strong>：对历史对话进行定期摘要，用短摘要替代长历史</li>
+        <li><strong>智能裁剪</strong>：基于相关性评分，优先保留最重要的信息</li>
+        <li><strong>分层存储</strong>：重要信息存入长期记忆，通过检索按需加载</li>
+        <li><strong>结构化输出</strong>：减少不必要的大段文本，用结构化数据替代</li>
+      </ul>
+
+      <div class="alert alert-info">
+        <div class="alert-title">设计启示</div>
+        <p>上下文窗口是 Agent 架构中一个"看不见的设计约束"，几乎所有高级特性（记忆管理、工具设计、对话策略）都在某种程度上是为了应对上下文窗口的局限性而存在的。理解了上下文窗口，你就能理解为什么 Agent 需要记忆系统、为什么 RAG 很重要、为什么工具设计要简洁。</p>
+      </div>
+    </article>
+
+    <!-- Card 5: Five-Layer Architecture Deep Dive -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">&#127960;</div>
+        <div>
+          <div class="card-title">五层架构深度解析：每层都怎么运转</div>
+          <div class="card-desc">逐层剖析 Model、Tools、Orchestrator、Memory、Guardrails 的内部机制</div>
+        </div>
+      </div>
+
+      <h4>第1层 — Model（LLM推理引擎）</h4>
+      <p>Model 层封装了与 LLM 的所有交互。它的核心职责：</p>
+      <ul>
+        <li><strong>模型抽象</strong>：提供统一的调用接口，屏蔽不同 LLM 提供商（OpenAI、Anthropic、本地模型）的差异</li>
+        <li><strong>参数管理</strong>：控制 temperature、top_p、max_tokens 等推理参数</li>
+        <li><strong>流式处理</strong>：支持 streaming 输出，让用户实时看到 Agent 的思考过程</li>
+        <li><strong>重试与容错</strong>：处理 API 超时、限流、服务不可用等异常情况</li>
+      </ul>
+
+      <h4>第2层 — Tools（工具层）</h4>
+      <p>工具层是 Agent "能做之事"的目录。它的核心职责：</p>
+      <ul>
+        <li><strong>工具注册</strong>：维护一个工具注册表，每个工具都有名称、描述、Schema 和实现</li>
+        <li><strong>Schema 生成</strong>：将工具的 Python/JS 函数签名自动转换为 LLM 可理解的 JSON Schema</li>
+        <li><strong>执行适配</strong>：将 LLM 传回的参数映射到实际函数调用</li>
+        <li><strong>结果标准化</strong>：将各种工具的不同返回格式统一为 LLM 可处理的标准格式</li>
+      </ul>
+
+      <h4>第3层 — Orchestrator（编排引擎）</h4>
+      <p>编排器是 Agent 的"大脑皮层"，控制着整个执行流程：</p>
+      <ul>
+        <li><strong>主循环驱动</strong>：驱动感知-规划-行动-观察循环的运转</li>
+        <li><strong>步骤调度</strong>：决定下一步做什么、调用哪个工具</li>
+        <li><strong>错误恢复</strong>：当工具执行失败时，判断是重试、换个工具还是向用户求助</li>
+        <li><strong>终止判断</strong>：在合适的时机结束循环，避免无限执行</li>
+        <li><strong>并发协调</strong>：在高级 Agent 中管理多个并行工具调用</li>
+      </ul>
+
+      <h4>第4层 — Memory（记忆系统）</h4>
+      <p>记忆系统让 Agent 拥有"完整的记忆链"：</p>
+      <ul>
+        <li><strong>Short-term</strong>：管理对话历史窗口和滑动窗口策略</li>
+        <li><strong>Working</strong>：维护当前任务的状态、中间结果和执行计划</li>
+        <li><strong>Long-term</strong>：持久化重要信息，通过向量检索按需召回</li>
+      </ul>
+
+      <h4>第5层 — Guardrails（安全护栏）</h4>
+      <p>安全护栏贯穿所有层次，是最后一道防线：</p>
+      <ul>
+        <li><strong>输入门禁</strong>：过滤恶意 prompt、限制输入长度、检测注入攻击</li>
+        <li><strong>执行沙箱</strong>：在隔离环境中执行高风险操作（代码执行、文件删除）</li>
+        <li><strong>权限管理</strong>：工具级别的权限控制，某些操作需要用户确认</li>
+        <li><strong>输出审查</strong>：检查输出是否包含敏感信息、是否符合安全规范</li>
+      </ul>
+    </article>
+
+    <!-- Card 6: System Prompt Anatomy -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">&#128221;</div>
+        <div>
+          <div class="card-title">系统提示词剖析：Agent 的"DNA"</div>
+          <div class="card-desc">一个好的 System Prompt 决定了 Agent 的行为模式和能力边界</div>
+        </div>
+      </div>
+      <p>系统提示词（System Prompt）是 Agent 设计中<strong>最重要但也最容易被低估</strong>的部分。它就像是 Agent 的"DNA"——定义了 Agent 是谁、能做什么、不能做什么、以及如何与用户和工具交互。</p>
+
+      <h4>高效 System Prompt 的四要素</h4>
+
+      <div style="border-left:4px solid var(--accent-cyan);padding:16px 20px;margin:12px 0;background:rgba(0,229,255,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-cyan);">&#9312; 角色定义 (Persona)</h4>
+        <p>明确告诉 LLM "你是谁"。不是模糊的"你是一个 AI 助手"，而是具体的：</p>
+        <p style="background:var(--bg-tertiary);padding:8px 12px;border-radius:4px;font-family:var(--font-mono);font-size:13px;">你是一个专业的数据分析 Agent，隶属于 ProductInsight 团队。你的主要职责是帮助用户从数据库中提取数据、执行分析计算并生成可操作的洞察报告。你擅长 SQL、Python 数据处理和统计分析方法。</p>
+      </div>
+
+      <div style="border-left:4px solid var(--accent-purple);padding:16px 20px;margin:12px 0;background:rgba(180,74,238,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-purple);">&#9313; 行为约束 (Constraints)</h4>
+        <p>划定 Agent 的"行为红线"。这些约束应该是明确的、可执行的：</p>
+        <p style="background:var(--bg-tertiary);padding:8px 12px;border-radius:4px;font-family:var(--font-mono);font-size:13px;">规则：<br>1. 涉及数据删除或修改的操作，必须先向用户确认<br>2. 单次查询返回超过 10000 行时，先告知用户并建议筛选<br>3. 如果同一个工具连续失败 3 次，停止尝试并解释原因<br>4. 不要在回答中编造数据——如果不确定，明确告知<br>5. 优先使用最直接的工具，避免不必要的多步调用</p>
+      </div>
+
+      <div style="border-left:4px solid var(--accent-green);padding:16px 20px;margin:12px 0;background:rgba(0,230,118,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-green);">&#9314; 工具使用指南 (Tool Usage)</h4>
+        <p>告诉 LLM 每个工具适用的场景和选择优先级：</p>
+        <p style="background:var(--bg-tertiary);padding:8px 12px;border-radius:4px;font-family:var(--font-mono);font-size:13px;">工具选择指南：<br>- 查询数据库：使用 query_database（SQL）<br>- 数据统计分析：使用 run_python（pandas, scipy）<br>- 可视化：使用 generate_chart<br>- 文件操作：使用 file_read / file_write<br>- 需要最新信息：使用 web_search<br>注意：query_database 和 web_search 可以并行调用来加速</p>
+      </div>
+
+      <div style="border-left:4px solid var(--accent-orange);padding:16px 20px;margin:12px 0;background:rgba(255,145,0,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-orange);">&#9315; 输出格式 (Output Format)</h4>
+        <p>定义 Agent 最终输出的结构和风格：</p>
+        <p style="background:var(--bg-tertiary);padding:8px 12px;border-radius:4px;font-family:var(--font-mono);font-size:13px;">回答格式：<br>- 先给出 2-3 句的 TL;DR 总结<br>- 然后分点列出关键发现<br>- 如果涉及数据，以 Markdown 表格呈现<br>- 最后给出可操作的下一步建议<br>- 语气：专业但平易近人，避免过度使用技术术语</p>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">系统提示词工程的核心原则</div>
+        <p><strong>1)</strong> 越具体越好——模糊的指令会导致不可预测的行为；<strong>2)</strong> 先给规则再给例子——规则建立框架，例子填充细节；<strong>3)</strong> 用"不要做什么"来划定边界——负面约束往往比正面指令更有效；<strong>4)</strong> 测试-迭代-再测试——没有一个系统提示词是一次就写对的。</p>
+      </div>
+    </article>
+
+    <!-- Card 7: Orchestrator Implementation -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">&#128187;</div>
+        <div>
+          <div class="card-title">代码实战：完整 Agent 编排器实现</div>
+          <div class="card-desc">一个可直接运行的 Agent 编排器类，包含所有核心机制</div>
+        </div>
+      </div>
+      <p>下面是一个生产级 Agent 编排器的完整实现。它展示了五层架构如何在实际代码中落地运行。请仔细阅读每个方法的实现和注释，它们对应着我们前面讨论的每一个架构概念。</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — Agent Orchestrator 完整实现</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> json
+<span class="token-kw">import</span> time
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Callable, Optional
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass, field
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 数据结构定义</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ToolCall</span>:
+    <span class="token-cm">"""LLM 返回的工具调用请求"""</span>
+    id: <span class="token-cls">str</span>
+    name: <span class="token-cls">str</span>
+    arguments: <span class="token-cls">dict</span>
+
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">LLMResponse</span>:
+    <span class="token-cm">"""LLM 的标准化返回结果"""</span>
+    text: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-kw">None</span>
+    tool_calls: <span class="token-cls">Optional</span>[<span class="token-cls">list</span>[<span class="token-cls">ToolCall</span>]] = <span class="token-kw">None</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">has_final_answer</span>(<span class="token-kw">self</span>) -> <span class="token-cls">bool</span>:
+        <span class="token-kw">return</span> <span class="token-kw">self</span>.text <span class="token-kw">is</span> <span class="token-kw">not</span> <span class="token-kw">None</span> <span class="token-kw">and</span> <span class="token-kw">self</span>.tool_calls <span class="token-kw">is</span> <span class="token-kw">None</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">has_tool_calls</span>(<span class="token-kw">self</span>) -> <span class="token-cls">bool</span>:
+        <span class="token-kw">return</span> <span class="token-kw">self</span>.tool_calls <span class="token-kw">is</span> <span class="token-kw">not</span> <span class="token-kw">None</span> <span class="token-kw">and</span> <span class="token-fn">len</span>(<span class="token-kw">self</span>.tool_calls) > <span class="token-num">0</span>
+
+
+<span class="token-kw">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">ExecutionStep</span>:
+    <span class="token-cm">"""单步执行的完整记录（用于调试和审计）"""</span>
+    step_number: <span class="token-cls">int</span>
+    thought: <span class="token-cls">str</span>
+    tool_name: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>]
+    tool_args: <span class="token-cls">Optional</span>[<span class="token-cls">dict</span>]
+    tool_result: <span class="token-cls">Optional</span>[<span class="token-cls">Any</span>]
+    error: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>]
+    timestamp: <span class="token-cls">float</span>
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># Agent 编排器主类</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">class</span> <span class="token-cls">AgentOrchestrator</span>:
+    <span class="token-cm">"""完整的 Agent 编排器，实现五层架构的协同运转。</span>
+<span class="token-cm">    </span>
+<span class="token-cm">    这个类展示了：</span>
+<span class="token-cm">    - 主循环控制 (Orchestrator 层)</span>
+<span class="token-cm">    - LLM 推理调用 (Model 层)</span>
+<span class="token-cm">    - 工具注册与执行 (Tools 层)</span>
+<span class="token-cm">    - 短期记忆管理 (Memory 层)</span>
+<span class="token-cm">    - 安全边界控制 (Guardrails 层)</span>
+<span class="token-cm">    """</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(
+        <span class="token-kw">self</span>,
+        llm_client,
+        system_prompt: <span class="token-cls">str</span>,
+        tools: <span class="token-cls">dict</span>[<span class="token-cls">str</span>, <span class="token-cls">Callable</span>],
+        max_steps: <span class="token-cls">int</span> = <span class="token-num">15</span>,
+        context_limit: <span class="token-cls">int</span> = <span class="token-num">50</span>,
+        verbose: <span class="token-cls">bool</span> = <span class="token-kw">True</span>
+    ):
+        <span class="token-kw">self</span>.llm = llm_client
+        <span class="token-kw">self</span>.system_prompt = system_prompt
+        <span class="token-kw">self</span>.tools = tools                    <span class="token-cm"># {name: callable}</span>
+        <span class="token-kw">self</span>.tool_schemas = <span class="token-kw">self</span>.<span class="token-fn">_build_tool_schemas</span>()
+        <span class="token-kw">self</span>.max_steps = max_steps
+        <span class="token-kw">self</span>.context_limit = context_limit    <span class="token-cm"># 滑动窗口大小</span>
+        <span class="token-kw">self</span>.verbose = verbose
+
+        <span class="token-cm"># 运行时状态</span>
+        <span class="token-kw">self</span>.messages = []                    <span class="token-cm"># 短期记忆：对话历史</span>
+        <span class="token-kw">self</span>.execution_trace = []             <span class="token-cm"># 完整的执行轨迹（可观测性）</span>
+        <span class="token-kw">self</span>.working_state = {}               <span class="token-cm"># 工作记忆：任务状态</span>
+        <span class="token-kw">self</span>.tool_error_counts = {}           <span class="token-cm"># 工具错误计数</span>
+
+    <span class="token-cm"># ================================================================</span>
+    <span class="token-cm"># 公共接口</span>
+    <span class="token-cm"># ================================================================</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">run</span>(<span class="token-kw">self</span>, user_input: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+        <span class="token-cm">"""启动 Agent 执行主循环。返回最终答案。"""</span>
+        <span class="token-kw">self</span>.<span class="token-fn">_initialize</span>(user_input)
+
+        <span class="token-kw">for</span> step <span class="token-kw">in</span> <span class="token-fn">range</span>(<span class="token-num">1</span>, <span class="token-kw">self</span>.max_steps + <span class="token-num">1</span>):
+            <span class="token-kw">self</span>.<span class="token-fn">_log</span>(<span class="token-str">f"\n{'='*40}\n  第 {step} 步\n{'='*40}"</span>)
+
+            <span class="token-cm"># --- 感知阶段 ---</span>
+            context = <span class="token-kw">self</span>.<span class="token-fn">_build_context</span>()
+
+            <span class="token-cm"># --- 规划与推理阶段 ---</span>
+            response = <span class="token-kw">self</span>.<span class="token-fn">_call_llm</span>(context)
+
+            <span class="token-cm"># --- 检查是否完成 ---</span>
+            <span class="token-kw">if</span> response.<span class="token-fn">has_final_answer</span>():
+                <span class="token-kw">self</span>.<span class="token-fn">_log</span>(<span class="token-str">f"任务完成: {response.text[:100]}..."</span>)
+                <span class="token-kw">self</span>.messages.append({
+                    <span class="token-str">"role"</span>: <span class="token-str">"assistant"</span>, <span class="token-str">"content"</span>: response.text
+                })
+                <span class="token-kw">return</span> response.text
+
+            <span class="token-cm"># --- 行动阶段 ---</span>
+            <span class="token-kw">if</span> response.<span class="token-fn">has_tool_calls</span>():
+                <span class="token-kw">for</span> tool_call <span class="token-kw">in</span> response.tool_calls:
+                    result = <span class="token-kw">self</span>.<span class="token-fn">_execute_single_tool</span>(tool_call, step)
+
+                    <span class="token-cm"># --- 观察阶段：将结果反馈给上下文 ---</span>
+                    <span class="token-kw">self</span>.messages.append({
+                        <span class="token-str">"role"</span>: <span class="token-str">"tool"</span>,
+                        <span class="token-str">"tool_call_id"</span>: tool_call.id,
+                        <span class="token-str">"content"</span>: json.<span class="token-fn">dumps</span>(result, ensure_ascii=<span class="token-kw">False</span>)
+                    })
+
+        <span class="token-cm"># 超出步数限制：生成降级回答</span>
+        <span class="token-kw">return</span> <span class="token-kw">self</span>.<span class="token-fn">_graceful_degradation</span>()
+
+    <span class="token-cm"># ================================================================</span>
+    <span class="token-cm"># 内部方法</span>
+    <span class="token-cm"># ================================================================</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">_initialize</span>(<span class="token-kw">self</span>, user_input: <span class="token-cls">str</span>):
+        <span class="token-cm">"""初始化：清空状态，设置系统提示词和用户输入"""</span>
+        <span class="token-kw">self</span>.messages = [
+            {<span class="token-str">"role"</span>: <span class="token-str">"system"</span>, <span class="token-str">"content"</span>: <span class="token-kw">self</span>.system_prompt},
+            {<span class="token-str">"role"</span>: <span class="token-str">"user"</span>, <span class="token-str">"content"</span>: user_input}
+        ]
+        <span class="token-kw">self</span>.execution_trace = []
+        <span class="token-kw">self</span>.working_state = {<span class="token-str">"started_at"</span>: time.<span class="token-fn">time</span>(), <span class="token-str">"completed_steps"</span>: []}
+        <span class="token-kw">self</span>.tool_error_counts = {}
+
+    <span class="token-kw">def</span> <span class="token-fn">_build_context</span>(<span class="token-kw">self</span>) -> <span class="token-cls">list</span>:
+        <span class="token-cm">"""构建 LLM 的输入上下文（含滑动窗口裁剪）"""</span>
+        <span class="token-cm"># 始终保留 system 消息</span>
+        system_msg = <span class="token-kw">self</span>.messages[<span class="token-num">0</span>]
+        <span class="token-cm"># 对非 system 消息应用滑动窗口</span>
+        recent = <span class="token-kw">self</span>.messages[<span class="token-num">1</span>:][-<span class="token-kw">self</span>.context_limit:]
+        <span class="token-kw">return</span> [system_msg] + recent
+
+    <span class="token-kw">def</span> <span class="token-fn">_call_llm</span>(<span class="token-kw">self</span>, context: <span class="token-cls">list</span>) -> <span class="token-cls">LLMResponse</span>:
+        <span class="token-cm">"""调用 LLM 进行推理（带重试机制）"""</span>
+        <span class="token-kw">for</span> attempt <span class="token-kw">in</span> <span class="token-fn">range</span>(<span class="token-num">3</span>):
+            <span class="token-kw">try</span>:
+                raw = <span class="token-kw">self</span>.llm.chat(
+                    messages=context,
+                    tools=<span class="token-kw">self</span>.tool_schemas,
+                    tool_choice=<span class="token-str">"auto"</span>  <span class="token-cm"># 让模型自行判断是否需要工具</span>
+                )
+                <span class="token-kw">return</span> <span class="token-kw">self</span>.<span class="token-fn">_parse_llm_response</span>(raw)
+            <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+                <span class="token-kw">if</span> attempt == <span class="token-num">2</span>:
+                    <span class="token-kw">raise</span> RuntimeError(<span class="token-str">f"LLM 调用失败（已重试3次）: {e}"</span>)
+                time.<span class="token-fn">sleep</span>(<span class="token-num">2</span> ** attempt)  <span class="token-cm"># 指数退避</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">_execute_single_tool</span>(<span class="token-kw">self</span>, tool_call: <span class="token-cls">ToolCall</span>, step: <span class="token-cls">int</span>):
+        <span class="token-cm">"""执行单个工具调用（含安全校验和错误处理）"""</span>
+        trace = ExecutionStep(
+            step_number=step,
+            thought=<span class="token-str">""</span>,
+            tool_name=tool_call.name,
+            tool_args=tool_call.arguments,
+            tool_result=<span class="token-kw">None</span>,
+            error=<span class="token-kw">None</span>,
+            timestamp=time.<span class="token-fn">time</span>()
+        )
+
+        <span class="token-cm"># Guardrail 1: 工具存在性检查</span>
+        <span class="token-kw">if</span> tool_call.name <span class="token-kw">not</span> <span class="token-kw">in</span> <span class="token-kw">self</span>.tools:
+            trace.error = <span class="token-str">f"工具 '{tool_call.name}' 不存在"</span>
+            <span class="token-kw">self</span>.execution_trace.<span class="token-fn">append</span>(trace)
+            <span class="token-kw">return</span> {<span class="token-str">"error"</span>: trace.error, <span class="token-str">"hint"</span>: <span class="token-str">"请从可用工具列表中选择"</span>}
+
+        <span class="token-cm"># Guardrail 2: 错误频率检查</span>
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.tool_error_counts.<span class="token-fn">get</span>(tool_call.name, <span class="token-num">0</span>) >= <span class="token-num">3</span>:
+            trace.error = <span class="token-str">f"工具 '{tool_call.name}' 已连续失败3次，已禁用"</span>
+            <span class="token-kw">self</span>.execution_trace.<span class="token-fn">append</span>(trace)
+            <span class="token-kw">return</span> {<span class="token-str">"error"</span>: trace.error, <span class="token-str">"hint"</span>: <span class="token-str">"请换一种方式完成此任务"</span>}
+
+        <span class="token-cm"># 执行工具</span>
+        <span class="token-kw">try</span>:
+            result = <span class="token-kw">self</span>.tools[tool_call.name](**tool_call.arguments)
+            trace.tool_result = result
+            <span class="token-kw">self</span>.working_state[<span class="token-str">"completed_steps"</span>].<span class="token-fn">append</span>({
+                <span class="token-str">"tool"</span>: tool_call.name, <span class="token-str">"result"</span>: <span class="token-fn">str</span>(result)[:<span class="token-num">200</span>]
+            })
+            <span class="token-kw">return</span> result
+
+        <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+            trace.error = <span class="token-fn">str</span>(e)
+            <span class="token-kw">self</span>.tool_error_counts[tool_call.name] = \
+                <span class="token-kw">self</span>.tool_error_counts.<span class="token-fn">get</span>(tool_call.name, <span class="token-num">0</span>) + <span class="token-num">1</span>
+            <span class="token-kw">self</span>.execution_trace.<span class="token-fn">append</span>(trace)
+            <span class="token-kw">return</span> {
+                <span class="token-str">"error"</span>: <span class="token-str">f"执行失败: {e}"</span>,
+                <span class="token-str">"hint"</span>: <span class="token-str">f"请检查参数是否正确，或尝试其他工具"</span>
+            }
+
+        <span class="token-kw">finally</span>:
+            <span class="token-kw">self</span>.execution_trace.<span class="token-fn">append</span>(trace)
+            <span class="token-kw">if</span> <span class="token-kw">self</span>.verbose:
+                status = <span class="token-str">"OK"</span> <span class="token-kw">if</span> <span class="token-kw">not</span> trace.error <span class="token-kw">else</span> <span class="token-str">f"ERROR: {trace.error}"</span>
+                <span class="token-kw">self</span>.<span class="token-fn">_log</span>(<span class="token-str">f"  工具: {tool_call.name} | 状态: {status}"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">_graceful_degradation</span>(<span class="token-kw">self</span>) -> <span class="token-cls">str</span>:
+        <span class="token-cm">"""超出步数限制时的优雅降级处理"""</span>
+        completed = <span class="token-fn">len</span>(<span class="token-kw">self</span>.working_state[<span class="token-str">"completed_steps"</span>])
+        <span class="token-kw">return</span> (
+            <span class="token-str">f"任务已执行 {self.max_steps} 步，但尚未完成。</span>
+<span class="token-str">            已完成的步骤：{completed} 个。</span>
+<span class="token-str">            建议将任务拆分为更小的子任务重试。</span>
+<span class="token-str">            执行摘要：{json.dumps(self.execution_trace[-3:], default=str)}"</span>
+        )
+
+    <span class="token-kw">def</span> <span class="token-fn">_build_tool_schemas</span>(<span class="token-kw">self</span>) -> <span class="token-cls">list</span>:
+        <span class="token-cm">"""从注册的工具构建 LLM 工具 Schema（简化版）"""</span>
+        <span class="token-kw">return</span> [
+            {
+                <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+                <span class="token-str">"function"</span>: {
+                    <span class="token-str">"name"</span>: name,
+                    <span class="token-str">"description"</span>: fn.__doc__ <span class="token-kw">or</span> <span class="token-str">"无描述"</span>,
+                    <span class="token-str">"parameters"</span>: {<span class="token-str">"type"</span>: <span class="token-str">"object"</span>, <span class="token-str">"properties"</span>: {}}
+                }
+            }
+            <span class="token-kw">for</span> name, fn <span class="token-kw">in</span> <span class="token-kw">self</span>.tools.items()
+        ]
+
+    <span class="token-kw">def</span> <span class="token-fn">_parse_llm_response</span>(<span class="token-kw">self</span>, raw) -> <span class="token-cls">LLMResponse</span>:
+        <span class="token-cm">"""解析 LLM 的原始响应为标准格式"""</span>
+        <span class="token-cm"># 实际实现需要适配具体 LLM 的返回格式</span>
+        text = raw.get(<span class="token-str">"content"</span>)
+        raw_tool_calls = raw.get(<span class="token-str">"tool_calls"</span>, [])
+        tool_calls = [
+            ToolCall(id=tc[<span class="token-str">"id"</span>], name=tc[<span class="token-str">"function"</span>][<span class="token-str">"name"</span>],
+                     arguments=json.<span class="token-fn">loads</span>(tc[<span class="token-str">"function"</span>][<span class="token-str">"arguments"</span>]))
+            <span class="token-kw">for</span> tc <span class="token-kw">in</span> raw_tool_calls
+        ] <span class="token-kw">if</span> raw_tool_calls <span class="token-kw">else</span> <span class="token-kw">None</span>
+        <span class="token-kw">return</span> LLMResponse(text=text, tool_calls=tool_calls)
+
+    <span class="token-kw">def</span> <span class="token-fn">_log</span>(<span class="token-kw">self</span>, msg: <span class="token-cls">str</span>):
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.verbose:
+            <span class="token-fn">print</span>(msg)</code></pre>
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">代码设计亮点</div>
+        <p>注意几个关键设计决策：<strong>1)</strong> 所有状态（messages, execution_trace, working_state）都封装在类实例中，方法不产生副作用；<strong>2)</strong> 每个工具调用都有完整的执行追踪（ExecutionStep），方便调试和审计；<strong>3)</strong> 错误处理不是简单粗暴地抛异常，而是返回结构化的错误信息给 LLM；<strong>4)</strong> tool_error_counts 机制防止某个"坏工具"无限拖垮整个任务。</p>
+      </div>
+    </article>
+
+    <!-- Card 8: Architecture Decision Guide -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon orange">&#9878;</div>
+        <div>
+          <div class="card-title">架构决策指南：在实践中做选择</div>
+          <div class="card-desc">面对不同场景时，如何进行合理的架构选择和权衡</div>
+        </div>
+      </div>
+
+      <h4>决策1：同步 vs 异步工具调用</h4>
+      <p>当一个步骤中需要调用多个相互独立的工具时（如同时查天气和查股票），你有两个选择：</p>
+      <ul>
+        <li><strong>同步顺序调用</strong>：简单可靠，但总耗时 = 每个工具耗时之和。适合工具少、对延迟不敏感的场景。</li>
+        <li><strong>异步并行调用</strong>：总耗时 = 最慢工具耗时。效率高，但增加编排复杂度。适合工具多、需要快速响应的场景。</li>
+      </ul>
+      <p><strong>建议</strong>：从同步开始，确认工具稳定后再引入并行。</p>
+
+      <h4>决策2：单模型 vs 多模型</h4>
+      <ul>
+        <li><strong>单模型方案</strong>：所有推理由一个 LLM 完成。架构简单，上下文一致性好。</li>
+        <li><strong>多模型方案</strong>：不同任务走不同模型。如用轻量模型做意图分类，用强模型做深度推理。成本和延迟更优，但增加协调复杂度。</li>
+      </ul>
+      <p><strong>建议</strong>：大部分场景下单模型已足够。只有当有明确的"轻任务-重任务"区分时，多模型才有意义。</p>
+
+      <h4>决策3：固定流程 vs 动态规划</h4>
+      <ul>
+        <li><strong>固定流程</strong>：预定义执行步骤和顺序（如 LangChain 的 Chain）。可控性强，适合标准化任务。</li>
+        <li><strong>动态规划</strong>：让 Agent 自主决定每一步做什么（如 ReAct 模式）。灵活性强，适合开放性任务。</li>
+      </ul>
+      <p><strong>建议</strong>：混合使用。将可预测的部分固定流程化，不可预测的部分交给 Agent 自主决策。</p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">架构设计的黄金法则</div>
+        <p><strong>"先让它工作，再让它优雅，最后让它快速"</strong>。面对架构选择时，优先选择最简单可行的方案。过早优化是 Agent 工程中的常见陷阱——你可能花了大量时间优化的并行调用，最终发现瓶颈在 LLM 推理延迟上。</p>
+      </div>
+    </article>
+
+    <!-- Chapter 2 Quiz -->
+    <div class="quiz-section" data-quiz="2">
+      <div class="quiz-title">章节测验</div>
+      <div class="quiz-desc">测试你对 Agent 核心架构的全面理解（共3题）</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. Agent 的核心执行循环的正确顺序是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 行动 -> 感知 -> 规划 -> 观察</button>
+        <button class="quiz-option" data-answer="1">B. 感知 -> 规划 -> 行动 -> 观察</button>
+        <button class="quiz-option" data-answer="2">C. 规划 -> 行动 -> 感知 -> 观察</button>
+        <button class="quiz-option" data-answer="3">D. 观察 -> 感知 -> 规划 -> 行动</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 上下文窗口的"中间丢失"（Lost in the Middle）现象是指什么？</div>
+        <button class="quiz-option" data-answer="0">A. 所有信息都丢失了</button>
+        <button class="quiz-option" data-answer="1">B. LLM 对上下文中间部分的信息注意力较弱，容易忽略关键信息</button>
+        <button class="quiz-option" data-answer="2">C. 网络连接中断</button>
+        <button class="quiz-option" data-answer="3">D. 数据库中的数据被删除</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 关于 Agent 架构的"关注点分离"原则，以下描述正确的是？</div>
+        <button class="quiz-option" data-answer="0">A. 所有功能都放在一个文件中，方便管理</button>
+        <button class="quiz-option" data-answer="1">B. 每一层只做自己的事，不跨层干涉，可以独立替换</button>
+        <button class="quiz-option" data-answer="2">C. 所有层级共享一个全局变量来通信</button>
+        <button class="quiz-option" data-answer="3">D. 不需要分层，扁平结构最好</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+  </section>
+
+  <!-- Page Navigation -->
+  <nav class="page-nav">
+    <a href="01-what-is-agent.html" class="page-nav-btn">
+      <span>&#8592; 上一章</span>
+      <span>第1章：什么是AI Agent</span>
+    </a>
+    <a href="03-tool-calling.html" class="page-nav-btn">
+      <span>下一章</span>
+      <span>第3章：工具调用机制 &#8594;</span>
+    </a>
+  </nav>
+
+</main>
+
+<!-- Agent Simulator Panel -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div class="sim-header-title"><span class="sim-status-dot"></span> Agent 模拟器</div>
+    <button class="sim-close" id="simClose">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">你好！我是一个模拟的 AI Agent。试试问我一些问题，观察我是如何<strong>思考-行动-观察</strong>的！</div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="sim-send-btn" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header"><span>我的笔记</span><button class="sim-close" id="notesClose">&#10005;</button></div>
+  <div class="notes-list" id="notesList"><div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第13章 构建第一个生产Agent — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+
+<!-- ============================================================
+     Top Navigation Bar
+     ============================================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)">🔍</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题">🌙</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度">🔄</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative;max-width:560px;margin:0 auto;">
+    <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (Esc 关闭)">
+    <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;" id="searchClose">✕</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================================
+     Sidebar Navigation
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">学习章节</div>
+  <a href="../chapters/01-what-is-agent.html" class="nav-link" data-chapter="1"><span class="nav-icon">1</span> 什么是AI Agent</a>
+  <a href="../chapters/02-core-architecture.html" class="nav-link" data-chapter="2"><span class="nav-icon">2</span> 核心架构</a>
+  <a href="../chapters/03-tool-calling.html" class="nav-link" data-chapter="3"><span class="nav-icon">3</span> 工具调用机制</a>
+  <a href="../chapters/04-memory-management.html" class="nav-link" data-chapter="4"><span class="nav-icon">4</span> 记忆与状态管理</a>
+  <a href="../chapters/05-reasoning-planning.html" class="nav-link" data-chapter="5"><span class="nav-icon">5</span> 推理与规划</a>
+  <a href="../chapters/06-multi-agent.html" class="nav-link" data-chapter="6"><span class="nav-icon">6</span> 多Agent系统</a>
+  <a href="../chapters/07-safety-reliability.html" class="nav-link" data-chapter="7"><span class="nav-icon">7</span> 安全与可靠性</a>
+  <a href="../chapters/08-prompt-engineering.html" class="nav-link" data-chapter="8"><span class="nav-icon">8</span> 提示词工程</a>
+  <a href="../chapters/09-agent-frameworks.html" class="nav-link" data-chapter="9"><span class="nav-icon">9</span> Agent 开发框架</a>
+  <a href="../chapters/10-evaluation-testing.html" class="nav-link" data-chapter="10"><span class="nav-icon">10</span> 评估与测试</a>
+  <a href="../chapters/11-deployment-ops.html" class="nav-link" data-chapter="11"><span class="nav-icon">11</span> 部署与运维</a>
+  <a href="../chapters/12-future-trends.html" class="nav-link" data-chapter="12"><span class="nav-icon">12</span> 未来趋势</a>
+  <a href="../chapters/13-build-first-agent.html" class="nav-link active" data-chapter="13"><span class="nav-icon">13</span> 构建第一个生产Agent</a>
+  <a href="../chapters/14-enterprise-integration.html" class="nav-link" data-chapter="14"><span class="nav-icon">14</span> 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="sidebar-section-title">学习进度</div>
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>整体进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     Main Content
+     ============================================================ -->
+<main class="main-content">
+
+  <section class="chapter" data-chapter="13" id="chapter13">
+
+    <header class="chapter-header">
+      <div class="chapter-number">第 13 章</div>
+      <h2 class="chapter-title">构建第一个生产Agent</h2>
+      <p class="chapter-subtitle">从零开始，用 Python 完整构建一个可运行的 AI Agent，涵盖环境搭建、工具定义、核心循环、流式输出和 CLI 部署</p>
+    </header>
+
+    <!-- Card 1: 环境准备 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">🛠️</div>
+        <div>
+          <div class="card-title">环境准备 — 5分钟快速搭建开发环境</div>
+        </div>
+      </div>
+      <p>在开始编写 Agent 代码之前，我们需要准备好开发环境。以下是完整的、可复现的环境搭建步骤：</p>
+
+      <h4>第一步：安装 Python 3.10+</h4>
+      <p>Agent 开发需要 Python 3.10 或更高版本（推荐 3.11+），因为我们需要使用 <code>TypeAlias</code>、<code>match-case</code> 等新特性，以及更好的类型提示支持。</p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Bash — 检查并安装 Python</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-cm"># 检查当前 Python 版本</span>
+python --version  <span class="token-cm"># 应输出 Python 3.10+</span>
+
+<span class="token-cm"># 如果版本过低，使用 pyenv 安装</span>
+<span class="token-cm"># macOS</span>
+brew install python@3.11
+
+<span class="token-cm"># Ubuntu/Debian</span>
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
+sudo apt install python3.11 python3.11-venv python3.11-dev -y
+
+<span class="token-cm"># Windows: 从 python.org 下载安装包</span>
+<span class="token-cm"># 安装时务必勾选 "Add Python to PATH"</span></code></pre>
+      </div>
+
+      <h4>第二步：创建虚拟环境</h4>
+      <p>永远在虚拟环境中开发——这不仅是 Python 最佳实践，对于 Agent 项目来说尤为重要，因为依赖关系复杂且版本敏感。</p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Bash — 创建并激活虚拟环境</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-cm"># 创建项目目录</span>
+mkdir my-first-agent && cd my-first-agent
+
+<span class="token-cm"># 创建虚拟环境</span>
+python -m venv .venv
+
+<span class="token-cm"># 激活虚拟环境</span>
+<span class="token-cm"># Linux/macOS:</span>
+source .venv/bin/activate
+<span class="token-cm"># Windows (PowerShell):</span>
+.venv\Scripts\Activate.ps1
+<span class="token-cm"># Windows (CMD):</span>
+.venv\Scripts\activate.bat
+
+<span class="token-cm"># 确认虚拟环境已激活（路径前应显示 (.venv)）</span>
+which python  <span class="token-cm"># 应指向 .venv/bin/python</span></code></pre>
+      </div>
+
+      <h4>第三步：安装依赖包</h4>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Bash — 安装核心依赖</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-cm"># 安装 Anthropic SDK（支持 Claude 系列模型）</span>
+pip install anthropic
+
+<span class="token-cm"># 安装 OpenAI SDK（支持 GPT 系列模型）</span>
+pip install openai
+
+<span class="token-cm"># 安装辅助工具</span>
+pip install python-dotenv  <span class="token-cm"># 管理环境变量</span>
+pip install rich            <span class="token-cm"># 彩色终端输出</span>
+
+<span class="token-cm"># 生成 requirements.txt</span>
+pip freeze > requirements.txt</code></pre>
+      </div>
+
+      <h4>第四步：配置 API 密钥</h4>
+      <p><strong>绝对不要</strong>将 API Key 硬编码在代码中。使用 <code>.env</code> 文件存储敏感信息：</p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">.env — 环境变量配置文件</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-cm"># .env 文件（不要提交到 Git！）</span>
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+OPENAI_API_KEY=sk-proj-your-key-here
+
+<span class="token-cm"># 模型配置</span>
+ANTHROPIC_DEFAULT_MODEL=claude-sonnet-4-20250514
+OPENAI_DEFAULT_MODEL=gpt-4.1</code></pre>
+      </div>
+
+      <h4>第五步：验证安装</h4>
+      <p>编写一个简单的测试脚本，确认一切就绪：</p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — test_setup.py 验证脚本</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> os
+<span class="token-kw">from</span> dotenv <span class="token-kw">import</span> load_dotenv
+<span class="token-kw">from</span> anthropic <span class="token-kw">import</span> Anthropic
+
+load_dotenv()
+
+client = Anthropic(api_key=os.getenv(<span class="token-str">"ANTHROPIC_API_KEY"</span>))
+
+<span class="token-kw">try</span>:
+    response = client.messages.create(
+        model=<span class="token-str">"claude-sonnet-4-20250514"</span>,
+        max_tokens=<span class="token-num">50</span>,
+        messages=[{<span class="token-str">"role"</span>: <span class="token-str">"user"</span>, <span class="token-str">"content"</span>: <span class="token-str">"Say hello in one word."</span>}]
+    )
+    <span class="token-builtin">print</span>(<span class="token-str">f"✅ 连接成功！模型回复: {response.content[0].text}"</span>)
+<span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+    <span class="token-builtin">print</span>(<span class="token-str">f"❌ 错误: {e}"</span>)
+    <span class="token-builtin">print</span>(<span class="token-str">"请检查: 1) .env文件是否存在 2) API Key是否有效 3) 网络是否能访问API"</span>)</code></pre>
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">环境检查清单</div>
+        <p>完成以上步骤后，你应该确认：Python 版本 >= 3.10、虚拟环境已激活、<code>pip list</code> 显示 anthropic 和 openai 已安装、<code>python test_setup.py</code> 输出 "连接成功"。如果任何一步出问题，回头检查对应的步骤。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: 项目结构设计 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">📁</div>
+        <div>
+          <div class="card-title">项目结构设计 — 可维护的 Agent 代码组织</div>
+        </div>
+      </div>
+      <p>一个单文件的 Agent 在原型阶段可行，但进入生产之前必须合理组织代码。以下是推荐的项目结构：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">目录树</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code>my-first-agent/
+├── .env                      <span class="token-cm"># 环境变量（不提交到Git）</span>
+├── .env.example              <span class="token-cm"># 环境变量模板（提交到Git）</span>
+├── .gitignore                <span class="token-cm"># Git忽略规则</span>
+├── requirements.txt          <span class="token-cm"># Python依赖列表</span>
+├── README.md                 <span class="token-cm"># 项目说明</span>
+│
+├── agent/                    <span class="token-cm"># 核心Agent模块</span>
+│   ├── __init__.py
+│   ├── agent.py              <span class="token-cm"># Agent主类：核心循环逻辑</span>
+│   ├── tools.py              <span class="token-cm"># 工具定义：所有工具的JSON Schema和实现</span>
+│   ├── prompts.py            <span class="token-cm"># 系统提示词：各场景的提示词模板</span>
+│   └── config.py             <span class="token-cm"># 配置：从.env加载配置项</span>
+│
+├── cli.py                    <span class="token-cm"># 命令行入口</span>
+├── tests/                    <span class="token-cm"># 测试目录</span>
+│   ├── __init__.py
+│   ├── test_agent.py         <span class="token-cm"># Agent核心逻辑测试</span>
+│   └── test_tools.py         <span class="token-cm"># 工具函数单元测试</span>
+│
+└── logs/                     <span class="token-cm"># 日志目录（运行时不提交）</span>
+    └── agent.log</code></pre>
+      </div>
+
+      <p>各模块的职责划分：</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>职责</th>
+              <th>关键原则</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>agent.py</strong></td>
+              <td>Agent 主循环：接收用户消息 → 调用LLM → 执行工具 → 返回结果</td>
+              <td>不包含工具实现细节；不包含特定领域的业务逻辑</td>
+            </tr>
+            <tr>
+              <td><strong>tools.py</strong></td>
+              <td>所有工具函数的实现 + JSON Schema 定义</td>
+              <td>每个工具是纯函数（输入→输出）；不依赖 Agent 状态</td>
+            </tr>
+            <tr>
+              <td><strong>prompts.py</strong></td>
+              <td>系统提示词模板、few-shot 示例、角色定义</td>
+              <td>提示词与代码分离；支持模板变量替换</td>
+            </tr>
+            <tr>
+              <td><strong>config.py</strong></td>
+              <td>统一管理所有配置项（API Key、模型名、超时时间等）</td>
+              <td>提供默认值；支持环境变量覆盖；类型安全</td>
+            </tr>
+            <tr>
+              <td><strong>cli.py</strong></td>
+              <td>命令行接口：参数解析、交互模式、单次查询模式</td>
+              <td>轻量入口；不包含业务逻辑</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">为什么这样划分？</div>
+        <p>这种模块划分遵循<strong>单一职责原则 (SRP)</strong>——每个模块只有一个明确的职责。当你的工具从3个增长到30个，或需要支持不同模型的 API 时，这种结构让修改只影响局部，不会牵一发而动全身。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: 定义Agent的工具 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">🔧</div>
+        <div>
+          <div class="card-title">定义Agent的工具 — 从函数到JSON Schema</div>
+        </div>
+      </div>
+      <p>工具是 Agent 的"双手"——让 Agent 能够执行实际操作而不仅仅是生成文本。我们将定义三个实用的工具：</p>
+
+      <h4>工具1: get_current_time() — 获取当前时间</h4>
+      <p>看似简单，但这是 Agent 最常需要的基础能力——没有它，Agent 无法回答"现在是几点"这样的问题，因为 LLM 的训练数据有时间截止。</p>
+
+      <h4>工具2: calculate(expression) — 安全地执行数学计算</h4>
+      <p>LLM 擅长推理但不擅长精确计算。给 Agent 一个计算器，它会大幅提升处理数值问题的准确性。</p>
+
+      <h4>工具3: search_web(query) — 搜索最新信息</h4>
+      <p>让 Agent 能够获取训练数据之外的最新信息，突破知识截止日期的限制。</p>
+
+      <p>以下是完整的工具实现代码：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — agent/tools.py 完整实现</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""Agent 工具定义模块
+
+每个工具包含两部分:
+1. JSON Schema 定义 — 供 LLM 理解工具的用途和参数
+2. Python 函数实现 — 实际执行的逻辑
+
+关键原则:
+- 函数签名必须与 Schema 中定义的参数一致
+- 每个工具返回字符串或可序列化的数据结构
+- 工具必须是幂等的（多次调用结果一致，无副作用）
+- 工具内部必须做好异常处理，不要让异常传播到 Agent 循环
+"""</span>
+
+<span class="token-kw">import</span> json
+<span class="token-kw">import</span> math
+<span class="token-kw">from</span> datetime <span class="token-kw">import</span> datetime, timezone
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Dict
+
+<span class="token-cm"># ============================================================
+<span class="token-cm"># 工具JSON Schema定义
+# 好的Schema描述应当:
+# 1. 用自然语言清晰描述工具的功能
+# 2. 说明每个参数的类型、含义和使用场景
+# 3. 给出参数的约束条件（required、enum、minimum/maximum）
+# ============================================================</span>
+
+TOOL_SCHEMAS = [
+    {
+        <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+        <span class="token-str">"function"</span>: {
+            <span class="token-str">"name"</span>: <span class="token-str">"get_current_time"</span>,
+            <span class="token-str">"description"</span>: <span class="token-str">"获取当前的日期和时间，包括时区信息。用于回答关于当前时间、日期、星期几的问题。不需要任何参数。"</span>,
+            <span class="token-str">"parameters"</span>: {
+                <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                <span class="token-str">"properties"</span>: {},
+                <span class="token-str">"required"</span>: []
+            }
+        }
+    },
+    {
+        <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+        <span class="token-str">"function"</span>: {
+            <span class="token-str">"name"</span>: <span class="token-str">"calculate"</span>,
+            <span class="token-str">"description"</span>: <span class="token-str">"安全地计算数学表达式。支持四则运算、乘方、三角函数、对数等。当你需要进行精确的数学计算时使用此工具，而不是心算。"</span>,
+            <span class="token-str">"parameters"</span>: {
+                <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                <span class="token-str">"properties"</span>: {
+                    <span class="token-str">"expression"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"要计算的数学表达式字符串，例如 '2 + 3 * 4' 或 'sqrt(16) + sin(pi/2)'"</span>
+                    }
+                },
+                <span class="token-str">"required"</span>: [<span class="token-str">"expression"</span>]
+            }
+        }
+    },
+    {
+        <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+        <span class="token-str">"function"</span>: {
+            <span class="token-str">"name"</span>: <span class="token-str">"search_web"</span>,
+            <span class="token-str">"description"</span>: <span class="token-str">"搜索互联网获取最新信息。当用户询问的信息超出你的知识截止日期，或需要实时数据时使用。"</span>,
+            <span class="token-str">"parameters"</span>: {
+                <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                <span class="token-str">"properties"</span>: {
+                    <span class="token-str">"query"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"搜索关键词，越具体越好。例如 '2026年诺贝尔文学奖得主' 而不是 '诺贝尔奖'"</span>
+                    }
+                },
+                <span class="token-str">"required"</span>: [<span class="token-str">"query"</span>]
+            }
+        }
+    }
+]
+
+<span class="token-cm"># ============================================================
+# 工具函数实现
+# ============================================================</span>
+
+<span class="token-kw">def</span> <span class="token-fn">get_current_time</span>() -> <span class="token-cls">str</span>:
+    <span class="token-str">"""获取当前日期和时间"""</span>
+    <span class="token-kw">try</span>:
+        now = datetime.now(timezone.utc)
+        beijing_now = now.replace(tzinfo=timezone.utc).astimezone(
+            timezone(datetime.strptime(<span class="token-str">"+08:00"</span>, <span class="token-str">"%z"</span>).utcoffset(<span class="token-num">None</span>))
+        )
+        <span class="token-cm"># 使用更简单的方式获取北京时间</span>
+        <span class="token-kw">from</span> datetime <span class="token-kw">import</span> timedelta
+        beijing_tz = timezone(timedelta(hours=<span class="token-num">8</span>))
+        beijing_now = now.astimezone(beijing_tz)
+
+        <span class="token-kw">return</span> json.dumps({
+            <span class="token-str">"utc_time"</span>: now.strftime(<span class="token-str">"%Y-%m-%d %H:%M:%S UTC"</span>),
+            <span class="token-str">"beijing_time"</span>: beijing_now.strftime(<span class="token-str">"%Y-%m-%d %H:%M:%S CST"</span>),
+            <span class="token-str">"weekday"</span>: beijing_now.strftime(<span class="token-str">"%A"</span>),
+            <span class="token-str">"timestamp"</span>: now.timestamp()
+        }, ensure_ascii=<span class="token-num">False</span>)
+    <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+        <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">f"获取时间失败: {e}"</span>}, ensure_ascii=<span class="token-num">False</span>)
+
+
+<span class="token-kw">def</span> <span class="token-fn">calculate</span>(expression: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+    <span class="token-str">"""安全地计算数学表达式
+
+    安全性说明:
+    - 使用白名单机制，只允许数学相关的函数和常量
+    - 不能访问内置函数、模块导入、文件系统
+    - 表达式超过1000字符时拒绝执行（防止注入攻击）
+    """</span>
+    <span class="token-kw">try</span>:
+        <span class="token-cm"># 长度限制</span>
+        <span class="token-kw">if</span> <span class="token-builtin">len</span>(expression) > <span class="token-num">1000</span>:
+            <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">"表达式过长，拒绝执行"</span>}, ensure_ascii=<span class="token-num">False</span>)
+
+        <span class="token-cm"># 构建安全的执行环境（白名单）</span>
+        safe_names = {
+            <span class="token-str">"abs"</span>: <span class="token-builtin">abs</span>, <span class="token-str">"round"</span>: <span class="token-builtin">round</span>,
+            <span class="token-str">"min"</span>: <span class="token-builtin">min</span>, <span class="token-str">"max"</span>: <span class="token-builtin">max</span>,
+            <span class="token-str">"sum"</span>: <span class="token-builtin">sum</span>,
+            <span class="token-str">"sqrt"</span>: math.sqrt, <span class="token-str">"pow"</span>: math.pow,
+            <span class="token-str">"sin"</span>: math.sin, <span class="token-str">"cos"</span>: math.cos,
+            <span class="token-str">"tan"</span>: math.tan, <span class="token-str">"log"</span>: math.log,
+            <span class="token-str">"log10"</span>: math.log10, <span class="token-str">"log2"</span>: math.log2,
+            <span class="token-str">"exp"</span>: math.exp,
+            <span class="token-str">"pi"</span>: math.pi, <span class="token-str">"e"</span>: math.e,
+            <span class="token-str">"degrees"</span>: math.degrees, <span class="token-str">"radians"</span>: math.radians,
+            <span class="token-str">"ceil"</span>: math.ceil, <span class="token-str">"floor"</span>: math.floor,
+        }
+
+        <span class="token-cm"># 使用 eval 但限制命名空间</span>
+        result = <span class="token-builtin">eval</span>(expression, {<span class="token-str">"__builtins__"</span>: {}}, safe_names)
+
+        <span class="token-kw">return</span> json.dumps({
+            <span class="token-str">"expression"</span>: expression,
+            <span class="token-str">"result"</span>: result
+        }, ensure_ascii=<span class="token-num">False</span>)
+    <span class="token-kw">except</span> <span class="token-cls">SyntaxError</span> <span class="token-kw">as</span> e:
+        <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">f"表达式语法错误: {e}"</span>}, ensure_ascii=<span class="token-num">False</span>)
+    <span class="token-kw">except</span> <span class="token-cls">ZeroDivisionError</span>:
+        <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">"除数不能为零"</span>}, ensure_ascii=<span class="token-num">False</span>)
+    <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+        <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">f"计算失败: {e}"</span>}, ensure_ascii=<span class="token-num">False</span>)
+
+
+<span class="token-kw">def</span> <span class="token-fn">search_web</span>(query: <span class="token-cls">str</span>) -> <span class="token-cls">str</span>:
+    <span class="token-str">"""搜索互联网获取信息
+
+    在生产环境中，这里应该调用真实的搜索API（如 Tavily、Brave Search、
+    Google Custom Search 等）。为保持演示代码的可运行性，这里返回模拟结果。
+
+    实际集成搜索API的代码示例:
+    ```
+    import requests
+    response = requests.post(
+        "https://api.tavily.com/search",
+        json={"api_key": TAVILY_API_KEY, "query": query, "search_depth": "basic"}
+    )
+    results = response.json()["results"]
+    ```
+    """</span>
+    <span class="token-kw">try</span>:
+        <span class="token-kw">if</span> <span class="token-kw">not</span> query.strip():
+            <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">"搜索关键词不能为空"</span>}, ensure_ascii=<span class="token-num">False</span>)
+
+        <span class="token-cm"># 模拟搜索 — 生产环境替换为真实API调用</span>
+        <span class="token-kw">return</span> json.dumps({
+            <span class="token-str">"query"</span>: query,
+            <span class="token-str">"results"</span>: [
+                {
+                    <span class="token-str">"title"</span>: <span class="token-str">f"关于'{query}'的搜索结果"</span>,
+                    <span class="token-str">"snippet"</span>: <span class="token-str">f"这是一个模拟的搜索结果，与'{query}'相关。在生产环境中，这里将返回来自搜索API的真实数据。"</span>,
+                    <span class="token-str">"url"</span>: <span class="token-str">f"https://example.com/search?q={query}"</span>
+                }
+            ],
+            <span class="token-str">"_note"</span>: <span class="token-str">"模拟数据 — 生产环境需集成真实搜索API"</span>
+        }, ensure_ascii=<span class="token-num">False</span>)
+    <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+        <span class="token-kw">return</span> json.dumps({<span class="token-str">"error"</span>: <span class="token-str">f"搜索失败: {e}"</span>}, ensure_ascii=<span class="token-num">False</span>)
+
+
+<span class="token-cm"># 工具执行调度映射</span>
+<span class="token-cm"># Agent核心循环通过这个字典找到对应的Python函数</span>
+TOOL_EXECUTORS: <span class="token-cls">Dict</span>[<span class="token-cls">str</span>, callable] = {
+    <span class="token-str">"get_current_time"</span>: get_current_time,
+    <span class="token-str">"calculate"</span>: calculate,
+    <span class="token-str">"search_web"</span>: search_web,
+}</code></pre>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">如何写出好的工具描述 (Tool Description)?</div>
+        <p>工具描述是 LLM 决定是否调用某个工具的唯一依据。好的描述应该：<strong>(1) 说明工具做什么</strong>——用一句清晰的话概括功能；<strong>(2) 说明何时使用</strong>——给出使用场景示例；<strong>(3) 说明参数含义</strong>——每个参数要解释其作用和格式；<strong>(4) 不要过度描述</strong>——描述越长越容易被模型忽略关键信息，保持50-150字最佳。</p>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">常见错误：工具 Schema 定义不合格</div>
+        <p>以下是一个<strong>糟糕的</strong>工具定义（不要这样做）：</p>
+        <pre style="background:var(--bg-tertiary);padding:12px;border-radius:8px;font-size:13px;overflow-x:auto;"><code>{
+  "name": "calc",
+  "description": "计算一些东西",
+  "parameters": {"type": "object", "properties": {"x": {"type": "string"}}}
+}</code></pre>
+        <p>问题：名称不直观、描述过于模糊、参数命名无意义、缺少 required 字段、缺少类型说明。这种定义会让 LLM 困惑——它不知道该在什么时候调用这个工具，以及应该传什么参数。</p>
+      </div>
+    </div>
+
+    <!-- Card 4: 编写系统提示词 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">📝</div>
+        <div>
+          <div class="card-title">编写系统提示词 — Agent的"灵魂"</div>
+        </div>
+      </div>
+      <p>系统提示词定义了 Agent 的身份、能力和行为边界。一个优秀的系统提示词是 Agent 表现好坏的决定性因素之一。下面是我们的 Agent 的系统提示词及逐段解析：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — agent/prompts.py 系统提示词</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""系统提示词定义"""</span>
+
+SYSTEM_PROMPT = <span class="token-str">"""你是一个智能AI助手，名为 "Agent-13"。
+
+## 你的角色
+你是一个乐于助人、精确且诚实的助手。你的目标是尽最大努力理解用户的需求，
+并提供准确、有用的帮助。你对能力范围内的问题给出详尽回答，对不确定的
+问题明确告知你的局限。
+
+## 核心行为准则
+1. **准确性优先**：当进行数学计算时，必须使用 calculate 工具而非心算。
+2. **时间感知**：当用户询问时间、日期时，使用 get_current_time 工具。
+3. **信息时效**：当问题涉及最新资讯时，使用 search_web 工具获取信息。
+4. **诚实透明**：当你不知道答案或不确定时，直接告知用户，不要编造。
+5. **逐步推理**：对于复杂问题，先思考再行动。解释你的推理过程。
+6. **安全边界**：拒绝执行任何恶意代码、生成有害内容或侵犯隐私的请求。
+
+## 工具使用指南
+你可以使用以下工具来扩展你的能力：
+- `get_current_time`: 获取当前时间，无需参数
+- `calculate`: 安全计算数学表达式，参数 expression
+- `search_web`: 搜索网络信息，参数 query
+
+**何时使用工具**：
+- 需要精确计算 → calculate
+- 需要当前时间 → get_current_time
+- 需要最新信息 → search_web
+- 所有你知识范围外的操作 → 对应的工具
+
+**工具使用原则**：
+- 一次只调用一个工具（除非多个工具之间无依赖关系）
+- 工具返回结果后，基于结果生成最终回答
+- 如果工具返回错误，尝试分析原因并给用户有用的建议
+
+## 输出格式
+- 使用清晰的结构（段落、列表、标题等）组织信息
+- 代码用 Markdown 代码块包裹，并标注语言
+- 当引用工具返回的数据时，注明数据来源
+- 保持友好但不啰嗦的语气
+
+## 示例交互
+
+用户: 现在是几点？
+助手: [调用 get_current_time 工具]
+      [基于工具返回] 现在是北京时间 2026年5月10日 14:30:00，星期日。
+
+用户: 计算 (456 + 789) * 23 / 2
+助手: [调用 calculate 工具，传入表达式 "(456 + 789) * 23 / 2"]
+      [基于工具返回] 计算结果为 14317.5。计算过程：(456+789)=1245,
+      1245×23=28635, 28635÷2=14317.5
+
+用户: 你好！请介绍下你自己。
+助手: 你好！我是 Agent-13，一个智能AI助手。我可以帮你进行计算、
+      查询时间、搜索信息等任务。有什么我可以帮你的吗？
+"""</span></code></pre>
+      </div>
+
+      <h4>系统提示词的关键组成部分分析</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>组成部分</th>
+              <th>作用</th>
+              <th>设计要点</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>角色定义</strong></td>
+              <td>设定Agent的"人格"和定位</td>
+              <td>简洁明确，不要太长；明确Agent的职责范围</td>
+            </tr>
+            <tr>
+              <td><strong>行为准则</strong></td>
+              <td>规定Agent的基本原则</td>
+              <td>用数字编号，每条一条规则；正面描述（做什么）优于负面描述（不做什么）</td>
+            </tr>
+            <tr>
+              <td><strong>工具使用指南</strong></td>
+              <td>教会Agent何时和如何使用工具</td>
+              <td>给出具体的触发条件；明确"何时使用" vs "何时不用"</td>
+            </tr>
+            <tr>
+              <td><strong>输出格式</strong></td>
+              <td>控制Agent的输出风格</td>
+              <td>具体（"用Markdown代码块"）优于抽象（"输出美观"）</td>
+            </tr>
+            <tr>
+              <td><strong>示例交互</strong></td>
+              <td>通过Few-shot引导Agent行为</td>
+              <td>覆盖主要的使用场景；示例要真实、自然</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">提示词迭代策略</div>
+        <p>不要期望一次写出完美的系统提示词。推荐的迭代流程：<strong>写出初版 → 测试10个典型用例 → 记录失败案例 → 分析失败原因（工具未调用？调用了错误的工具？回复格式不对？）→ 针对性修改提示词 → 再测试</strong>。通常3-5轮迭代后提示词趋于稳定。</p>
+      </div>
+    </div>
+
+    <!-- Card 5: 实现Agent核心循环 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue">🔄</div>
+        <div>
+          <div class="card-title">实现Agent核心循环 — Think → Act → Observe</div>
+        </div>
+      </div>
+      <p>这是整个 Agent 的心脏——核心循环 (Core Loop)。它的设计直接决定了 Agent 的智能程度和稳定性。以下代码展示了最经典的 <strong>ReAct 循环</strong>（Reasoning + Acting）的完整实现：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — agent/agent.py 核心Agent类（约100行）</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""Agent 核心循环模块
+
+实现基于 Anthropic SDK 的 Agent 主循环。
+循环模式: 接收用户输入 → 调用LLM → [工具调用?] → 执行工具
+→ 将结果返回LLM → 生成最终回复 → 返回给用户
+"""</span>
+
+<span class="token-kw">import</span> json
+<span class="token-kw">import</span> logging
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any, Callable, Dict, List, Optional
+
+<span class="token-kw">from</span> anthropic <span class="token-kw">import</span> Anthropic
+<span class="token-kw">from</span> anthropic.types <span class="token-kw">import</span> Message, MessageParam, ToolUseBlock
+
+<span class="token-kw">from</span> .config <span class="token-kw">import</span> settings
+<span class="token-kw">from</span> .prompts <span class="token-kw">import</span> SYSTEM_PROMPT
+<span class="token-kw">from</span> .tools <span class="token-kw">import</span> TOOL_EXECUTORS, TOOL_SCHEMAS
+
+logger = logging.getLogger(<span class="token-str">"agent"</span>)
+
+
+<span class="token-kw">class</span> <span class="token-cls">AgentError</span>(<span class="token-cls">Exception</span>):
+    <span class="token-str">"""Agent运行时的自定义异常"""</span>
+    <span class="token-kw">pass</span>
+
+
+<span class="token-kw">class</span> <span class="token-cls">Agent</span>:
+    <span class="token-str">"""智能Agent主类
+
+    职责:
+    - 管理与LLM的交互
+    - 处理工具调用的完整生命周期
+    - 维护对话历史和消息管理
+    - 实现安全防护（步数限制、令牌限制）
+
+    使用示例:
+        agent = Agent()
+        response = agent.run("帮我计算 123 * 456")
+        print(response)
+
+        # 使用流式输出
+        async for chunk in agent.run_stream("现在几点了"):
+            print(chunk, end="", flush=True)
+    """</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(
+        <span class="token-kw">self</span>,
+        model: <span class="token-cls">Optional</span>[<span class="token-cls">str</span>] = <span class="token-num">None</span>,
+        max_steps: <span class="token-cls">int</span> = <span class="token-num">10</span>,
+        verbose: <span class="token-cls">bool</span> = <span class="token-num">False</span>,
+    ):
+        <span class="token-str">"""初始化Agent
+
+        Args:
+            model: 使用的模型名称，默认从config读取
+            max_steps: 最大工具调用步数，防止无限循环
+            verbose: 是否输出详细日志（调试时开启）
+        """</span>
+        <span class="token-kw">self</span>.client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        <span class="token-kw">self</span>.model = model <span class="token-kw">or</span> settings.DEFAULT_MODEL
+        <span class="token-kw">self</span>.max_steps = max_steps
+        <span class="token-kw">self</span>.verbose = verbose
+        <span class="token-kw">self</span>.system_prompt = SYSTEM_PROMPT
+
+        <span class="token-cm"># 对话历史</span>
+        <span class="token-kw">self</span>.messages: <span class="token-cls">List</span>[<span class="token-cls">MessageParam</span>] = []
+
+        <span class="token-cm"># 统计信息</span>
+        <span class="token-kw">self</span>.total_tool_calls = <span class="token-num">0</span>
+        <span class="token-kw">self</span>.total_tokens_used = <span class="token-num">0</span>
+
+        <span class="token-kw">if</span> <span class="token-kw">self</span>.verbose:
+            logger.info(<span class="token-str">f"Agent 初始化完成 | 模型: {self.model} | 最大步数: {max_steps}"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">run</span>(<span class="token-kw">self</span>, user_input: <span class="token-cls">str</span>, reset_history: <span class="token-cls">bool</span> = <span class="token-num">False</span>) -> <span class="token-cls">str</span>:
+        <span class="token-str">"""执行Agent的主循环
+
+        Args:
+            user_input: 用户的消息
+            reset_history: 是否重置对话历史（新会话时设为True）
+
+        Returns:
+            Agent的文本回复
+
+        Raises:
+            AgentError: 当循环超过最大步数或其他异常时
+        """</span>
+        <span class="token-kw">if</span> reset_history:
+            <span class="token-kw">self</span>.messages = []
+
+        <span class="token-cm"># 添加用户消息到历史</span>
+        <span class="token-kw">self</span>.messages.append({
+            <span class="token-str">"role"</span>: <span class="token-str">"user"</span>,
+            <span class="token-str">"content"</span>: user_input
+        })
+
+        <span class="token-kw">for</span> step <span class="token-kw">in</span> <span class="token-builtin">range</span>(<span class="token-kw">self</span>.max_steps):
+            <span class="token-kw">if</span> <span class="token-kw">self</span>.verbose:
+                logger.info(<span class="token-str">f"--- 步骤 {step + 1}/{self.max_steps} ---"</span>)
+
+            <span class="token-cm"># 调用LLM — 这是"Think"阶段</span>
+            response = <span class="token-kw">self</span>.client.messages.create(
+                model=<span class="token-kw">self</span>.model,
+                max_tokens=<span class="token-num">4096</span>,
+                system=<span class="token-kw">self</span>.system_prompt,
+                tools=<span class="token-cls">TOOL_SCHEMAS</span>,
+                messages=<span class="token-kw">self</span>.messages
+            )
+
+            <span class="token-cm"># 更新令牌统计</span>
+            <span class="token-kw">self</span>.total_tokens_used += response.usage.input_tokens + response.usage.output_tokens
+
+            <span class="token-cm"># 检查LLM是否要调用工具</span>
+            tool_use_blocks = [
+                block <span class="token-kw">for</span> block <span class="token-kw">in</span> response.content
+                <span class="token-kw">if</span> block.type == <span class="token-str">"tool_use"</span>
+            ]
+
+            <span class="token-kw">if</span> <span class="token-kw">not</span> tool_use_blocks:
+                <span class="token-cm"># 没有工具调用 -> LLM已经生成了最终答案</span>
+                text_blocks = [
+                    block.text <span class="token-kw">for</span> block <span class="token-kw">in</span> response.content
+                    <span class="token-kw">if</span> block.type == <span class="token-str">"text"</span>
+                ]
+                final_answer = <span class="token-str">""</span>.join(text_blocks)
+
+                <span class="token-cm"># 将助手消息加入历史</span>
+                <span class="token-kw">self</span>.messages.append({
+                    <span class="token-str">"role"</span>: <span class="token-str">"assistant"</span>,
+                    <span class="token-str">"content"</span>: final_answer
+                })
+
+                <span class="token-kw">if</span> <span class="token-kw">self</span>.verbose:
+                    logger.info(<span class="token-str">f"Agent完成 | 步骤: {step+1} | 令牌: {self.total_tokens_used}"</span>)
+
+                <span class="token-kw">return</span> final_answer
+
+            <span class="token-cm"># 处理工具调用 — 这是"Act"和"Observe"阶段</span>
+            tool_results = <span class="token-kw">self</span>.<span class="token-fn">_execute_tools</span>(tool_use_blocks)
+
+            <span class="token-cm"># 将工具调用和结果加入对话历史</span>
+            assistant_content = []
+            <span class="token-kw">for</span> block <span class="token-kw">in</span> response.content:
+                <span class="token-kw">if</span> block.type == <span class="token-str">"text"</span>:
+                    assistant_content.append({<span class="token-str">"type"</span>: <span class="token-str">"text"</span>, <span class="token-str">"text"</span>: block.text})
+                <span class="token-kw">elif</span> block.type == <span class="token-str">"tool_use"</span>:
+                    assistant_content.append({
+                        <span class="token-str">"type"</span>: <span class="token-str">"tool_use"</span>,
+                        <span class="token-str">"id"</span>: block.id,
+                        <span class="token-str">"name"</span>: block.name,
+                        <span class="token-str">"input"</span>: block.input
+                    })
+
+            <span class="token-kw">self</span>.messages.append({
+                <span class="token-str">"role"</span>: <span class="token-str">"assistant"</span>,
+                <span class="token-str">"content"</span>: assistant_content
+            })
+
+            <span class="token-cm"># 添加工具执行结果</span>
+            <span class="token-kw">self</span>.messages.append({
+                <span class="token-str">"role"</span>: <span class="token-str">"user"</span>,
+                <span class="token-str">"content"</span>: tool_results
+            })
+
+        <span class="token-cm"># 超过最大步数</span>
+        <span class="token-kw">raise</span> <span class="token-cls">AgentError</span>(
+            <span class="token-str">f"Agent在{self.max_steps}步内未能完成任务。"
+            f"考虑增加max_steps或检查工具是否有循环调用。"</span>
+        )
+
+    <span class="token-kw">def</span> <span class="token-fn">_execute_tools</span>(<span class="token-kw">self</span>, tool_use_blocks: <span class="token-cls">List</span>[<span class="token-cls">ToolUseBlock</span>]) -> <span class="token-cls">List</span>[<span class="token-cls">Dict</span>]:
+        <span class="token-str">"""执行LLM请求的工具调用"""</span>
+        results = []
+
+        <span class="token-kw">for</span> block <span class="token-kw">in</span> tool_use_blocks:
+            tool_name = block.name
+            tool_input = block.input
+            <span class="token-kw">self</span>.total_tool_calls += <span class="token-num">1</span>
+
+            <span class="token-kw">if</span> <span class="token-kw">self</span>.verbose:
+                logger.info(<span class="token-str">f"调用工具: {tool_name}({json.dumps(tool_input, ensure_ascii=False)})"</span>)
+
+            <span class="token-cm"># 查找并执行工具函数</span>
+            executor = <span class="token-cls">TOOL_EXECUTORS</span>.get(tool_name)
+            <span class="token-kw">if</span> executor <span class="token-kw">is</span> <span class="token-num">None</span>:
+                result = json.dumps({<span class="token-str">"error"</span>: <span class="token-str">f"未知工具: {tool_name}"</span>}, ensure_ascii=<span class="token-num">False</span>)
+            <span class="token-kw">else</span>:
+                <span class="token-kw">try</span>:
+                    result = executor(**tool_input) <span class="token-kw">if</span> tool_input <span class="token-kw">else</span> executor()
+                <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+                    result = json.dumps({<span class="token-str">"error"</span>: <span class="token-str">f"工具执行异常: {e}"</span>}, ensure_ascii=<span class="token-num">False</span>)
+                    logger.error(<span class="token-str">f"工具 {tool_name} 执行失败: {e}"</span>, exc_info=<span class="token-num">True</span>)
+
+            results.append({
+                <span class="token-str">"type"</span>: <span class="token-str">"tool_result"</span>,
+                <span class="token-str">"tool_use_id"</span>: block.id,
+                <span class="token-str">"content"</span>: result
+            })
+
+        <span class="token-kw">return</span> results
+
+    <span class="token-kw">def</span> <span class="token-fn">clear_history</span>(<span class="token-kw">self</span>):
+        <span class="token-str">"""清空对话历史，开始新会话"""</span>
+        <span class="token-kw">self</span>.messages = []
+        <span class="token-kw">self</span>.total_tool_calls = <span class="token-num">0</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">get_stats</span>(<span class="token-kw">self</span>) -> <span class="token-cls">Dict</span>[<span class="token-cls">str</span>, <span class="token-cls">Any</span>]:
+        <span class="token-str">"""获取Agent的运行统计"""</span>
+        <span class="token-kw">return</span> {
+            <span class="token-str">"model"</span>: <span class="token-kw">self</span>.model,
+            <span class="token-str">"total_tool_calls"</span>: <span class="token-kw">self</span>.total_tool_calls,
+            <span class="token-str">"total_tokens_used"</span>: <span class="token-kw">self</span>.total_tokens_used,
+            <span class="token-str">"messages_in_history"</span>: <span class="token-builtin">len</span>(<span class="token-kw">self</span>.messages),
+            <span class="token-str">"max_steps"</span>: <span class="token-kw">self</span>.max_steps,
+        }</code></pre>
+      </div>
+
+      <h4>核心循环的设计要点</h4>
+      <ul>
+        <li><strong>max_steps 安全阀</strong>：防止 Agent 陷入无限循环（如工具返回异常导致 LLM 反复重试）。10步对于大多数场景足够，复杂任务可调整到20-30步。</li>
+        <li><strong>消息历史的正确维护</strong>：每次 LLM 调用后，必须将 assistant 消息（包含 tool_use blocks）和 tool_result 消息都加入历史。这是 Anthropic API 的规范要求，消息顺序错误会导致 API 报错。</li>
+        <li><strong>异常隔离</strong>：工具执行中的异常不会传播到 Agent 循环——捕获后作为错误结果返回给 LLM，让 LLM 自行判断如何向用户解释。</li>
+        <li><strong>统计信息</strong>：记录工具调用次数和令牌消耗，方便监控和成本分析。</li>
+      </ul>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">常见陷阱：消息格式错误</div>
+        <p>Anthropic API 对消息格式有严格要求：<strong>tool_use 和 tool_result 必须成对出现，且 tool_result 后面必须跟 user 消息</strong>。如果消息序列格式不对，API会返回400错误。开发时开启 verbose=True 可以帮你排查这类问题。</p>
+      </div>
+    </div>
+
+    <!-- Card 6: 配置管理 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">⚙️</div>
+        <div>
+          <div class="card-title">配置管理 — 类型安全的配置加载</div>
+        </div>
+      </div>
+      <p>将配置项集中管理，避免 API Key、模型名等散落在代码各处：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — agent/config.py 配置模块</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""配置管理模块
+
+所有配置项统一加载，提供默认值和类型验证。
+使用 pydantic-settings 的简化版——直接用 os.getenv + 默认值。
+"""</span>
+
+<span class="token-kw">import</span> os
+<span class="token-kw">from</span> dataclasses <span class="token-kw">import</span> dataclass
+<span class="token-kw">from</span> dotenv <span class="token-kw">import</span> load_dotenv
+
+<span class="token-cm"># 在模块加载时读取.env文件</span>
+load_dotenv()
+
+
+<span class="token-decorator">@dataclass</span>
+<span class="token-kw">class</span> <span class="token-cls">Settings</span>:
+    <span class="token-str">"""应用配置"""</span>
+
+    <span class="token-cm"># API Keys</span>
+    ANTHROPIC_API_KEY: <span class="token-cls">str</span> = os.getenv(<span class="token-str">"ANTHROPIC_API_KEY"</span>, <span class="token-str">""</span>)
+    OPENAI_API_KEY: <span class="token-cls">str</span> = os.getenv(<span class="token-str">"OPENAI_API_KEY"</span>, <span class="token-str">""</span>)
+
+    <span class="token-cm"># 模型配置</span>
+    DEFAULT_MODEL: <span class="token-cls">str</span> = os.getenv(
+        <span class="token-str">"ANTHROPIC_DEFAULT_MODEL"</span>,
+        <span class="token-str">"claude-sonnet-4-20250514"</span>
+    )
+
+    <span class="token-cm"># Agent配置</span>
+    MAX_STEPS: <span class="token-cls">int</span> = <span class="token-builtin">int</span>(os.getenv(<span class="token-str">"AGENT_MAX_STEPS"</span>, <span class="token-str">"10"</span>))
+    MAX_TOKENS: <span class="token-cls">int</span> = <span class="token-builtin">int</span>(os.getenv(<span class="token-str">"AGENT_MAX_TOKENS"</span>, <span class="token-str">"4096"</span>))
+
+    <span class="token-cm"># 日志</span>
+    LOG_LEVEL: <span class="token-cls">str</span> = os.getenv(<span class="token-str">"LOG_LEVEL"</span>, <span class="token-str">"INFO"</span>)
+    VERBOSE: <span class="token-cls">bool</span> = os.getenv(<span class="token-str">"AGENT_VERBOSE"</span>, <span class="token-str">"false"</span>).lower() == <span class="token-str">"true"</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">validate</span>(<span class="token-kw">self</span>):
+        <span class="token-str">"""验证必需的配置项"""</span>
+        <span class="token-kw">if</span> <span class="token-kw">not</span> <span class="token-kw">self</span>.ANTHROPIC_API_KEY:
+            <span class="token-kw">raise</span> <span class="token-cls">ValueError</span>(
+                <span class="token-str">"ANTHROPIC_API_KEY 未设置。请在.env文件中设置，或设置环境变量。"</span>
+            )
+
+
+<span class="token-cm"># 全局单例</span>
+settings = <span class="token-cls">Settings</span>()</code></pre>
+      </div>
+    </div>
+
+    <!-- Card 7: 测试你的Agent -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon orange">🧪</div>
+        <div>
+          <div class="card-title">测试你的Agent — 覆盖所有工具场景</div>
+        </div>
+      </div>
+      <p>Agent 系统的测试比普通函数测试更复杂——你需要覆盖"无需工具"、"单工具调用"、"多工具链式调用"、"工具调用失败"等场景。以下是完整的测试用例：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — tests/test_agent.py 完整测试套件</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""Agent 测试套件"""</span>
+
+<span class="token-kw">import</span> pytest
+<span class="token-kw">from</span> agent.agent <span class="token-kw">import</span> Agent, AgentError
+<span class="token-kw">from</span> agent.config <span class="token-kw">import</span> settings
+
+
+<span class="token-decorator">@pytest.fixture</span>
+<span class="token-kw">def</span> <span class="token-fn">agent</span>():
+    <span class="token-str">"""创建一个Agent实例用于测试"""</span>
+    settings.validate()
+    <span class="token-kw">return</span> <span class="token-cls">Agent</span>(verbose=<span class="token-num">True</span>)
+
+
+<span class="token-kw">class</span> <span class="token-cls">TestAgentBasic</span>:
+    <span class="token-str">"""基础功能测试"""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">test_simple_question_no_tools</span>(<span class="token-kw">self</span>, agent):
+        <span class="token-str">"""测试1: 简单问题 — 不需要工具调用"""</span>
+        response = agent.run(<span class="token-str">"你好！请一句话介绍自己。"</span>)
+        <span class="token-kw">assert</span> <span class="token-builtin">len</span>(response) > <span class="token-num">10</span>, <span class="token-str">"回复不应为空"</span>
+        <span class="token-kw">assert</span> <span class="token-str">"Agent-13"</span> <span class="token-kw">in</span> response.lower() <span class="token-kw">or</span> <span class="token-str">"助手"</span> <span class="token-kw">in</span> response
+        <span class="token-builtin">print</span>(<span class="token-str">f"✅ 测试1通过: {response[:80]}..."</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">test_calculation_query</span>(<span class="token-kw">self</span>, agent):
+        <span class="token-str">"""测试2: 计算查询 — 应使用 calculate 工具"""</span>
+        response = agent.run(<span class="token-str">"计算 (123 + 456) * 78 / 9，给出精确结果"</span>)
+        <span class="token-cm"># (123+456)*78/9 = 579*78/9 = 45162/9 = 5018.0</span>
+        <span class="token-kw">assert</span> <span class="token-str">"5018"</span> <span class="token-kw">in</span> response, <span class="token-str">f"预期结果包含5018，实际: {response[:200]}"</span>
+        <span class="token-builtin">print</span>(<span class="token-str">f"✅ 测试2通过: 计算正确"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">test_time_query</span>(<span class="token-kw">self</span>, agent):
+        <span class="token-str">"""测试3: 时间查询 — 应使用 get_current_time 工具"""</span>
+        response = agent.run(<span class="token-str">"现在是星期几？几点了？"</span>)
+        <span class="token-cm"># 回复应包含星期几（中文或英文）</span>
+        weekdays = [<span class="token-str">"星期一"</span>, <span class="token-str">"星期二"</span>, <span class="token-str">"星期三"</span>, <span class="token-str">"星期四"</span>,
+                    <span class="token-str">"星期五"</span>, <span class="token-str">"星期六"</span>, <span class="token-str">"星期日"</span>,
+                    <span class="token-str">"Monday"</span>, <span class="token-str">"Tuesday"</span>, <span class="token-str">"Wednesday"</span>, <span class="token-str">"Thursday"</span>,
+                    <span class="token-str">"Friday"</span>, <span class="token-str">"Saturday"</span>, <span class="token-str">"Sunday"</span>]
+        <span class="token-kw">assert</span> <span class="token-builtin">any</span>(day <span class="token-kw">in</span> response <span class="token-kw">for</span> day <span class="token-kw">in</span> weekdays), \
+            <span class="token-str">f"回复应包含星期几，实际: {response[:150]}"</span>
+        <span class="token-builtin">print</span>(<span class="token-str">f"✅ 测试3通过: 回复包含日期信息"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">test_multi_step_query</span>(<span class="token-kw">self</span>, agent):
+        <span class="token-str">"""测试4: 多步查询 — 可能需要多次工具调用"""</span>
+        response = agent.run(
+            <span class="token-str">"先查询现在的时间，然后告诉我2026年的第100天是几月几号？"</span>
+        )
+        <span class="token-cm"># 这条查询至少应包含日期信息</span>
+        <span class="token-kw">assert</span> <span class="token-builtin">len</span>(response) > <span class="token-num">20</span>, <span class="token-str">"回复不应为空"</span>
+        <span class="token-builtin">print</span>(<span class="token-str">f"✅ 测试4通过: 多步查询完成"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">test_error_handling</span>(<span class="token-kw">self</span>, agent):
+        <span class="token-str">"""测试5: 错误计算 — Agent应优雅处理"""</span>
+        response = agent.run(<span class="token-str">"计算 1/0"</span>)
+        <span class="token-cm"># Agent应该给出有意义的错误提示，而不是崩溃</span>
+        <span class="token-kw">assert</span> <span class="token-builtin">len</span>(response) > <span class="token-num">10</span>
+        <span class="token-builtin">print</span>(<span class="token-str">f"✅ 测试5通过: 错误处理正常"</span>)
+
+    <span class="token-kw">def</span> <span class="token-fn">test_history_maintenance</span>(<span class="token-kw">self</span>, agent):
+        <span class="token-str">"""测试6: 上下文记忆 — Agent应该记住之前的对话"""</span>
+        agent.run(<span class="token-str">"我叫王小明"</span>)
+        response = agent.run(<span class="token-str">"我叫什么名字？"</span>)
+        <span class="token-kw">assert</span> <span class="token-str">"王小明"</span> <span class="token-kw">in</span> response, \
+            <span class="token-str">f"Agent应记住用户名字，实际: {response[:200]}"</span>
+        agent.clear_history()
+        <span class="token-builtin">print</span>(<span class="token-str">f"✅ 测试6通过: 上下文记忆正常"</span>)
+
+
+<span class="token-cm"># 运行测试</span>
+<span class="token-kw">if</span> __name__ == <span class="token-str">"__main__"</span>:
+    pytest.main([__file__, <span class="token-str">"-v"</span>, <span class="token-str">"-s"</span>])</code></pre>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>测试场景</th>
+              <th>覆盖的工具</th>
+              <th>验证要点</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>简单问候</td><td>无工具调用</td><td>Agent直接回复，不崩溃</td></tr>
+            <tr><td>计算查询</td><td>calculate</td><td>结果精确，包含预期数值</td></tr>
+            <tr><td>时间查询</td><td>get_current_time</td><td>返回当前时间信息</td></tr>
+            <tr><td>多步查询</td><td>多个工具组合</td><td>能串联多个工具完成任务</td></tr>
+            <tr><td>错误输入</td><td>工具返回错误</td><td>Agent优雅处理，给出有用提示</td></tr>
+            <tr><td>上下文记忆</td><td>对话历史</td><td>Agent记住先前对话的信息</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 8: 添加流式输出 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">🌊</div>
+        <div>
+          <div class="card-title">添加流式输出 — 提升用户体验</div>
+        </div>
+      </div>
+      <p>用户等待 Agent 回复时，看着空白的屏幕是一种糟糕的体验。流式输出 (Streaming) 让用户实时看到 Agent 的思考过程：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 流式输出的 Agent.run_stream() 方法</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""添加到 Agent 类中的流式输出方法"""
+
+实现流式输出的关键区别:
+1. 使用 stream=True 参数
+2. 使用 async for 迭代响应流
+3. 需要处理 streaming 中的 tool_use 块（增量累积）
+4. 将文本块实时 yield 给调用者
+"""</span>
+
+<span class="token-kw">import</span> json
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> AsyncGenerator
+
+
+<span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">run_stream</span>(
+    <span class="token-kw">self</span>, user_input: <span class="token-cls">str</span>, reset_history: <span class="token-cls">bool</span> = <span class="token-num">False</span>
+) -> <span class="token-cls">AsyncGenerator</span>[<span class="token-cls">str</span>, <span class="token-num">None</span>]:
+    <span class="token-str">"""流式执行 Agent 循环
+
+    与 run() 的逻辑相同，但通过 async generator 实时输出。
+    调用方式:
+        async for chunk in agent.run_stream("你好"):
+            print(chunk, end="", flush=True)
+    """</span>
+    <span class="token-kw">if</span> reset_history:
+        <span class="token-kw">self</span>.messages = []
+
+    <span class="token-kw">self</span>.messages.append({
+        <span class="token-str">"role"</span>: <span class="token-str">"user"</span>, <span class="token-str">"content"</span>: user_input
+    })
+
+    <span class="token-kw">for</span> step <span class="token-kw">in</span> <span class="token-builtin">range</span>(<span class="token-kw">self</span>.max_steps):
+        <span class="token-cm"># 流式调用LLM</span>
+        <span class="token-kw">async</span> <span class="token-kw">with</span> <span class="token-kw">self</span>.client.messages.stream(
+            model=<span class="token-kw">self</span>.model,
+            max_tokens=<span class="token-num">4096</span>,
+            system=<span class="token-kw">self</span>.system_prompt,
+            tools=<span class="token-cls">TOOL_SCHEMAS</span>,
+            messages=<span class="token-kw">self</span>.messages
+        ) <span class="token-kw">as</span> stream:
+            <span class="token-cm"># 累积器：用于处理流式中的 tool_use 块</span>
+            current_text = <span class="token-str">""</span>
+            tool_use_accumulator = {}  <span class="token-cm"># {block_index: {"name":..., "input":..., "id":...}}</span>
+
+            <span class="token-kw">async</span> <span class="token-kw">for</span> event <span class="token-kw">in</span> stream:
+                <span class="token-kw">if</span> event.type == <span class="token-str">"content_block_delta"</span>:
+                    delta = event.delta
+
+                    <span class="token-kw">if</span> delta.type == <span class="token-str">"text_delta"</span>:
+                        <span class="token-cm"># 文本内容：实时 yield</span>
+                        text = delta.text
+                        current_text += text
+                        <span class="token-keyword">yield</span> text
+
+                    <span class="token-kw">elif</span> delta.type == <span class="token-str">"input_json_delta"</span>:
+                        <span class="token-cm"># 工具调用的JSON参数：累积而非yield</span>
+                        idx = event.index
+                        <span class="token-kw">if</span> idx <span class="token-kw">not</span> <span class="token-kw">in</span> tool_use_accumulator:
+                            tool_use_accumulator[idx] = {
+                                <span class="token-str">"name"</span>: <span class="token-str">""</span>,
+                                <span class="token-str">"input_json"</span>: <span class="token-str">""</span>,
+                                <span class="token-str">"id"</span>: <span class="token-str">""</span>
+                            }
+                        tool_use_accumulator[idx][<span class="token-str">"input_json"</span>] += delta.partial_json
+
+                <span class="token-kw">elif</span> event.type == <span class="token-str">"content_block_start"</span>:
+                    block = event.content_block
+                    <span class="token-kw">if</span> block.type == <span class="token-str">"tool_use"</span>:
+                        idx = event.index
+                        tool_use_accumulator[idx] = {
+                            <span class="token-str">"name"</span>: block.name,
+                            <span class="token-str">"input_json"</span>: <span class="token-str">""</span>,
+                            <span class="token-str">"id"</span>: block.id
+                        }
+
+            <span class="token-cm"># 流结束，获取最终的完整消息</span>
+            final_message = <span class="token-kw">await</span> stream.get_final_message()
+
+        <span class="token-cm"># 检查是否需要工具调用</span>
+        tool_use_blocks = [
+            block <span class="token-kw">for</span> block <span class="token-kw">in</span> final_message.content
+            <span class="token-kw">if</span> block.type == <span class="token-str">"tool_use"</span>
+        ]
+
+        <span class="token-kw">if</span> <span class="token-kw">not</span> tool_use_blocks:
+            <span class="token-cm"># 没有工具调用，任务完成</span>
+            <span class="token-keyword">yield</span> <span class="token-str">"\n"</span>  <span class="token-cm"># 结束标记</span>
+
+            <span class="token-cm"># 记录助手消息到历史</span>
+            text_content = [
+                block.text <span class="token-kw">for</span> block <span class="token-kw">in</span> final_message.content
+                <span class="token-kw">if</span> block.type == <span class="token-str">"text"</span>
+            ]
+            <span class="token-kw">self</span>.messages.append({
+                <span class="token-str">"role"</span>: <span class="token-str">"assistant"</span>,
+                <span class="token-str">"content"</span>: <span class="token-str">""</span>.join(text_content)
+            })
+            <span class="token-keyword">return</span>
+
+        <span class="token-cm"># 有工具调用 — 执行工具并继续循环</span>
+        <span class="token-keyword">yield</span> <span class="token-str">f"\n\n[调用工具中...]\n"</span>
+
+        tool_results = <span class="token-kw">self</span>.<span class="token-fn">_execute_tools</span>(tool_use_blocks)
+
+        <span class="token-cm"># 更新消息历史</span>
+        assistant_content = []
+        <span class="token-kw">for</span> block <span class="token-kw">in</span> final_message.content:
+            <span class="token-kw">if</span> block.type == <span class="token-str">"text"</span>:
+                assistant_content.append({<span class="token-str">"type"</span>: <span class="token-str">"text"</span>, <span class="token-str">"text"</span>: block.text})
+            <span class="token-kw">elif</span> block.type == <span class="token-str">"tool_use"</span>:
+                assistant_content.append({
+                    <span class="token-str">"type"</span>: <span class="token-str">"tool_use"</span>,
+                    <span class="token-str">"id"</span>: block.id,
+                    <span class="token-str">"name"</span>: block.name,
+                    <span class="token-str">"input"</span>: block.input
+                })
+
+        <span class="token-kw">self</span>.messages.append({
+            <span class="token-str">"role"</span>: <span class="token-str">"assistant"</span>,
+            <span class="token-str">"content"</span>: assistant_content
+        })
+        <span class="token-kw">self</span>.messages.append({
+            <span class="token-str">"role"</span>: <span class="token-str">"user"</span>,
+            <span class="token-str">"content"</span>: tool_results
+        })
+
+    <span class="token-keyword">yield</span> <span class="token-str">f"\n[达到最大步数限制 ({self.max_steps})]\n"</span></code></pre>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">流式输出 vs 非流式输出</div>
+        <p><strong>非流式 (run)</strong>：适合 CLI 单次查询、批处理、API 服务后端——简单直接。<strong>流式 (run_stream)</strong>：适合聊天界面、REPL 交互——用户体验更好但实现更复杂。生产环境中建议两种模式都支持，让调用者选择。</p>
+      </div>
+    </div>
+
+    <!-- Card 9: 部署为命令行工具 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">💻</div>
+        <div>
+          <div class="card-title">部署为命令行工具 — 打造专业CLI</div>
+        </div>
+      </div>
+      <p>将 Agent 封装为命令行工具，支持交互式 REPL 和单次查询两种模式：</p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — cli.py 命令行入口</span>
+          <button class="code-copy-btn">复制代码</button>
+        </div>
+        <pre><code><span class="token-str">"""Agent 命令行工具
+
+用法:
+  python cli.py                          # 进入交互式REPL模式
+  python cli.py --query "计算 123*456"   # 单次查询模式
+  python cli.py --stream "现在几点了"     # 流式输出模式
+  python cli.py --model claude-opus-4-20250514 --query "你好"
+  python cli.py --verbose                # 显示调试日志
+"""</span>
+
+<span class="token-kw">import</span> argparse
+<span class="token-kw">import</span> asyncio
+<span class="token-kw">import</span> sys
+<span class="token-kw">from</span> rich.console <span class="token-kw">import</span> Console
+<span class="token-kw">from</span> rich.markdown <span class="token-kw">import</span> Markdown
+
+<span class="token-kw">from</span> agent.agent <span class="token-kw">import</span> Agent
+<span class="token-kw">from</span> agent.config <span class="token-kw">import</span> settings
+
+console = <span class="token-cls">Console</span>()
+
+
+<span class="token-kw">def</span> <span class="token-fn">parse_args</span>():
+    parser = argparse.ArgumentParser(
+        description=<span class="token-str">"Agent-13: 智能AI助手命令行工具"</span>,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=<span class="token-str">"""
+示例:
+  %(prog)s                                      # 交互式模式
+  %(prog)s -q "39度算发烧吗？"                  # 单次查询
+  %(prog)s -s -q "2026年GDP排名前3的国家"       # 流式查询
+  %(prog)s -m claude-opus-4-20250514 -v         # 指定模型+详细日志
+        """</span>
+    )
+    parser.add_argument(<span class="token-str">"-q"</span>, <span class="token-str">"--query"</span>, <span class="token-builtin">type</span>=<span class="token-cls">str</span>, help=<span class="token-str">"单次查询内容（不进入REPL）"</span>)
+    parser.add_argument(<span class="token-str">"-s"</span>, <span class="token-str">"--stream"</span>, action=<span class="token-str">"store_true"</span>, help=<span class="token-str">"使用流式输出"</span>)
+    parser.add_argument(<span class="token-str">"-m"</span>, <span class="token-str">"--model"</span>, <span class="token-builtin">type</span>=<span class="token-cls">str</span>, help=<span class="token-str">"指定模型名称"</span>)
+    parser.add_argument(<span class="token-str">"-v"</span>, <span class="token-str">"--verbose"</span>, action=<span class="token-str">"store_true"</span>, help=<span class="token-str">"详细日志输出"</span>)
+    parser.add_argument(<span class="token-str">"--max-steps"</span>, <span class="token-builtin">type</span>=<span class="token-cls">int</span>, default=settings.MAX_STEPS, help=<span class="token-str">"最大工具调用步数"</span>)
+    <span class="token-kw">return</span> parser.parse_args()
+
+
+<span class="token-kw">def</span> <span class="token-fn">main</span>():
+    <span class="token-str">"""主入口"""</span>
+    args = parse_args()
+
+    <span class="token-kw">try</span>:
+        settings.validate()
+    <span class="token-kw">except</span> <span class="token-cls">ValueError</span> <span class="token-kw">as</span> e:
+        console.print(<span class="token-str">f"[red]❌ 配置错误: {e}[/red]"</span>)
+        console.print(<span class="token-str">"[yellow]提示: 确保 .env 文件存在并包含 ANTHROPIC_API_KEY[/yellow]"</span>)
+        sys.exit(<span class="token-num">1</span>)
+
+    agent = <span class="token-cls">Agent</span>(
+        model=args.model,
+        max_steps=args.max_steps,
+        verbose=args.verbose
+    )
+
+    <span class="token-kw">if</span> args.query:
+        <span class="token-cm"># 单次查询模式</span>
+        <span class="token-kw">if</span> args.stream:
+            asyncio.run(<span class="token-fn">_run_stream_query</span>(agent, args.query))
+        <span class="token-kw">else</span>:
+            response = agent.run(args.query)
+            console.print(<span class="token-cls">Markdown</span>(response))
+    <span class="token-kw">else</span>:
+        <span class="token-cm"># 交互式REPL模式</span>
+        console.print(<span class="token-str">"[bold cyan]🤖 Agent-13 交互模式[/bold cyan]"</span>)
+        console.print(<span class="token-str">"[dim]输入 help 查看帮助 | quit/exit 退出 | clear 清空对话[/dim]\n"</span>)
+
+        <span class="token-kw">while</span> <span class="token-num">True</span>:
+            <span class="token-kw">try</span>:
+                user_input = console.input(<span class="token-str">"[bold green]你:[/bold green] "</span>).strip()
+            <span class="token-kw">except</span> (<span class="token-cls">KeyboardInterrupt</span>, <span class="token-cls">EOFError</span>):
+                console.print(<span class="token-str">"\n[yellow]再见！👋[/yellow]"</span>)
+                <span class="token-kw">break</span>
+
+            <span class="token-kw">if</span> <span class="token-kw">not</span> user_input:
+                <span class="token-kw">continue</span>
+
+            <span class="token-kw">if</span> user_input.lower() <span class="token-kw">in</span> (<span class="token-str">"quit"</span>, <span class="token-str">"exit"</span>, <span class="token-str">"q"</span>):
+                console.print(<span class="token-str">"[yellow]再见！👋[/yellow]"</span>)
+                <span class="token-kw">break</span>
+            <span class="token-kw">elif</span> user_input.lower() == <span class="token-str">"clear"</span>:
+                agent.clear_history()
+                console.print(<span class="token-str">"[dim]对话历史已清空[/dim]"</span>)
+                <span class="token-kw">continue</span>
+            <span class="token-kw">elif</span> user_input.lower() == <span class="token-str">"help"</span>:
+                console.print(<span class="token-str">"[dim]命令: quit/exit 退出 | clear 清空对话 | help 帮助[/dim]"</span>)
+                <span class="token-kw">continue</span>
+            <span class="token-kw">elif</span> user_input.lower() == <span class="token-str">"stats"</span>:
+                <span class="token-kw">import</span> json
+                console.print(json.dumps(agent.get_stats(), indent=<span class="token-num">2</span>, ensure_ascii=<span class="token-num">False</span>))
+                <span class="token-kw">continue</span>
+
+            <span class="token-cm"># 处理查询</span>
+            console.print(<span class="token-str">"[bold blue]Agent:[/bold blue] "</span>, end=<span class="token-str">""</span>)
+            <span class="token-kw">if</span> args.stream:
+                asyncio.run(<span class="token-fn">_run_stream_query</span>(agent, user_input))
+            <span class="token-kw">else</span>:
+                response = agent.run(user_input)
+                console.print(<span class="token-cls">Markdown</span>(response))
+            console.print()  <span class="token-cm"># 空行分隔</span>
+
+
+<span class="token-kw">async</span> <span class="token-kw">def</span> <span class="token-fn">_run_stream_query</span>(agent: <span class="token-cls">Agent</span>, query: <span class="token-cls">str</span>):
+    <span class="token-str">"""执行流式查询"""</span>
+    <span class="token-kw">async</span> <span class="token-kw">for</span> chunk <span class="token-kw">in</span> agent.run_stream(query):
+        console.print(chunk, end=<span class="token-str">""</span>)
+    console.print()
+
+
+<span class="token-kw">if</span> __name__ == <span class="token-str">"__main__"</span>:
+    main()</code></pre>
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">CLI 设计最佳实践</div>
+        <p>一个好的命令行工具应该：<strong>(1)</strong> 支持交互模式和单次查询模式两种场景；<strong>(2)</strong> 使用 argparse 提供标准化的参数解析和帮助文档；<strong>(3)</strong> 用 rich 库美化终端输出（Markdown、颜色、进度条）；<strong>(4)</strong> 优雅处理 Ctrl+C 和 EOF；<strong>(5)</strong> 提供快捷命令（help、clear、stats）提升使用体验。</p>
+      </div>
+    </div>
+
+    <!-- Card 10: 常见问题排查 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon red">🩺</div>
+        <div>
+          <div class="card-title">常见问题排查 — 新手必读</div>
+        </div>
+      </div>
+      <p>以下是开发 Agent 过程中最常见的5类问题，了解它们可以帮你节省大量调试时间：</p>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">问题1: API Key 未找到或无效</div>
+        <p><strong>症状</strong>：运行时报错 <code>AuthenticationError: Incorrect API key provided</code> 或 <code>ValueError: ANTHROPIC_API_KEY 未设置</code></p>
+        <p><strong>诊断</strong>：<code>echo $ANTHROPIC_API_KEY</code> 检查环境变量；确认 <code>.env</code> 文件在项目根目录</p>
+        <p><strong>修复</strong>：确保 load_dotenv() 在模块顶层被调用；在 IDE 中运行时可能需要手动指定 .env 路径；重新生成 API Key 如果怀疑泄露</p>
+      </div>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">问题2: 速率限制 (Rate Limiting)</div>
+        <p><strong>症状</strong>：<code>RateLimitError: Too many requests</code>，通常在连续快速调用时出现</p>
+        <p><strong>诊断</strong>：检查 Anthropic Console 中的 Usage 页面，查看当前的 RPM (Requests Per Minute) 和 TPM (Tokens Per Minute) 限制</p>
+        <p><strong>修复</strong>：(1) 在 Agent 循环中加入 <code>time.sleep(1)</code> 避免连续调用；(2) 实现指数退避重试机制；(3) 联系 Anthropic 提升限额</p>
+      </div>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">问题3: 上下文窗口溢出</div>
+        <p><strong>症状</strong>：对话进行一段时间后，API 返回 <code>400 context_length_exceeded</code> 错误</p>
+        <p><strong>诊断</strong>：检查 <code>agent.messages</code> 的长度。每次工具调用会让历史消息增长2条（assistant + user/tool_result），10次工具调用就有20条消息</p>
+        <p><strong>修复</strong>：(1) 限制 max_steps 防止无限增长；(2) 实现消息历史的滑动窗口（保留最近N条）；(3) 对长对话进行定期摘要压缩；(4) 在工具返回结果时截断过长内容</p>
+      </div>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">问题4: 工具 Schema 格式错误</div>
+        <p><strong>症状</strong>：API 返回 <code>400 invalid tools</code> 或 Agent 从不调用某个工具</p>
+        <p><strong>诊断</strong>：检查 JSON Schema 是否符合 Anthropic API 规范——必须包含 <code>type: "function"</code> 外层包装和 <code>function.name/description/parameters</code> 三个字段</p>
+        <p><strong>修复</strong>：(1) 用 JSON Schema 验证器检查格式；(2) 确保 parameters.properties 中的每个属性都有 type 字段；(3) required 数组中的字段必须在 properties 中定义；(4) 检查 description 字段是否存在且有意义</p>
+      </div>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">问题5: Python 导入路径错误</div>
+        <p><strong>症状</strong>：<code>ModuleNotFoundError: No module named 'agent'</code></p>
+        <p><strong>诊断</strong>：确保项目根目录在 Python 路径中；确保 <code>agent/__init__.py</code> 文件存在（即使是空文件）</p>
+        <p><strong>修复</strong>：(1) 在项目根目录运行 <code>pip install -e .</code> 以开发模式安装；(2) 或创建 <code>setup.py</code>/<code>pyproject.toml</code> 声明包结构；(3) 确保从项目根目录执行 Python 脚本</p>
+      </div>
+    </div>
+
+    <!-- Card 11: 下一步学习路径 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon cyan">🗺️</div>
+        <div>
+          <div class="card-title">下一步学习路径 — 从入门到精通的路线图</div>
+        </div>
+      </div>
+      <p>你刚刚构建了人生中第一个完整的 AI Agent。但这只是开始。以下是从这里出发的学习路线：</p>
+
+      <ol>
+        <li><strong>丰富工具生态</strong>
+          <ul>
+            <li>添加更多实用工具：文件读写、数据库查询、邮件发送、日历管理</li>
+            <li>学习如何设计工具的组合模式（tool chaining / composition）</li>
+            <li>探索 MCP (Model Context Protocol) 协议——未来 Agent 工具连接的标准方式</li>
+          </ul>
+        </li>
+        <li><strong>尝试不同的模型</strong>
+          <ul>
+            <li>对比 Claude Sonnet/Opus 在处理复杂工具调用时的差异</li>
+            <li>测试 OpenAI GPT-4.1 的函数调用能力（使用 OpenAI SDK 重写 Agent 类）</li>
+            <li>了解何时使用强模型（复杂推理）vs 快模型（简单任务）的混合策略</li>
+          </ul>
+        </li>
+        <li><strong>添加记忆系统</strong>
+          <ul>
+            <li>集成向量数据库（ChromaDB、Pinecone）实现长期记忆</li>
+            <li>实现会话摘要——将长对话压缩为摘要保留关键信息</li>
+            <li>添加用户偏好记忆——让 Agent 越来越"懂"使用者</li>
+          </ul>
+        </li>
+        <li><strong>部署为 Web 服务</strong>
+          <ul>
+            <li>将 Agent 包装为 FastAPI/Flask 服务，提供 REST API</li>
+            <li>添加 WebSocket 支持以实现实时流式通信</li>
+            <li>使用 Docker 容器化部署，配合 Nginx 反向代理</li>
+          </ul>
+        </li>
+        <li><strong>探索多 Agent 系统</strong>
+          <ul>
+            <li>学习第6章中的多 Agent 协作模式</li>
+            <li>尝试 CrewAI 或 AutoGen 框架构建多 Agent 团队</li>
+            <li>理解 Agent 之间的通信协议和任务分配策略</li>
+          </ul>
+        </li>
+        <li><strong>深入企业集成</strong>
+          <ul>
+            <li>学习下一章（第14章：企业集成模式）</li>
+            <li>了解 Agent 如何安全地连接数据库、API、消息队列</li>
+            <li>掌握企业级的安全性、监控和合规实践</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="alert alert-success">
+        <div class="alert-title">恭喜你完成实战章节！</div>
+        <p>同学，你已经从"知道 Agent 是什么"进阶到"能动手构建 Agent"。这个动手能力是整个学习过程中最重要的里程碑。建议在做完本章的项目后，尝试修改和扩展它——<strong>把 Agent 变成解决你自己实际问题的工具</strong>，这是最高效的学习方式。</p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-section" data-quiz="13">
+      <div class="quiz-title">📝 章节测验 — 构建第一个生产Agent</div>
+      <div class="quiz-desc">测试你对Agent开发实战的理解</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 在Agent核心循环中，max_steps参数的主要作用是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 限制用户每次可以输入的消息长度</button>
+        <button class="quiz-option" data-answer="1">B. 防止Agent陷入无限工具调用循环，作为安全阀限制最大步数</button>
+        <button class="quiz-option" data-answer="2">C. 控制LLM每次生成的最大令牌数</button>
+        <button class="quiz-option" data-answer="3">D. 限制可以定义的工具数量</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 在定义工具的JSON Schema时，以下哪个做法是错误的？</div>
+        <button class="quiz-option" data-answer="0">A. 将参数命名为简短无意义的名称如"x"以节省令牌</button>
+        <button class="quiz-option" data-answer="1">B. 为每个参数提供清晰的description说明其含义和格式</button>
+        <button class="quiz-option" data-answer="2">C. 在required数组中列出所有必需的参数</button>
+        <button class="quiz-option" data-answer="3">D. 在description中说明工具的使用场景</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 关于API密钥管理，以下哪种做法是正确的？</div>
+        <button class="quiz-option" data-answer="0">A. 将API Key直接写在代码文件中方便调用</button>
+        <button class="quiz-option" data-answer="1">B. 将包含API Key的.env文件提交到Git仓库备份</button>
+        <button class="quiz-option" data-answer="2">C. 使用.env文件存储API Key，通过python-dotenv加载，.env不提交到Git</button>
+        <button class="quiz-option" data-answer="3">D. 每次运行程序时手动输入API Key</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+      <a class="btn" href="../chapters/12-future-trends.html">
+        ← <span>第12章：未来趋势与展望</span>
+      </a>
+      <a class="btn btn-primary" href="../chapters/14-enterprise-integration.html">
+        <span>第14章：企业集成模式</span> →
+      </a>
+    </nav>
+
+  </section>
+
+</main>
+
+<!-- ============================================================
+     Agent Simulator Panel
+     ============================================================ -->
+<button class="sim-toggle" id="simToggle" title="Agent 模拟器">🤖</button>
+
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <span><span class="sim-status-dot"></span> Agent 模拟器</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="simClose">✕</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">
+      👋 你好！恭喜完成实战章节。现在试试让我执行一些复杂任务吧！
+    </div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="btn btn-primary btn-sm" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Notes Panel
+     ============================================================ -->
+<button class="btn btn-icon" id="notesToggle" title="笔记" style="position:fixed;bottom:32px;right:106px;width:48px;height:48px;border-radius:50%;background:var(--bg-tertiary);border:1px solid var(--border-color);z-index:85;">📝</button>
+
+<div class="sim-panel" id="notesPanel" style="bottom:96px;right:106px;width:380px;height:480px;">
+  <div class="sim-header">
+    <span>📒 我的笔记</span>
+    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;" id="notesClose">✕</button>
+  </div>
+  <div class="sim-messages" id="notesList" style="padding:12px;">
+    <div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧 📝</div>
+  </div>
+  <div class="sim-input-area" style="flex-direction:column;gap:8px;">
+    <textarea class="sim-input" id="noteInput" placeholder="在这里写笔记..." rows="3"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+        <option value="5">第5章：推理规划</option>
+        <option value="6">第6章：多Agent</option>
+        <option value="7">第7章：安全可靠性</option>
+        <option value="8">第8章：提示词工程</option>
+        <option value="9">第9章：Agent框架</option>
+        <option value="10">第10章：评估与测试</option>
+        <option value="11">第11章：部署与运维</option>
+        <option value="12">第12章：未来趋势</option>
+        <option value="13" selected>第13章：构建第一个Agent</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

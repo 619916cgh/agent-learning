@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3章：工具调用机制 — AI Agent 学习指南</title>
+<link rel="stylesheet" href="../css/global.css">
+<link rel="stylesheet" href="../css/components.css">
+</head>
+<body data-theme="dark">
+
+<!-- ============================================
+     Top Navigation Bar
+     ============================================ -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <button class="btn btn-icon" id="mobileMenuBtn" aria-label="菜单" style="display:none;">☰</button>
+    <div class="logo-icon">A</div>
+    <span class="logo-text">AI Agent 学习指南</span>
+  </div>
+  <div class="top-bar-right">
+    <button class="btn btn-icon" id="searchBtn" title="搜索 (Ctrl+K)" aria-label="搜索">&#128269;</button>
+    <button class="btn btn-icon" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+    <button class="btn btn-icon" id="resetBtn" title="重置进度" aria-label="重置进度">&#128260;</button>
+  </div>
+</header>
+
+<!-- Search Panel -->
+<div class="search-panel" id="searchPanel">
+  <input type="text" class="search-input" id="searchInput" placeholder="搜索学习内容... (按 Esc 关闭)">
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- ============================================
+     Sidebar Navigation
+     ============================================ -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-title">📚 学习章节</div>
+  <a href="01-what-is-agent.html" class="nav-link" data-chapter="1">01 · 什么是 AI Agent</a>
+  <a href="02-core-architecture.html" class="nav-link" data-chapter="2">02 · 核心架构</a>
+  <a href="03-tool-calling.html" class="nav-link active" data-chapter="3">03 · 工具调用机制</a>
+  <a href="04-memory-management.html" class="nav-link" data-chapter="4">04 · 记忆与状态管理</a>
+  <a href="05-reasoning-planning.html" class="nav-link" data-chapter="5">05 · 推理与规划</a>
+  <a href="06-multi-agent.html" class="nav-link" data-chapter="6">06 · 多Agent系统</a>
+  <a href="07-safety-reliability.html" class="nav-link" data-chapter="7">07 · 安全与可靠性</a>
+  <a href="08-prompt-engineering.html" class="nav-link" data-chapter="8">08 · 提示词工程</a>
+  <a href="09-agent-frameworks.html" class="nav-link" data-chapter="9">09 · Agent框架生态</a>
+  <a href="10-evaluation-testing.html" class="nav-link" data-chapter="10">10 · 评估与测试</a>
+  <a href="11-deployment-ops.html" class="nav-link" data-chapter="11">11 · 部署与运维</a>
+  <a href="12-future-trends.html" class="nav-link" data-chapter="12">12 · 未来趋势</a>
+  <a href="13-build-first-agent.html" class="nav-link" data-chapter="13">13 · 构建第一个生产Agent</a>
+  <a href="14-enterprise-integration.html" class="nav-link" data-chapter="14">14 · 企业集成模式</a>
+  <a href="15-performance-optimization.html" class="nav-link" data-chapter="15">15 · 性能优化</a>
+  <a href="16-team-collaboration.html" class="nav-link" data-chapter="16">16 · 团队协作与面试</a>
+
+  <div class="sidebar-section-title">🛠️ 学习工具</div>
+  <a href="../tools/prompt-playground.html" class="nav-link">💬 提示词演练场</a>
+  <a href="../tools/tool-designer.html" class="nav-link">🔧 工具设计器</a>
+  <a href="../tools/agent-builder.html" class="nav-link">🤖 Agent构建器</a>
+  <a href="../tools/cost-calculator.html" class="nav-link">💰 成本计算器</a>
+  <a href="../tools/memory-viz.html" class="nav-link">🧠 记忆可视化</a>
+
+  <div class="sidebar-section-title">📖 参考资料</div>
+  <a href="../reference/glossary.html" class="nav-link">📕 完整术语表</a>
+  <a href="../reference/framework-comparison.html" class="nav-link">📊 框架对比</a>
+  <a href="../reference/case-studies.html" class="nav-link">💼 案例研究</a>
+
+  <div class="progress-card">
+    <div class="progress-header">
+      <span>学习进度</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================
+     Main Content
+     ============================================ -->
+<main class="main-content" id="mainContent">
+
+  <section class="chapter" data-chapter="3" id="chapter3">
+
+    <!-- Chapter Header -->
+    <header class="chapter-header">
+      <div class="chapter-number">第 3 章</div>
+      <h2 class="chapter-title">工具调用机制</h2>
+      <p class="chapter-subtitle">工具是 Agent 的"手"，掌握 Function Calling 的原理、Schema 设计和执行生命周期，是构建实用 Agent 的核心技能。</p>
+    </header>
+
+    <!-- Card 1: Function Calling Deep Mechanism -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">&#9881;</div>
+        <div>
+          <div class="card-title">Function Calling 深度机制：从用户输入到工具执行</div>
+          <div class="card-desc">一步一步追踪 Function Calling 的完整链路，理解每个环节的作用</div>
+        </div>
+      </div>
+      <p>Function Calling 是连接 LLM 的"语言世界"和外部系统的"行动世界"的桥梁。理解它不能停留在"模型能调用函数"的表面认知上，而需要深入到每个环节的技术细节中。</p>
+
+      <h4>完整链路追踪</h4>
+      <p>当用户说"帮我查一下北京今天的天气"时，以下步骤依次发生：</p>
+
+      <div style="background:var(--bg-tertiary);border-radius:12px;padding:20px;margin:16px 0;">
+        <div style="margin-bottom:16px;">
+          <strong style="color:var(--accent-cyan);">步骤1 — 用户输入到达编排器</strong>
+          <p style="margin:4px 0;color:var(--text-secondary);">编排器将用户输入包装为 messages[0] = {"role": "user", "content": "帮我查一下北京今天的天气"}</p>
+        </div>
+        <div style="margin-bottom:16px;">
+          <strong style="color:var(--accent-cyan);">步骤2 — 工具 Schema 注入</strong>
+          <p style="margin:4px 0;color:var(--text-secondary);">编排器将所有可用工具的 JSON Schema 附加到请求中。LLM 此时"看到"了 get_weather、search_news 等多个工具的定义。</p>
+        </div>
+        <div style="margin-bottom:16px;">
+          <strong style="color:var(--accent-purple);">步骤3 — LLM 语义匹配推理</strong>
+          <p style="margin:4px 0;color:var(--text-secondary);">LLM 在内部做"语义匹配"：用户的"查天气"与 get_weather 的 description (获取天气) 高度匹配；"北京"对应 city 参数；"今天"意味着不需要额外的时间参数。</p>
+        </div>
+        <div style="margin-bottom:16px;">
+          <strong style="color:var(--accent-green);">步骤4 — LLM 输出工具调用请求</strong>
+          <p style="margin:4px 0;color:var(--text-secondary);">LLM 不生成文本回答，而是输出一个结构化的 JSON：{function: "get_weather", arguments: {city: "北京", unit: "celsius"}}。注意模型甚至合理推断出默认使用摄氏度。</p>
+        </div>
+        <div style="margin-bottom:16px;">
+          <strong style="color:var(--accent-orange);">步骤5 — 编排器解析并执行</strong>
+          <p style="margin:4px 0;color:var(--text-secondary);">编排器接收工具调用请求，从工具注册表中查找 get_weather，传入参数执行。实际的 API 调用由工具函数完成。</p>
+        </div>
+        <div>
+          <strong style="color:var(--accent-blue);">步骤6 — 结果回传与二次推理</strong>
+          <p style="margin:4px 0;color:var(--text-secondary);">工具返回 {"temperature": 22, "condition": "晴"}。编排器将结果追加到 messages，再次调用 LLM。LLM 此时基于工具结果生成自然语言回答："北京今天晴天，温度22°C..."</p>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">核心理解</div>
+        <p>Function Calling 的精妙之处在于：<strong>LLM 不"知道"函数做了什么，它只"知道"函数的签名和描述</strong>。LLM 的角色是"翻译官"——将用户的自然语言请求翻译为结构化的工具调用指令，然后将工具返回的结构化结果翻译回自然语言回答。LLM 从未真正"执行"任何代码。</p>
+      </div>
+    </article>
+
+    <!-- Card 2: JSON Schema Design Guide -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">&#128221;</div>
+        <div>
+          <div class="card-title">JSON Schema 设计完整指南</div>
+          <div class="card-desc">工具 Schema 的质量直接决定 Agent 调用工具的能力，这是一门需要精心打磨的技术</div>
+        </div>
+      </div>
+      <p>JSON Schema 是 LLM 理解工具的"唯一窗口"。Schema 写得好的工具，LLM 几乎从不误用；Schema 写得差的工具，LLM 要么不用、要么乱用。以下是经过实践验证的设计规范。</p>
+
+      <h4>Schema 设计的黄金法则</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>法则</th>
+              <th>好的实践</th>
+              <th>坏的实践</th>
+              <th>原因</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>描述要具体</strong></td>
+              <td><code>"description": "根据城市名称获取实时天气数据，包括温度、湿度、天气状况和风速。适用于当前天气查询，不适用于天气预报。"</code></td>
+              <td><code>"description": "获取天气"</code></td>
+              <td>具体描述帮助 LLM 准确判断何时应该调用此工具，何时不应该</td>
+            </tr>
+            <tr>
+              <td><strong>类型要精确</strong></td>
+              <td><code>"city": {"type": "string", "description": "城市名称，如 '北京' 或 'Beijing'。支持中英文。"}</code></td>
+              <td><code>"city": {"type": "object"}</code></td>
+              <td>精确的类型约束防止 LLM 传入错误格式的参数</td>
+            </tr>
+            <tr>
+              <td><strong>枚举优于自由文本</strong></td>
+              <td><code>"unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}</code></td>
+              <td><code>"unit": {"type": "string"}</code></td>
+              <td>enum 消除歧义，防止 LLM 生成 "度"、"C"、"摄氏"等不规范值</td>
+            </tr>
+            <tr>
+              <td><strong>标注必填参数</strong></td>
+              <td><code>"required": ["city"]</code></td>
+              <td><code>"required": []</code> 或不写 required</td>
+              <td>明确告诉 LLM 哪些参数不可或缺</td>
+            </tr>
+            <tr>
+              <td><strong>值域要限制</strong></td>
+              <td><code>"limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}</code></td>
+              <td><code>"limit": {"type": "integer"}</code></td>
+              <td>minimum/maximum 防止参数越界，default 提供合理默认值</td>
+            </tr>
+            <tr>
+              <td><strong>一工具一职责</strong></td>
+              <td>get_weather、get_forecast、get_air_quality 分三个工具</td>
+              <td>一个 get_all_weather_data 工具包含所有功能</td>
+              <td>细粒度工具降低 LLM 的调用出错率</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>完整 Schema 示例：一个设计良好的天气查询工具</h4>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">JSON — 高质量工具 Schema</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+        </div>
+        <pre><code>{
+  <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+  <span class="token-str">"function"</span>: {
+    <span class="token-str">"name"</span>: <span class="token-str">"get_current_weather"</span>,
+    <span class="token-str">"description"</span>: <span class="token-str">"获取指定城市的实时天气数据。返回温度、湿度、天气状况（晴/雨/阴等）、风速和风向。注意：此工具仅返回当前天气，如需未来天气预报请使用 get_weather_forecast 工具。支持全球主要城市。"</span>,
+    <span class="token-str">"parameters"</span>: {
+      <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+      <span class="token-str">"properties"</span>: {
+        <span class="token-str">"city"</span>: {
+          <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+          <span class="token-str">"description"</span>: <span class="token-str">"城市名称。支持中英文，如 '北京'、'Beijing'、'New York'。不支持经纬度坐标查询。"</span>,
+          <span class="token-str">"examples"</span>: [<span class="token-str">"北京"</span>, <span class="token-str">"Shanghai"</span>, <span class="token-str">"Tokyo"</span>]
+        },
+        <span class="token-str">"unit"</span>: {
+          <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+          <span class="token-str">"enum"</span>: [<span class="token-str">"celsius"</span>, <span class="token-str">"fahrenheit"</span>],
+          <span class="token-str">"description"</span>: <span class="token-str">"温度单位。celsius 为摄氏度，fahrenheit 为华氏度。如果用户没有特别说明，默认使用 celsius。"</span>,
+          <span class="token-str">"default"</span>: <span class="token-str">"celsius"</span>
+        },
+        <span class="token-str">"include_details"</span>: {
+          <span class="token-str">"type"</span>: <span class="token-str">"boolean"</span>,
+          <span class="token-str">"description"</span>: <span class="token-str">"是否返回详细的附加信息（如紫外线指数、体感温度、日出日落时间等）。默认 false，仅在用户明确要求详细信息时设为 true。"</span>,
+          <span class="token-str">"default"</span>: <span class="token-kw">false</span>
+        }
+      },
+      <span class="token-str">"required"</span>: [<span class="token-str">"city"</span>],
+      <span class="token-str">"additionalProperties"</span>: <span class="token-kw">false</span>
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Schema 设计中常见的3个致命错误</div>
+        <ol>
+          <li><strong>description 与另一个工具雷同</strong>：当两个工具有相似的 description 时，LLM 无法区分何时用哪个。确保每个工具的 description 都明确说明了它的"独特适用场景"。</li>
+          <li><strong>参数类型设为 "object" 或 "string" 来 "兜底"</strong>：这看似万能，实际上让 LLM 无所适从。精确的类型约束是给 LLM 的"路标"。</li>
+          <li><strong>忘记 additionalProperties: false</strong>：如果不设置这个，LLM 可能会在参数中添加你未定义的额外字段，导致后端解析失败。</li>
+        </ol>
+      </div>
+    </article>
+
+    <!-- Card 3: Tool Lifecycle -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">&#128259;</div>
+        <div>
+          <div class="card-title">工具生命周期：从注册到退役</div>
+          <div class="card-desc">每个工具在 Agent 系统中都经历完整的创建-使用-维护-退役周期</div>
+        </div>
+      </div>
+      <p>工具不是写完了就完事。在 Agent 系统中，每个工具都有一个完整的生命周期，理解这个生命周期有助于你设计更健壮的工具。</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>阶段1 — 定义 (Define)</h4>
+          <p>明确工具的功能边界、输入输出规范、适用场景和限制。这个阶段的关键产出是<strong>清晰的功能描述和完整的 JSON Schema</strong>。问自己三个问题：这个工具解决什么问题？它与其他工具的边界在哪里？什么情况下不应该使用这个工具？</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段2 — 注册 (Register)</h4>
+          <p>将工具添加到 Agent 的工具注册表中。注册不仅仅是"加进去"，还包括：设置工具的<strong>权限级别</strong>（只读/可写/危险）、配置<strong>速率限制</strong>（每分钟最多调用多少次）、指定<strong>超时时间</strong>（单次调用最长等待多久）。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段3 — 发现 (Discover)</h4>
+          <p>LLM 根据当前上下文"发现"需要调用哪个工具。这一步完全由 LLM 的语义理解能力驱动。优化方向：让工具的 description 在语义上与众不同，使 LLM 在正确的场景下能"一眼认出"正确的工具。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段4 — 选择 (Select)</h4>
+          <p>当多个工具都能完成任务时，LLM 需要做出选择。影响选择的因素包括：description 的匹配度、参数复杂度、工具在上下文中的位置（靠前的工具有一定优势）。这也是为什么"一工具一职责"如此重要的原因。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段5 — 验证 (Validate)</h4>
+          <p>编排器收到 LLM 的工具调用请求后，进行参数验证：参数类型是否正确？必填参数是否齐全？参数值是否在合法范围内？是否有越权操作？验证通过后才进入执行。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段6 — 执行 (Execute)</h4>
+          <p>实际调用工具函数，传入参数，等待返回。这个阶段要做：超时控制、异常捕获、结果截断（防止返回过大的数据撑满上下文）、日志记录。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段7 — 观察 (Observe)</h4>
+          <p>编排器将工具返回结果格式化后反馈给 LLM。结果应该：<strong>结构化</strong>（JSON 或 Markdown 表格）、<strong>精简</strong>（去掉无关字段）、<strong>带元信息</strong>（执行耗时、数据来源、记录数）。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>阶段8 — 退役 (Retire)</h4>
+          <p>当工具不再需要、被更好的工具替代、或发现安全漏洞时，应该及时从注册表中移除。退役前需要：检查是否有 Agent 流程依赖此工具、提供替代方案、更新文档。</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 4: Tool Categories -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon orange">&#128451;</div>
+        <div>
+          <div class="card-title">工具分类体系：四类工具的各自之道</div>
+          <div class="card-desc">不同类型的工具有不同的设计考量、性能特征和风险点</div>
+        </div>
+      </div>
+      <p>Agent 可以调用的工具种类繁多，但都可以归入以下四个类别。理解每个类别的特征，有助于你为每类工具采用最合适的设计策略。</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="fc-icon">&#128269;</div>
+          <div class="fc-title">数据检索类</div>
+          <div class="fc-desc">
+            <p><strong>做什么</strong>：从数据库、API、文件系统、搜索引擎中获取信息。</p>
+            <p><strong>典型工具</strong>：SQL查询、REST API调用、向量检索、网页抓取</p>
+            <p><strong>关键考量</strong>：</p>
+            <ul>
+              <li>返回数据量控制（截断策略）</li>
+              <li>查询性能（索引、缓存）</li>
+              <li>数据新鲜度（实时 vs 缓存）</li>
+            </ul>
+            <p><strong>风险等级</strong>：低（只读操作）</p>
+          </div>
+          <span class="fc-badge beginner">低风险</span>
+        </div>
+
+        <div class="feature-card">
+          <div class="fc-icon">&#128290;</div>
+          <div class="fc-title">计算处理类</div>
+          <div class="fc-desc">
+            <p><strong>做什么</strong>：执行计算、转换、分析操作。</p>
+            <p><strong>典型工具</strong>：代码执行器、数据处理（pandas）、数学计算、文本分析</p>
+            <p><strong>关键考量</strong>：</p>
+            <ul>
+              <li>执行环境隔离（沙箱）</li>
+              <li>资源限制（CPU/内存/时间）</li>
+              <li>输入输出的大小限制</li>
+            </ul>
+            <p><strong>风险等级</strong>：中（需要沙箱保护）</p>
+          </div>
+          <span class="fc-badge intermediate">中等风险</span>
+        </div>
+
+        <div class="feature-card">
+          <div class="fc-icon">&#128640;</div>
+          <div class="fc-title">操作/执行类</div>
+          <div class="fc-desc">
+            <p><strong>做什么</strong>：对环境产生实际变更。</p>
+            <p><strong>典型工具</strong>：文件写入、数据库更新、发送邮件、部署操作、创建资源</p>
+            <p><strong>关键考量</strong>：</p>
+            <ul>
+              <li>操作前确认机制</li>
+              <li>幂等性（重复执行安全）</li>
+              <li>回滚/撤销能力</li>
+              <li>操作审计日志</li>
+            </ul>
+            <p><strong>风险等级</strong>：高（不可逆操作）</p>
+          </div>
+          <span class="fc-badge advanced">高风险</span>
+        </div>
+
+        <div class="feature-card">
+          <div class="fc-icon">&#127916;</div>
+          <div class="fc-title">多模态类</div>
+          <div class="fc-desc">
+            <p><strong>做什么</strong>：处理图片、音频、视频等非文本数据。</p>
+            <p><strong>典型工具</strong>：图像生成/识别、语音转文字、视频分析、OCR</p>
+            <p><strong>关键考量</strong>：</p>
+            <ul>
+              <li>二进制数据传输</li>
+              <li>格式转换和兼容性</li>
+              <li>处理和传输成本</li>
+            </ul>
+            <p><strong>风险等级</strong>：中（内容审核需求）</p>
+          </div>
+          <span class="fc-badge intermediate">中等风险</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 5: Error Handling Patterns -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon purple">&#128721;</div>
+        <div>
+          <div class="card-title">错误处理模式：让 Agent 优雅地失败</div>
+          <div class="card-desc">工具执行总会出错，关键在于出错后的处理策略</div>
+        </div>
+      </div>
+      <p>在 Agent 系统中，工具执行错误是<strong>常态而非例外</strong>。网络抖动、API 限流、参数错误、数据变化——任何环节都可能出错。优秀的 Agent 不是不会出错，而是知道在出错后如何优雅恢复。</p>
+
+      <h4>三层错误处理金字塔</h4>
+
+      <div style="border-left:4px solid var(--accent-green);padding:16px 20px;margin:12px 0;background:rgba(0,230,118,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-green);">L1 — 自动重试 (Automatic Retry)</h4>
+        <p><strong>适用场景</strong>：网络超时、临时性服务不可用、限流错误</p>
+        <p><strong>策略</strong>：指数退避重试（1s -> 2s -> 4s -> 8s），最多3次。重试时参数不变，因为错误是临时性的而非参数错误。</p>
+        <p><strong>关键细节</strong>：只在幂等操作上重试。对于非幂等操作（如发送邮件），重试可能导致重复执行。</p>
+      </div>
+
+      <div style="border-left:4px solid var(--accent-orange);padding:16px 20px;margin:12px 0;background:rgba(255,145,0,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-orange);">L2 — 智能降级 (Intelligent Fallback)</h4>
+        <p><strong>适用场景</strong>：工具不可用、数据源不可达、权限不足</p>
+        <p><strong>策略</strong>：切换到备用方案。例如：主数据库查询失败 -> 查询只读副本；实时 API 超时 -> 返回缓存数据（标注"非实时"）；文件系统不可写 -> 改为返回内容让用户手动保存。</p>
+        <p><strong>关键细节</strong>：降级方案必须<strong>明确告知 LLM 和用户</strong>当前的降级状态和数据的可靠性等级。</p>
+      </div>
+
+      <div style="border-left:4px solid var(--accent-red);padding:16px 20px;margin:12px 0;background:rgba(255,61,90,0.05);border-radius:0 8px 8px 0;">
+        <h4 style="color:var(--accent-red);">L3 — 优雅失败 (Graceful Failure)</h4>
+        <p><strong>适用场景</strong>：所有重试和降级都失败</p>
+        <p><strong>策略</strong>：<strong>向 LLM 返回结构化的错误信息</strong>，而不是抛出异常。错误信息应包含：发生了什么（what）、为什么（why）、建议怎么做（suggestion）。让 LLM 能够基于这些信息调整策略或向用户解释。</p>
+        <p><strong>错误信息模板</strong>：</p>
+        <p style="background:var(--bg-tertiary);padding:8px 12px;border-radius:4px;font-family:var(--font-mono);font-size:13px;">
+          {"error": true, "type": "execution_failed", "tool": "query_database",<br>
+          "message": "数据库连接超时（已重试3次）",<br>
+          "suggestion": "请尝试以下替代方案：1) 缩小查询范围减少数据量；2) 使用 read_only_replica 工具查询只读副本；3) 如果不需要实时数据，可以使用 cached_query 工具获取昨天的缓存数据。"}
+        </p>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">错误处理的核心原则</div>
+        <p><strong>不要向 LLM 抛异常</strong>。LLM 不理解 Java/Python 的异常堆栈。所有的错误都应该被捕获并转换为<strong>LLM 可理解的结构化反馈</strong>。给 LLM 的信息越有用，它越可能自动找到解决方案。</p>
+      </div>
+    </article>
+
+    <!-- Card 6: Tool Description Best Practices -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon green">&#128214;</div>
+        <div>
+          <div class="card-title">工具描述最佳实践：好描述与坏描述</div>
+          <div class="card-desc">通过正反对比，直观感受什么才是"对 LLM 友好"的工具描述</div>
+        </div>
+      </div>
+
+      <h4>案例1：数据库查询工具</h4>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th></th><th>描述内容</th><th>分析</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="color:var(--accent-red);font-weight:700;">差</span></td>
+              <td><code>"查询数据库"</code></td>
+              <td>太模糊。什么数据库？查询什么？LLM 无法判断何时该用</td>
+            </tr>
+            <tr>
+              <td><span style="color:var(--accent-green);font-weight:700;">好</span></td>
+              <td><code>"在 PostgreSQL 数据库中执行只读 SQL 查询。支持的查询类型：SELECT、EXPLAIN、SHOW。返回结果最多 500 行。如果用户涉及销量、订单、用户等业务数据且需要精确统计，优先使用此工具。禁止执行 INSERT/UPDATE/DELETE。"</code></td>
+              <td>明确：数据库类型、支持的SQL、结果上限、适用场景、禁止操作</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>案例2：文件读取工具</h4>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th></th><th>描述内容</th><th>分析</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="color:var(--accent-red);font-weight:700;">差</span></td>
+              <td><code>"读取文件内容"</code></td>
+              <td>路径呢？支持什么格式？大小限制呢？</td>
+            </tr>
+            <tr>
+              <td><span style="color:var(--accent-green);font-weight:700;">好</span></td>
+              <td><code>"从指定路径读取文件内容。支持纯文本(.txt)、Markdown(.md)、代码文件(.py/.js/.ts等)和JSON/CSV文件。单次最大读取 100KB。如果文件大于100KB，请先使用 file_preview 工具查看前1000字符，再决定是否需要分段读取。路径必须是绝对路径。"</code></td>
+              <td>明确：支持格式、大小限制、超大文件处理策略、路径要求</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>描述写作的5个黄金问题</h4>
+      <p>写完一个工具的 description 后，用这5个问题自检：</p>
+      <ol>
+        <li><strong>何时用？</strong> — LLM 读完描述后，能准确判断什么场景下该调用这个工具吗？</li>
+        <li><strong>何时不用？</strong> — 描述是否暗示了此工具的边界（什么场景下应该用别的工具）？</li>
+        <li><strong>有何限制？</strong> — 大小限制、速率限制、权限要求是否说清楚了？</li>
+        <li><strong>输入什么？</strong> — 每个参数的类型、含义、示例值是否都明确了？</li>
+        <li><strong>输出什么？</strong> — 返回结果的结构和内容是否有说明？</li>
+      </ol>
+
+      <div class="alert alert-success">
+        <div class="alert-title">一个有用的思维实验</div>
+        <p>想象你只能通过工具描述来理解一个工具——你看不到源代码，不能运行它，也没有其他文档。在这种情况下，你能准确判断何时该用这个工具、应该传什么参数、能拿到什么返回值吗？如果不能，说明你的工具描述还需要完善。</p>
+      </div>
+    </article>
+
+    <!-- Card 7: Full Tool Execution Code -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon cyan">&#128187;</div>
+        <div>
+          <div class="card-title">代码实战：完整工具定义与执行循环</div>
+          <div class="card-desc">包含多个工具的完整 Schema 定义和执行框架</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Python — 多工具 Schema 定义与执行</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">复制代码</button>
+        </div>
+        <pre><code><span class="token-kw">import</span> json
+<span class="token-kw">import</span> time
+<span class="token-kw">from</span> typing <span class="token-kw">import</span> Any
+<span class="token-kw">from</span> enum <span class="token-kw">import</span> Enum
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 1. 工具 Schema 定义（完整的 JSON Schema）</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-cls">TOOL_SCHEMAS</span> = [
+    {
+        <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+        <span class="token-str">"function"</span>: {
+            <span class="token-str">"name"</span>: <span class="token-str">"sql_query"</span>,
+            <span class="token-str">"description"</span>: <span class="token-str">"在 PostgreSQL 数据库中执行只读 SQL 查询。支持 SELECT、EXPLAIN。返回结果最多 500 行、每行最多 50 列。当需要获取精确的业务数据（订单/用户/库存）时使用。禁止 INSERT/UPDATE/DELETE/DROP。"</span>,
+            <span class="token-str">"parameters"</span>: {
+                <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                <span class="token-str">"properties"</span>: {
+                    <span class="token-str">"query"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"要执行的 SQL 查询语句。仅支持只读查询。建议添加 LIMIT 控制返回行数。"</span>
+                    },
+                    <span class="token-str">"timeout_ms"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"integer"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"查询超时时间（毫秒），默认 30000。"</span>,
+                        <span class="token-str">"default"</span>: <span class="token-num">30000</span>,
+                        <span class="token-str">"minimum"</span>: <span class="token-num">1000</span>,
+                        <span class="token-str">"maximum"</span>: <span class="token-num">120000</span>
+                    }
+                },
+                <span class="token-str">"required"</span>: [<span class="token-str">"query"</span>],
+                <span class="token-str">"additionalProperties"</span>: <span class="token-kw">false</span>
+            }
+        }
+    },
+    {
+        <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+        <span class="token-str">"function"</span>: {
+            <span class="token-str">"name"</span>: <span class="token-str">"run_python"</span>,
+            <span class="token-str">"description"</span>: <span class="token-str">"在安全沙箱中执行 Python 代码。可用于数据分析、计算、转换、绘图。可导入的库：pandas、numpy、matplotlib、scipy、json、datetime。代码不能访问网络和文件系统。输出最后一行表达式的值或 print 的内容。最长执行时间 30 秒。"</span>,
+            <span class="token-str">"parameters"</span>: {
+                <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                <span class="token-str">"properties"</span>: {
+                    <span class="token-str">"code"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"要执行的 Python 代码。会自动处理缩进。最后一行可以是表达式，其值会自动输出。"</span>
+                    },
+                    <span class="token-str">"input_data"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"可选的输入数据，会作为变量 data 传入。通常为前一步 SQL 查询的结果。"</span>
+                    }
+                },
+                <span class="token-str">"required"</span>: [<span class="token-str">"code"</span>],
+                <span class="token-str">"additionalProperties"</span>: <span class="token-kw">false</span>
+            }
+        }
+    },
+    {
+        <span class="token-str">"type"</span>: <span class="token-str">"function"</span>,
+        <span class="token-str">"function"</span>: {
+            <span class="token-str">"name"</span>: <span class="token-str">"web_search"</span>,
+            <span class="token-str">"description"</span>: <span class="token-str">"在互联网上搜索最新信息。当用户问及当前事件、最新资讯、或需要实时验证的信息时使用。返回前 10 条最相关结果的标题、摘要和 URL。不适合查询企业内部数据（请使用 sql_query）。"</span>,
+            <span class="token-str">"parameters"</span>: {
+                <span class="token-str">"type"</span>: <span class="token-str">"object"</span>,
+                <span class="token-str">"properties"</span>: {
+                    <span class="token-str">"query"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"string"</span>,
+                        <span class="token-str">"description"</span>: <span class="token-str">"搜索关键词。使用简洁、精准的关键词组合，避免自然语言长句。例如：'北京 天气 2026-05' 而非 '我想知道今天北京的天气怎么样'。"</span>
+                    },
+                    <span class="token-str">"max_results"</span>: {
+                        <span class="token-str">"type"</span>: <span class="token-str">"integer"</span>,
+                        <span class="token-str">"default"</span>: <span class="token-num">10</span>,
+                        <span class="token-str">"minimum"</span>: <span class="token-num">1</span>,
+                        <span class="token-str">"maximum"</span>: <span class="token-num">20</span>
+                    }
+                },
+                <span class="token-str">"required"</span>: [<span class="token-str">"query"</span>],
+                <span class="token-str">"additionalProperties"</span>: <span class="token-kw">false</span>
+            }
+        }
+    }
+]
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 2. 工具实现（被编排器调用的实际函数）</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">def</span> <span class="token-fn">execute_sql_query</span>(query: <span class="token-cls">str</span>, timeout_ms: <span class="token-cls">int</span> = <span class="token-num">30000</span>) -> <span class="token-cls">dict</span>:
+    <span class="token-cm">"""执行 SQL 查询"""</span>
+    <span class="token-kw">try</span>:
+        result = db_connection.<span class="token-fn">execute</span>(query, timeout=timeout_ms/<span class="token-num">1000</span>)
+        rows = result.<span class="token-fn">fetchmany</span>(<span class="token-num">500</span>)
+        <span class="token-kw">return</span> {
+            <span class="token-str">"success"</span>: <span class="token-kw">True</span>,
+            <span class="token-str">"row_count"</span>: <span class="token-fn">len</span>(rows),
+            <span class="token-str">"columns"</span>: result.<span class="token-fn">keys</span>(),
+            <span class="token-str">"data"</span>: [<span class="token-fn">dict</span>(<span class="token-fn">zip</span>(result.<span class="token-fn">keys</span>(), row)) <span class="token-kw">for</span> row <span class="token-kw">in</span> rows],
+            <span class="token-str">"truncated"</span>: result.<span class="token-fn">rowcount</span> > <span class="token-num">500</span>
+        }
+    <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+        <span class="token-kw">return</span> {
+            <span class="token-str">"error"</span>: <span class="token-kw">True</span>,
+            <span class="token-str">"message"</span>: <span class="token-str">f"SQL 查询失败: {e}"</span>,
+            <span class="token-str">"suggestion"</span>: <span class="token-str">"请检查 SQL 语法。如果查询超时，尝试添加更精确的 WHERE 条件或使用 LIMIT 限制返回行数。"</span>
+        }
+
+
+<span class="token-kw">def</span> <span class="token-fn">execute_python</span>(code: <span class="token-cls">str</span>, input_data: <span class="token-cls">dict</span> = <span class="token-kw">None</span>) -> <span class="token-cls">dict</span>:
+    <span class="token-cm">"""在沙箱中执行 Python 代码"""</span>
+    <span class="token-kw">import</span> subprocess
+    <span class="token-kw">try</span>:
+        <span class="token-cm"># 实际实现中应使用安全的沙箱环境</span>
+        proc = subprocess.<span class="token-fn">run</span>(
+            [<span class="token-str">"python"</span>, <span class="token-str">"-c"</span>, code],
+            capture_output=<span class="token-kw">True</span>, text=<span class="token-kw">True</span>, timeout=<span class="token-num">30</span>
+        )
+        <span class="token-kw">return</span> {
+            <span class="token-str">"success"</span>: <span class="token-kw">True</span>,
+            <span class="token-str">"stdout"</span>: proc.stdout,
+            <span class="token-str">"stderr"</span>: proc.stderr <span class="token-kw">if</span> proc.stderr <span class="token-kw">else</span> <span class="token-kw">None</span>,
+            <span class="token-str">"return_code"</span>: proc.returncode
+        }
+    <span class="token-kw">except</span> subprocess.TimeoutExpired:
+        <span class="token-kw">return</span> {<span class="token-str">"error"</span>: <span class="token-kw">True</span>, <span class="token-str">"message"</span>: <span class="token-str">"代码执行超时（30秒）"</span>}
+
+
+<span class="token-kw">def</span> <span class="token-fn">execute_web_search</span>(query: <span class="token-cls">str</span>, max_results: <span class="token-cls">int</span> = <span class="token-num">10</span>) -> <span class="token-cls">dict</span>:
+    <span class="token-cm">"""执行网络搜索"""</span>
+    results = search_engine.<span class="token-fn">search</span>(query, num=max_results)
+    <span class="token-kw">return</span> {
+        <span class="token-str">"success"</span>: <span class="token-kw">True</span>,
+        <span class="token-str">"query"</span>: query,
+        <span class="token-str">"total_results"</span>: <span class="token-fn">len</span>(results),
+        <span class="token-str">"results"</span>: [
+            {<span class="token-str">"title"</span>: r.title, <span class="token-str">"snippet"</span>: r.snippet, <span class="token-str">"url"</span>: r.url}
+            <span class="token-kw">for</span> r <span class="token-kw">in</span> results
+        ]
+    }
+
+
+<span class="token-cm"># 工具注册表</span>
+<span class="token-cls">TOOL_REGISTRY</span> = {
+    <span class="token-str">"sql_query"</span>: execute_sql_query,
+    <span class="token-str">"run_python"</span>: execute_python,
+    <span class="token-str">"web_search"</span>: execute_web_search
+}
+
+
+<span class="token-cm"># ============================================================</span>
+<span class="token-cm"># 3. 工具执行循环（集成到编排器中）</span>
+<span class="token-cm"># ============================================================</span>
+
+<span class="token-kw">class</span> <span class="token-cls">ToolExecutor</span>:
+    <span class="token-cm">"""工具执行器：负责工具调用的全生命周期管理"""</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">__init__</span>(<span class="token-kw">self</span>, registry: <span class="token-cls">dict</span>, max_retries: <span class="token-cls">int</span> = <span class="token-num">3</span>):
+        <span class="token-kw">self</span>.registry = registry
+        <span class="token-kw">self</span>.max_retries = max_retries
+        <span class="token-kw">self</span>.call_history = []  <span class="token-cm"># 调用历史（可观测性）</span>
+
+    <span class="token-kw">def</span> <span class="token-fn">execute</span>(<span class="token-kw">self</span>, tool_name: <span class="token-cls">str</span>, args: <span class="token-cls">dict</span>) -> <span class="token-cls">dict</span>:
+        <span class="token-cm">"""带完整错误处理的工具执行"""</span>
+        <span class="token-kw">if</span> tool_name <span class="token-kw">not</span> <span class="token-kw">in</span> <span class="token-kw">self</span>.registry:
+            <span class="token-kw">return</span> {<span class="token-str">"error"</span>: <span class="token-kw">True</span>, <span class="token-str">"message"</span>: <span class="token-str">f"工具 '{tool_name}' 未注册"</span>}
+
+        func = <span class="token-kw">self</span>.registry[tool_name]
+
+        <span class="token-kw">for</span> attempt <span class="token-kw">in</span> <span class="token-fn">range</span>(<span class="token-num">1</span>, <span class="token-kw">self</span>.max_retries + <span class="token-num">1</span>):
+            <span class="token-kw">try</span>:
+                result = <span class="token-fn">func</span>(**args)
+                <span class="token-kw">self</span>.call_history.<span class="token-fn">append</span>({
+                    <span class="token-str">"tool"</span>: tool_name, <span class="token-str">"args"</span>: args,
+                    <span class="token-str">"success"</span>: <span class="token-kw">True</span>, <span class="token-str">"attempt"</span>: attempt
+                })
+                <span class="token-kw">return</span> result
+
+            <span class="token-kw">except</span> <span class="token-cls">Exception</span> <span class="token-kw">as</span> e:
+                <span class="token-kw">if</span> attempt == <span class="token-kw">self</span>.max_retries:
+                    <span class="token-cm"># 所有重试失败：返回结构化的错误信息</span>
+                    <span class="token-kw">self</span>.call_history.<span class="token-fn">append</span>({
+                        <span class="token-str">"tool"</span>: tool_name, <span class="token-str">"args"</span>: args,
+                        <span class="token-str">"success"</span>: <span class="token-kw">False</span>, <span class="token-str">"error"</span>: <span class="token-fn">str</span>(e)
+                    })
+                    <span class="token-kw">return</span> {
+                        <span class="token-str">"error"</span>: <span class="token-kw">True</span>,
+                        <span class="token-str">"message"</span>: <span class="token-str">f"工具 '{tool_name}' 执行失败（已重试 {self.max_retries} 次）: {str(e)}"</span>,
+                        <span class="token-str">"suggestion"</span>: <span class="token-str">"请尝试修改参数或使用其他工具完成此任务。"</span>
+                    }
+                time.<span class="token-fn">sleep</span>(<span class="token-num">2</span> ** (attempt - <span class="token-num">1</span>))  <span class="token-cm"># 指数退避</span></code></pre>
+      </div>
+    </article>
+
+    <!-- Card 8: Advanced: Parallel Tool Calls -->
+    <article class="content-card">
+      <div class="card-header">
+        <div class="card-icon orange">&#9889;</div>
+        <div>
+          <div class="card-title">进阶话题：并行工具调用与工具编排</div>
+          <div class="card-desc">掌握高级工具使用技巧，让 Agent 更快、更智能</div>
+        </div>
+      </div>
+
+      <h4>并行工具调用</h4>
+      <p>当任务中的多个工具调用相互独立时，应该并行执行而非顺序执行。例如：用户问"帮我比较一下北京和上海的天气"，查询北京天气和查询上海天气是两个完全独立的操作。</p>
+
+      <p><strong>顺序执行耗时</strong>：200ms（北京）+ 200ms（上海）= 400ms</p>
+      <p><strong>并行执行耗时</strong>：max(200ms, 200ms) = 200ms — 节省50%</p>
+
+      <p>支持并行调用的 LLM 可以在一次响应中返回多个 tool_calls，编排器收到后并行执行，将所有结果一次性返回给 LLM。</p>
+
+      <h4>工具链与工具组合</h4>
+      <p>复杂的任务往往需要多个工具协同工作。常见模式：</p>
+      <ul>
+        <li><strong>检索-分析-输出链</strong>：sql_query -> run_python -> 自然语言总结。先用 SQL 取数据，再用 Python 分析，最后 LLM 总结。</li>
+        <li><strong>搜索-验证-综合链</strong>：web_search 多次 -> 交叉验证 -> 综合报告。多次搜索不同关键词，验证信息一致性，生成综合报告。</li>
+        <li><strong>读取-处理-写入链</strong>：file_read -> run_python -> file_write。读取文件、处理内容、写回结果。</li>
+      </ul>
+
+      <h4>工具使用的反模式</h4>
+      <ul>
+        <li><strong>过度工具化</strong>：把任何小功能都做成独立工具。5个工具可能就够了，50个工具会让 LLM 患上"选择困难症"。</li>
+        <li><strong>虚假能力</strong>：工具名称听起来很强大，但实际实现很弱（如名为 "analyze_market_trends" 的工具只做了简单的平均计算）。这会严重损害 LLM 对工具的信任。</li>
+        <li><strong>缺乏超时机制</strong>：工具执行没有时间限制，一个慢查询卡住整个 Agent 循环。</li>
+      </ul>
+
+      <div class="alert alert-success">
+        <div class="alert-title">工具设计的终极检验标准</div>
+        <p>一个好的工具集会让 LLM 在 90% 的场景下<strong>第一次就选对工具</strong>。如果你的 Agent 经常在多个工具之间犹豫、频繁调用"错误"的工具然后重试，那说明你的工具描述存在重叠或模糊。回到 Schema 设计上重新打磨。</p>
+      </div>
+    </article>
+
+    <!-- Chapter 3 Quiz -->
+    <div class="quiz-section" data-quiz="3">
+      <div class="quiz-title">章节测验</div>
+      <div class="quiz-desc">测试你对工具调用机制的全面理解（共3题）</div>
+
+      <div class="quiz-question" data-q="1">
+        <div class="quiz-q-text">1. 在 Function Calling 中，LLM 实际上做了什么？</div>
+        <button class="quiz-option" data-answer="0">A. 直接执行工具函数的代码</button>
+        <button class="quiz-option" data-answer="1">B. 输出结构化的工具调用请求（JSON格式），由编排器来实际执行</button>
+        <button class="quiz-option" data-answer="2">C. 自动编译并运行工具的二进制文件</button>
+        <button class="quiz-option" data-answer="3">D. 创建新的工具函数并注册到系统中</button>
+      </div>
+
+      <div class="quiz-question" data-q="2">
+        <div class="quiz-q-text">2. 以下哪项是工具 Schema 设计中最重要的原则？</div>
+        <button class="quiz-option" data-answer="0">A. 用 "object" 类型兜底，避免参数类型限制过严</button>
+        <button class="quiz-option" data-answer="1">B. 一个工具完成所有相关功能，减少工具数量</button>
+        <button class="quiz-option" data-answer="2">C. 描述具体、类型精确、一工具一职责、枚举约束可选值</button>
+        <button class="quiz-option" data-answer="3">D. 不写 description，让 LLM 自己理解工具的功能</button>
+      </div>
+
+      <div class="quiz-question" data-q="3">
+        <div class="quiz-q-text">3. 工具执行出错时，最佳的错误处理策略是什么？</div>
+        <button class="quiz-option" data-answer="0">A. 直接向 LLM 抛出 Python 异常，让 LLM 自己分析堆栈信息</button>
+        <button class="quiz-option" data-answer="1">B. 静默忽略错误，什么都不返回</button>
+        <button class="quiz-option" data-answer="2">C. 捕获错误后返回结构化信息（发生了什么、为什么、建议怎么做），让 LLM 能据此调整策略</button>
+        <button class="quiz-option" data-answer="3">D. 立即终止整个 Agent 进程</button>
+      </div>
+
+      <button class="quiz-submit">提交答案</button>
+      <div class="quiz-result"></div>
+    </div>
+
+  </section>
+
+  <!-- Page Navigation -->
+  <nav class="page-nav">
+    <a href="02-core-architecture.html" class="page-nav-btn">
+      <span>&#8592; 上一章</span>
+      <span>第2章：核心架构</span>
+    </a>
+    <a href="04-memory-management.html" class="page-nav-btn">
+      <span>下一章</span>
+      <span>第4章：记忆与状态管理 &#8594;</span>
+    </a>
+  </nav>
+
+</main>
+
+<!-- Agent Simulator Panel -->
+<button class="sim-toggle" id="simToggle" title="打开Agent模拟器">&#129302;</button>
+<div class="sim-panel" id="simPanel">
+  <div class="sim-header">
+    <div class="sim-header-title"><span class="sim-status-dot"></span> Agent 模拟器</div>
+    <button class="sim-close" id="simClose">&#10005;</button>
+  </div>
+  <div class="sim-messages" id="simMessages">
+    <div class="sim-msg agent">你好！我是一个模拟的 AI Agent。试试问我一些问题，观察我是如何<strong>思考-行动-观察</strong>的！</div>
+  </div>
+  <div class="sim-input-area">
+    <textarea class="sim-input" id="simInput" placeholder="输入你的请求..." rows="1"></textarea>
+    <button class="sim-send-btn" id="simSend">发送</button>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<button class="notes-toggle" id="notesToggle" title="笔记">&#128221;</button>
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header"><span>我的笔记</span><button class="sim-close" id="notesClose">&#10005;</button></div>
+  <div class="notes-list" id="notesList"><div style="color:var(--text-muted);text-align:center;padding:30px;">还没有笔记<br>在下方写点什么吧</div></div>
+  <div class="notes-editor-area">
+    <textarea id="noteInput" placeholder="在这里写笔记..."></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <select id="noteChapter" style="flex:1;padding:8px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:6px;color:var(--text-primary);font-size:13px;">
+        <option value="1">第1章：什么是AI Agent</option>
+        <option value="2">第2章：核心架构</option>
+        <option value="3">第3章：工具调用</option>
+        <option value="4">第4章：记忆管理</option>
+      </select>
+      <button class="notes-save-btn" id="notesSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/core.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress-tracker.js"></script>
+<script src="../js/quiz-engine.js"></script>
+<script src="../js/search.js"></script>
+<script src="../js/agent-simulator.js"></script>
+<script src="../js/notes-system.js"></script>
+<script src="../js/navigation.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+{
+  "terms": {
+    "agent": {
+      "term": "AI Agent (智能体)",
+      "en": "AI Agent",
+      "definition": "一种能够自主感知环境、做出决策并执行行动以实现特定目标的人工智能系统。由 LLM 驱动，具备工具使用能力和多步推理能力。",
+      "related": ["LLM", "Tool Use", "Autonomous Systems"],
+      "category": "core"
+    },
+    "llm": {
+      "term": "LLM (大语言模型)",
+      "en": "Large Language Model",
+      "definition": "基于 Transformer 架构的大规模语言模型，如 GPT-4、Claude、Gemini 等。在 Agent 系统中充当核心推理引擎，负责理解任务、生成计划和决策。",
+      "related": ["Transformer", "GPT", "Claude"],
+      "category": "foundation"
+    },
+    "function_calling": {
+      "term": "Function Calling (函数调用)",
+      "en": "Function Calling",
+      "definition": "LLM 的核心能力之一，允许模型根据用户输入以结构化 JSON 格式输出调用特定函数的请求，而非普通文本回复。Agent 框架负责解析这些请求并实际执行函数。",
+      "related": ["Tool Use", "JSON Schema", "API"],
+      "category": "core"
+    },
+    "react": {
+      "term": "ReAct 模式",
+      "en": "Reasoning + Acting",
+      "definition": "将推理(Reasoning)和行动(Acting)交替进行的 Agent 模式。每个步骤中 Agent 先思考(Thought)、再行动(Action)、然后观察结果(Observation)，循环直到任务完成。由 Yao et al., 2022 提出。",
+      "related": ["Chain-of-Thought", "Plan-and-Execute", "Thought"],
+      "category": "reasoning"
+    },
+    "rag": {
+      "term": "RAG (检索增强生成)",
+      "en": "Retrieval-Augmented Generation",
+      "definition": "将信息检索与文本生成相结合的技术。处理查询时先从知识库中检索相关文档，再将文档作为上下文提供给 LLM，从而生成更准确、更有依据的回答。",
+      "related": ["Vector Database", "Embedding", "Semantic Search"],
+      "category": "technique"
+    },
+    "prompt_injection": {
+      "term": "提示注入攻击",
+      "en": "Prompt Injection",
+      "definition": "一种针对 LLM 应用的攻击手段，攻击者通过构造特殊输入内容，试图覆盖或绕过系统提示词，使 Agent 执行非预期操作或泄露敏感信息。分为直接注入和间接注入。",
+      "related": ["Jailbreak", "Security", "Guardrails"],
+      "category": "security"
+    },
+    "embedding": {
+      "term": "Embedding (向量嵌入)",
+      "en": "Embedding",
+      "definition": "将文本、图像等非结构化数据转换为固定长度的数值向量表示。语义相近的内容在向量空间中距离更近，是实现语义搜索和长期记忆的基础技术。",
+      "related": ["Vector Database", "Semantic Search", "RAG"],
+      "category": "technique"
+    },
+    "vector_db": {
+      "term": "向量数据库",
+      "en": "Vector Database",
+      "definition": "专门存储和检索高维向量数据的数据库系统。通过近似最近邻(ANN)算法实现高效的相似度搜索。常用产品包括 Pinecone、Weaviate、ChromaDB、Milvus 等。",
+      "related": ["Embedding", "RAG", "Semantic Search"],
+      "category": "infrastructure"
+    },
+    "chain_of_thought": {
+      "term": "思维链 (CoT)",
+      "en": "Chain-of-Thought",
+      "definition": "一种提示技术，引导 LLM 在给出最终答案前展示逐步推理过程。通过将复杂问题分解为中间步骤，显著提高模型在数学、逻辑和复杂推理任务上的表现。",
+      "related": ["ReAct", "Tree of Thoughts", "Prompt Engineering"],
+      "category": "reasoning"
+    },
+    "tool_use": {
+      "term": "工具使用",
+      "en": "Tool Use",
+      "definition": "Agent 调用外部工具（API、数据库、代码执行器等）来完成超出纯文本生成能力的实际任务。工具通过 JSON Schema 定义接口，Agent 根据需求自动选择合适的工具。",
+      "related": ["Function Calling", "API", "Plugin"],
+      "category": "core"
+    },
+    "guardrails": {
+      "term": "护栏机制",
+      "en": "Guardrails",
+      "definition": "部署在 Agent 系统输入和输出端的安全检查层。包括输入验证、敏感信息过滤、输出审核、操作权限控制等，确保 Agent 行为安全可控。",
+      "related": ["Prompt Injection", "Security", "Validation"],
+      "category": "security"
+    },
+    "multi_agent": {
+      "term": "多Agent系统",
+      "en": "Multi-Agent System",
+      "definition": "由多个专业 Agent 组成的协作系统，通过分工、通信和编排共同完成复杂任务。常见架构包括顺序协作、层级协作、Swarm 和辩论模式。",
+      "related": ["Orchestration", "Swarm", "Agent Communication"],
+      "category": "advanced"
+    },
+    "orchestration": {
+      "term": "Agent 编排",
+      "en": "Agent Orchestration",
+      "definition": "管理和协调多个 Agent 或 Agent 内部多个步骤的执行流程。包括任务分配、状态管理、错误处理和结果汇总。常见框架有 LangChain、CrewAI、AutoGen 等。",
+      "related": ["Multi-Agent System", "Workflow", "State Machine"],
+      "category": "advanced"
+    },
+    "context_window": {
+      "term": "上下文窗口",
+      "en": "Context Window",
+      "definition": "LLM 单次能处理的最大 token 数量。超出窗口的历史信息会被截断。现代模型的上下文窗口从 128K 到 1M+ tokens 不等，是 Agent 短期记忆的物理上限。",
+      "related": ["Memory", "Token", "Prompt Engineering"],
+      "category": "foundation"
+    },
+    "token": {
+      "term": "Token",
+      "en": "Token",
+      "definition": "LLM 处理文本的基本单位，约等于 0.75 个英文单词或约 1.5 个中文字符。模型的计费、上下文窗口限制均以 token 为单位计算。",
+      "related": ["Context Window", "Cost", "LLM"],
+      "category": "foundation"
+    },
+    "sandbox": {
+      "term": "沙箱环境",
+      "en": "Sandbox",
+      "definition": "隔离的安全执行环境，用于运行不信任的代码或命令。Agent 执行用户提供的代码或进行可能有风险的操作时，应在沙箱中进行以防止对宿主系统造成损害。",
+      "related": ["Security", "Code Execution", "Isolation"],
+      "category": "security"
+    },
+    "fine_tuning": {
+      "term": "微调 (Fine-tuning)",
+      "en": "Fine-tuning",
+      "definition": "在预训练模型的基础上，使用特定领域的数据集进行额外训练，使模型更好地适应特定任务或领域。Agent 可以通过微调来提高工具选择和参数生成的准确率。",
+      "related": ["Training", "Model Optimization", "Specialization"],
+      "category": "technique"
+    },
+    "prompt_engineering": {
+      "term": "提示词工程",
+      "en": "Prompt Engineering",
+      "definition": "设计和优化 LLM 输入提示词的系统化方法。在 Agent 场景中尤为重要，直接影响模型的推理质量、工具选择准确率和输出格式的可靠性。",
+      "related": ["System Prompt", "Chain-of-Thought", "Few-shot"],
+      "category": "technique"
+    },
+    "mcp": {
+      "term": "MCP (模型上下文协议)",
+      "en": "Model Context Protocol",
+      "definition": "由 Anthropic 提出的开放标准协议，定义了 LLM 应用与外部工具、数据源之间的统一通信接口。类似于 AI 领域的\"USB 协议\"，实现工具和模型的解耦。",
+      "related": ["Tool Use", "Anthropic", "Protocol"],
+      "category": "infrastructure"
+    },
+    "hallucination": {
+      "term": "幻觉 (Hallucination)",
+      "en": "Hallucination",
+      "definition": "LLM 生成看似合理但事实上不准确或完全虚构的内容。在 Agent 场景中，幻觉可能导致错误的工具调用或决策，需要通过 RAG、验证机制和输出审核来降低影响。",
+      "related": ["RAG", "Validation", "Guardrails"],
+      "category": "challenge"
+    }
+  },
+  "categories": {
+    "foundation": "基础概念",
+    "core": "核心概念",
+    "technique": "技术方法",
+    "reasoning": "推理模式",
+    "security": "安全相关",
+    "infrastructure": "基础设施",
+    "advanced": "高级话题",
+    "challenge": "挑战与限制"
+  }
+}
