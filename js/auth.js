@@ -22,7 +22,11 @@ const AgentLearn = window.AgentLearn || {};
   }
 
   function setAuthStore(data) {
-    localStorage.setItem(BASE_PREFIX + AUTH_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(BASE_PREFIX + AUTH_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('Auth store write failed:', e);
+    }
   }
 
   function hashPassword(pwd) {
