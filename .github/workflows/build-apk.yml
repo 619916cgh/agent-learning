@@ -1,6 +1,10 @@
 name: Build APK
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
   workflow_dispatch:
 
 jobs:
@@ -9,17 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Copy Web Assets to Android
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp index.html admin.html profile.html mobile-preview.html manifest.json sw.js icon-192.png icon-512.png android/app/src/main/assets/
+          cp -r css js data chapters tools reference android/app/src/main/assets/
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Install Gradle
-        run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
-          unzip -qo gradle-8.5-bin.zip
-          echo "$PWD/gradle-8.5/bin" >> $GITHUB_PATH
 
       - name: Setup Android SDK
         env:
@@ -39,20 +43,49 @@ jobs:
           fi
           echo "ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}" >> $GITHUB_ENV
 
-      - name: Generate Wrapper
+      - name: Generate Gradle Wrapper
         working-directory: android
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
         run: gradle wrapper --gradle-version 8.5
 
-      - name: Build APK
+      - name: Build Release APK
         working-directory: android
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
         run: ./gradlew assembleRelease
 
-      - name: Upload
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: APK
-          path: android/app/build/outputs/apk/release/
+          name: AgentLearn-APK
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Sign APK (Debug Key)
+        run: |
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt 2>/dev/null || true
+          if [ -d "$ANDROID_HOME/build-tools/34.0.0" ]; then
+            BT_DIR="$ANDROID_HOME/build-tools/34.0.0"
+          else
+            BT_DIR=$(find $ANDROID_HOME/build-tools -maxdepth 1 -name "34.*" | head -1)
+          fi
+          $BT_DIR/apksigner sign --ks debug.keystore --ks-pass pass:android --ks-key-alias androiddebugkey android/app/build/outputs/apk/release/app-release-unsigned.apk
+          mv android/app/build/outputs/apk/release/app-release-unsigned.apk android/app/build/outputs/apk/release/AgentLearn-v1.0.apk
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAG="v1.0-${SHORT_SHA}"
+          git tag -f "$TAG"
+          gh release create "$TAG" android/app/build/outputs/apk/release/AgentLearn-v1.0.apk \
+            --title "Agent学习 APK v1.0 (${SHORT_SHA})" \
+            --notes "自动构建的 Android APK 安装包。
+
+          📱 **安装方式：** 在 Android 手机上点击 APK 文件下载安装。
+          ⚠️ 安装时可能需要允许「未知来源」应用安装。
+          🔒 使用调试签名密钥，如需正式签名请自行重签。
+
+          - 构建自 commit: \`${SHORT_SHA}\`
+          - 内置完整离线内容，无需联网
+          - 支持 Android 6.0+"
+            --repo 619916cgh/agent-learning 2>/dev/null || \
+          gh release upload "$TAG" android/app/build/outputs/apk/release/AgentLearn-v1.0.apk \
+            --repo 619916cgh/agent-learning --clobber

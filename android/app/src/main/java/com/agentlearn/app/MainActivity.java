@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient());
 
-        webView.loadUrl("https://619916cgh.github.io/agent-learning/");
+        webView.loadUrl("file:///android_asset/index.html");
     }
 
     @Override
