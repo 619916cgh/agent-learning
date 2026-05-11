@@ -2,14 +2,17 @@
  * Service Worker — AI Agent 学习平台
  * 离线缓存 + 安装支持
  */
-const CACHE_NAME = 'agent-learn-v2';
+const CACHE_NAME = 'agent-learn-v3';
 const ASSETS = [
   '/agent-learning/',
   '/agent-learning/index.html',
+  '/agent-learning/profile.html',
+  '/agent-learning/admin.html',
   '/agent-learning/css/global.css',
   '/agent-learning/css/components.css',
   '/agent-learning/js/core.js',
   '/agent-learning/js/theme.js',
+  '/agent-learning/js/auth.js',
   '/agent-learning/js/progress-tracker.js',
   '/agent-learning/js/quiz-engine.js',
   '/agent-learning/js/search.js',
@@ -19,8 +22,11 @@ const ASSETS = [
   '/agent-learning/js/achievements.js',
   '/agent-learning/js/learning-path.js',
   '/agent-learning/js/bookmarks.js',
+  '/agent-learning/js/draggable.js',
   '/agent-learning/js/components.js',
   '/agent-learning/manifest.json',
+  '/agent-learning/icon-192.png',
+  '/agent-learning/icon-512.png',
   '/agent-learning/data/chapters.json',
   '/agent-learning/data/quizzes.json'
 ];
@@ -47,12 +53,12 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch — cache-first strategy
+// Fetch — network-first, fallback to cache
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      const fetchPromise = fetch(e.request).then((response) => {
+    fetch(e.request)
+      .then((response) => {
         if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -60,8 +66,9 @@ self.addEventListener('fetch', (e) => {
           });
         }
         return response;
-      }).catch(() => cached);
-      return cached || fetchPromise;
-    })
+      })
+      .catch(() => {
+        return caches.match(e.request);
+      })
   );
 });
