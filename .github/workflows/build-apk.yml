@@ -74,8 +74,18 @@ jobs:
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
           TAG="v1.0-${SHORT_SHA}"
+
+          # 删除可能存在的旧 Release 和远程 tag（忽略错误）
+          gh release delete "$TAG" --yes --repo 619916cgh/agent-learning 2>/dev/null || true
+          git push origin --delete "$TAG" 2>/dev/null || true
+
+          # 重新打 tag 并推送
           git tag -f "$TAG"
+          git push origin "$TAG"
+
+          # 创建新的 Release
           gh release create "$TAG" android/app/build/outputs/apk/release/AgentLearn-v1.0.apk \
+            --repo 619916cgh/agent-learning \
             --title "Agent学习 APK v1.0 (${SHORT_SHA})" \
             --notes "自动构建的 Android APK 安装包。
 
@@ -86,6 +96,3 @@ jobs:
           - 构建自 commit: \`${SHORT_SHA}\`
           - 内置完整离线内容，无需联网
           - 支持 Android 6.0+"
-            --repo 619916cgh/agent-learning 2>/dev/null || \
-          gh release upload "$TAG" android/app/build/outputs/apk/release/AgentLearn-v1.0.apk \
-            --repo 619916cgh/agent-learning --clobber
