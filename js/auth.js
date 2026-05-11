@@ -183,13 +183,16 @@ const AgentLearn = window.AgentLearn || {};
   var activeTab = 'login';
 
   function renderLoginUI() {
-    // 如果已登录，显示用户面板
-    var store = getAuthStore();
-    if (store.currentUser) {
-      renderUserPanel();
-      return;
+    try {
+      var store = getAuthStore();
+      if (store.currentUser) {
+        renderUserPanel();
+        return;
+      }
+      renderAuthModal();
+    } catch (e) {
+      console.error('Auth renderLoginUI error:', e);
     }
-    renderAuthModal();
   }
 
   function renderAuthModal() {
@@ -287,9 +290,9 @@ const AgentLearn = window.AgentLearn || {};
     document.addEventListener('keydown', handleEscKey);
 
     // 显示动画
-    requestAnimationFrame(function() {
-      modalEl.classList.add('auth-modal-visible');
-    });
+    setTimeout(function() {
+      if (modalEl) modalEl.classList.add('auth-modal-visible');
+    }, 10);
 
     activeTab = 'login';
   }
@@ -350,9 +353,9 @@ const AgentLearn = window.AgentLearn || {};
 
     document.addEventListener('keydown', handleEscKey);
 
-    requestAnimationFrame(function() {
-      modalEl.classList.add('auth-modal-visible');
-    });
+    setTimeout(function() {
+      if (modalEl) modalEl.classList.add('auth-modal-visible');
+    }, 10);
   }
 
   function switchTab(tab) {

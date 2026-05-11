@@ -853,46 +853,5 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- PWA Install Button -->
-<!-- PWA安装按钮 - 始终可见 -->
-<div id="installBanner" style="display:block;position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:999;background:linear-gradient(135deg,#00e5ff,#b44aee);color:#fff;padding:14px 28px;border-radius:30px;box-shadow:0 8px 32px rgba(0,229,255,0.5);cursor:pointer;font-weight:700;font-size:15px;white-space:nowrap;animation:pulse 2s infinite;font-family:var(--font-body);text-align:center;" onclick="window._pwaInstall()">
-  📲 点我安装App到桌面
-</div>
-<script>
-var _deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  _deferredPrompt = e;
-});
-
-window._pwaInstall = function() {
-  if (_deferredPrompt) {
-    _deferredPrompt.prompt();
-    _deferredPrompt.userChoice.then(function(r) {
-      document.getElementById('installBanner').style.display = r.outcome === 'accepted' ? 'none' : 'block';
-      _deferredPrompt = null;
-    });
-    return;
-  }
-  // 无原生PWA事件时的浏览器指引
-  var ua = navigator.userAgent;
-  var browser = '';
-  if (/Huawei/i.test(ua) || /HUAWEI/i.test(ua)) browser = '华为浏览器：右上角 ⋮ → 添加到桌面';
-  else if (/Miui/i.test(ua) || /XiaoMi/i.test(ua)) browser = '小米浏览器：底部 ☰ → 添加桌面快捷方式';
-  else if (/QQ/i.test(ua) && /MQQBrowser/i.test(ua)) browser = 'QQ浏览器：底部 ☰ → 添加到桌面';
-  else if (/UCBrowser/i.test(ua) || /UCWEB/i.test(ua)) browser = 'UC浏览器：底部 ☰ → 添加到桌面';
-  else if (/Quark/i.test(ua)) browser = '夸克浏览器：底部 ☰ → 添加到桌面';
-  else if (/Via/i.test(ua)) browser = 'Via浏览器：⋮ → 安装应用';
-  else if (/Baidu/i.test(ua)) browser = '百度浏览器：☰ → 添加至桌面';
-  else if (/Samsung/i.test(ua)) browser = '三星浏览器：⋮ → 添加至主屏幕';
-  else if (/Chrome/i.test(ua)) browser = 'Chrome：⋮ → 添加到主屏幕';
-  else browser = '浏览器菜单 → 添加到桌面/主屏幕';
-
-  alert('📲 安装步骤：\n\n1. 打开浏览器菜单\n2. 找到"添加到桌面"或"添加到主屏幕"\n3. 点击确认\n\n👉 ' + browser + '\n\n已安装后，桌面会出现"Agent学习"图标');
-};
-if (window.matchMedia('(display-mode: standalone)').matches) {
-  document.getElementById('installBanner').style.display = 'none';
-}
-</script>
 </body>
 </html>
